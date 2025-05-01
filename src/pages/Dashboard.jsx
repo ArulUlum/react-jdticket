@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 
 function Dashboard() {
   const [events, setEvents] = useState([]);
@@ -15,7 +16,6 @@ function Dashboard() {
   const [loginError, setLoginError] = useState('');
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
-
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -218,7 +218,9 @@ function Dashboard() {
               />
               <div>
                 <h3 className="font-semibold text-white text-lg">{event.name}</h3>
-                <p className="text-gray-400 text-sm mt-1">{event.start_date}</p>
+                <p className="text-gray-400 text-sm mt-1">
+                  {format(new Date(event.start_date), 'EEE, d MMM yyyy')} {format(new Date(event.start_date), 'HH:mm')} WIB
+                </p>
                 <p className="text-gray-400 text-sm">{event.location}</p>
               </div>
             </div>

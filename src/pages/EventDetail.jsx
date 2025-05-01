@@ -44,6 +44,8 @@ function EventDetail() {
 
   const formattedStartDate = format(startDate, 'EEE, d MMM yyyy');
   
+  const startDay = format(startDate, 'd');         // contoh: "1"
+  const startMonth = format(startDate, 'MMM');     // contoh: "May"
   const formattedStartTime = format(startDate, 'HH:mm');
   const formattedEndTime = format(endDate, 'HH:mm');
 
@@ -126,8 +128,8 @@ function EventDetail() {
           <div className="flex flex-row">
             {/* Calendar Icon */}
             <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
-              <div className="text-[10px]">MAY</div>
-              <div className="text-lg pt-1">1</div>
+              <div className="text-[10px]">{startMonth}</div>
+              <div className="text-lg pt-1">{startDay}</div>
             </div>
             <div className="flex flex-col ml-4">
               <p className="text-sm text-gray-500 mt-1">
