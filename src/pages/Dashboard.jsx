@@ -62,10 +62,10 @@ function Dashboard() {
         setLoginError('Login gagal: ' + response.data.message);
       }
     } catch (err) {
-      if (error.response) {
+      if (err.response) {
         // Server responded with status ≠ 2xx
         setLoginError(`(${error.response.status}) ${error.response.data?.message || 'Server Error'}`);
-      } else if (error.request) {
+      } else if (err.request) {
         // Request sent but no response
         setLoginError('No response from server');
       } else {
@@ -87,60 +87,62 @@ function Dashboard() {
     <div className="bg-[#060810] flex flex-row justify-center w-full">
         <div className="bg-[#060810] w-[1446px] h-[1024px] relative">
             {/* Header */}
-            <div className="flex justify-between items-start mb-8 p-8">
-              <div>
-                  <h1 className="text-3xl font-bold">Browse Event</h1>
-                  <p className="text-gray-400 text-lg mt-2">
-                  Explore popular events near you, browse by category, or check out some of the great community calendars.
-                  </p>
-              </div>
-              
-              {/* Create Event & Profile Picture */}
-              <div className="flex items-center gap-6">
-                {isLoggedIn ? (
-                  <>
+            <div className="flex flex-col mb-8 p-8">
+              <div className="flex justify-end">
+                {/* Create Event & Profile Picture */}
+                <div className="flex items-center gap-6">
+                  {isLoggedIn ? (
+                    <>
+                      <button
+                        onClick={() => navigate('/create-event')}
+                        className="bg-white text-black px-4 py-2 rounded-md hover:bg-gray-200"
+                      >
+                        Create Event
+                      </button>
+                      <div className="relative">
+                        <img
+                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
+                          alt="Profile"
+                          className="w-10 h-10 rounded-full cursor-pointer border-2 border-white"
+                          onClick={() => setShowUserMenu(!showUserMenu)}
+                        />
+                        {showUserMenu && (
+                          <div className="absolute right-0 mt-2 w-40 bg-[#1f1f2e] rounded-lg shadow-xl border border-gray-700 z-50">
+                            <div className="px-4 py-2 text-sm text-white border-b border-gray-600">
+                              {user.name || user.email}
+                            </div>
+                            <button
+                              onClick={() => {
+                                handleLogout();
+                                setShowUserMenu(false);
+                              }}
+                              className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-[#2a2a3c] hover:text-red-300 transition-colors"
+                            >
+                              Logout
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : (
                     <button
-                      onClick={() => navigate('/create-event')}
+                      onClick={() => setShowLoginModal(true)}
                       className="bg-white text-black px-4 py-2 rounded-md hover:bg-gray-200"
                     >
-                      Create Event
+                      Login
                     </button>
-                    <div className="relative">
-                      <img
-                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
-                        alt="Profile"
-                        className="w-10 h-10 rounded-full cursor-pointer border-2 border-white"
-                        onClick={() => setShowUserMenu(!showUserMenu)}
-                      />
-                      {showUserMenu && (
-                        <div className="absolute right-0 mt-2 w-40 bg-[#1f1f2e] rounded-lg shadow-xl border border-gray-700 z-50">
-                          <div className="px-4 py-2 text-sm text-white border-b border-gray-600">
-                            {user.name || user.email}
-                          </div>
-                          <button
-                            onClick={() => {
-                              handleLogout();
-                              setShowUserMenu(false);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-[#2a2a3c] hover:text-red-300 transition-colors"
-                          >
-                            Logout
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => setShowLoginModal(true)}
-                    className="bg-white text-black px-4 py-2 rounded-md hover:bg-gray-200"
-                  >
-                    Login
-                  </button>
-                )}
-              </div>
+                  )}
+                </div>
 
+              </div>
+                <div>
+                  <h1 className="text-3xl font-bold">Browse Event</h1>
+                  <p className="text-gray-400 text-lg mt-2">
+                    Explore popular events near you, browse by category, or check out some of the great community calendars.
+                  </p>
+                </div>
             </div>
+            
             {/* Login Modal */}
             {showLoginModal && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100">
