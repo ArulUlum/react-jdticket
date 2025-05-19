@@ -1,7 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import CreateEvent from './pages/CreateEvent';
-import EventDetail from './pages/EventDetail';
+import EventDetailGuest from './pages/EventDetailGuest';
+import UserProfile from './pages/UserProfil';
+import EventDetailHost from './pages/EventDetailHost';
+import QRScanner from './pages/QRScanner';
 
 function App() {
   return (
@@ -9,7 +12,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/create-event" element={<CreateEvent />} />
-        <Route path="/event/:id" element={<EventDetail />} />
+        <Route path="/event/:id" element={<EventDetailGuest />} />
+        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/event-detail/:id" element={<EventDetailHost />} />
+        <Route path="/scan" element={<QRScanner />} />
       </Routes>
     </Router>
   );

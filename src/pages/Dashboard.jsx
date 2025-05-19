@@ -23,6 +23,7 @@ function Dashboard() {
     if (token) {
       setIsLoggedIn(true);
       setUser(userData);
+      checkTokenValidity(); // <- panggil cek token
     }
 
     fetchEvents();
@@ -30,7 +31,7 @@ function Dashboard() {
 
   const fetchEvents = async () => {
     try {
-      const response = await axios.get('https://jdticket-production.up.railway.app/events/getall');
+      const response = await axios.get('https://jdticket-production.up.railway.app/events/get-all');
       setEvents(response.data.data); // <- sesuaikan dengan format response API kamu
     } catch (err) {
       console.error(err);
@@ -83,6 +84,25 @@ function Dashboard() {
     setIsLoggedIn(false);
   };
 
+  const checkTokenValidity = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+  
+    try {
+      await axios.get('https://jdticket-production.up.railway.app/user/check-token', {
+        headers: {
+          'x-jdticket': token
+        }
+      });
+      // token valid
+    } catch (err) {
+      console.error('Token invalid or expired:', err);
+      handleLogout();
+      navigate('/'); // redirect ke home atau login
+    }
+  };
+  
+
   return (
     <div className="bg-[#060810] w-full min-h-screen relative px-8 text-white">
         {/* Header */}
@@ -99,29 +119,62 @@ function Dashboard() {
                     Create Event
                   </button>
                   <div className="relative">
-                    <img
-                      src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full cursor-pointer border-2 border-white"
-                      onClick={() => setShowUserMenu(!showUserMenu)}
-                    />
-                    {showUserMenu && (
-                      <div className="absolute right-0 mt-2 w-40 bg-[#1f1f2e] rounded-lg shadow-xl border border-gray-700 z-50">
-                        <div className="px-4 py-2 text-sm text-white border-b border-gray-600">
-                          {user.name || user.email}
+                  <img
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full cursor-pointer border-2 border-white"
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                  />
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-64 bg-[#1f1f2e] rounded-xl shadow-lg border border-gray-700 z-50">
+                      {/* Header */}
+                      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-700">
+                        <img
+                          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
+                          alt="Profile"
+                          className="w-10 h-10 rounded-full"
+                        />
+                        <div>
+                          <div className="text-white font-medium">{user.name || 'User'}</div>
+                          <div className="text-sm text-gray-400">{user.email}</div>
                         </div>
+                      </div>
+
+                      {/* Menu */}
+                      <div className="flex flex-col py-2">
                         <button
+                          className="px-4 py-2 text-left text-sm text-white hover:bg-white/20 transition rounded-md"
+                          style={{ backgroundColor: 'transparent' }}
+                          onClick={() => {
+                            navigate("/profile");
+                          }}
+                        >
+                          View Profile
+                        </button>
+                        <button
+                          className="px-4 py-2 text-left text-sm text-white hover:bg-white/10 transition rounded-md"
+                          style={{ backgroundColor: 'transparent' }}
+                          onClick={() => {
+                            setShowUserMenu(false);
+                            // Tambahkan aksi
+                          }}
+                        >
+                          Settings
+                        </button>
+                        <button
+                          className="px-4 py-2 text-left text-sm text-red-400 hover:bg-white/10 hover:text-red-300 transition rounded-md"
+                          style={{ backgroundColor: 'transparent' }}
                           onClick={() => {
                             handleLogout();
                             setShowUserMenu(false);
                           }}
-                          className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-[#2a2a3c] hover:text-red-300 transition-colors"
                         >
-                          Logout
+                          Sign Out
                         </button>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
+                </div>
                 </>
               ) : (
                 <button

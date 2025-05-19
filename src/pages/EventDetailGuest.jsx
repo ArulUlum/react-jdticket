@@ -8,16 +8,36 @@ import { format } from 'date-fns';
 import { FaMapPin } from 'react-icons/fa'; 
 import { useNavigate } from 'react-router-dom';
 
-function EventDetail() {
+function EventDetailGuest() {
   const { id } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [quantities, setQuantities] = useState({});
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: ''
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
     axios.get(`https://jdticket-production.up.railway.app/events/get/${id}`)
       .then((res) => {
-        setEvent(res.data.data);
+        const data = res.data.data;
+        setEvent(data);
+        // Inisialisasi quantity 0 untuk setiap jenis tiket
+        const initialQuantities = {};
+        if (data.list_ticket?.length === 1) {
+          initialQuantities[data.list_ticket[0].id] = 1;
+        } else {
+          data.list_ticket?.forEach(ticket => {
+            initialQuantities[ticket.id] = 0;
+          });
+        }
+        setQuantities(initialQuantities);
       })
       .catch(() => {
         setEvent(null);
@@ -48,6 +68,67 @@ function EventDetail() {
   const startMonth = format(startDate, 'MMM');     // contoh: "May"
   const formattedStartTime = format(startDate, 'HH:mm');
   const formattedEndTime = format(endDate, 'HH:mm');
+
+  const increaseQty = (ticketId) => {
+    setQuantities(prev => ({ ...prev, [ticketId]: prev[ticketId] + 1 }));
+  };
+  
+  const decreaseQty = (ticketId) => {
+    setQuantities(prev => ({
+      ...prev,
+      [ticketId]: Math.max(prev[ticketId] - 1, 0)
+    }));
+  };
+
+  const handleRegister = () => {
+    const total = Object.values(quantities).reduce((sum, qty) => sum + qty, 0);
+    if (total === 0) {
+      setErrorMessage('Minimal 1 tiket untuk registrasi');
+      return;
+    }
+  
+    setErrorMessage('');
+    setShowModal(true);
+    console.log('Lanjut ke registrasi', quantities);
+  };
+  
+  const handleSubmitRegister = async (e) => {
+    e.preventDefault();
+  
+    if (!formData.name || !formData.email || !formData.phone) {
+      alert('Semua field harus diisi!');
+      return;
+    }
+  
+    const tickets = Object.entries(quantities).map(([id, jumlah]) => ({
+      id: parseInt(id),
+      jumlah
+    }));
+    
+    setIsRegistered(true);
+    try {
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        no_hp: formData.phone,
+        event_id: event.id,
+        tickets
+      };
+  
+      const response = await axios.post(
+        'https://jdticket-production.up.railway.app/events/regis',
+        payload
+      );
+  
+      alert(response.data.message);
+      setShowModal(false);
+    } catch (err) {
+      console.error(err);
+      setIsRegistered(false);
+      alert('Registrasi gagal.');
+    }
+  };
+  
 
   return (
     <div className="bg-[#060810] text-white min-h-screen py-12 px-6">
@@ -156,14 +237,110 @@ function EventDetail() {
 
           {/* Register Box */}
           <div className="bg-[#1a1c29] p-6 rounded-lg border border-gray-700">
-            <h2 className="text-xl font-semibold mb-2">Registration</h2>
+            <h2 className="text-xl font-semibold mb-4">Registration</h2>
             <p className="text-sm text-gray-400 mb-4">
               Welcome! To join the event, please register below.
             </p>
-            <button className="bg-white text-black px-4 py-2 rounded hover:bg-gray-300">
+            {event.list_ticket?.map(ticket => (
+              <div
+                key={ticket.id}
+                className="flex justify-between items-center bg-[#11162a] rounded-lg px-4 py-3 mb-4 border border-white/20"
+              >
+                <div>
+                  <h3 className="text-white text-md font-semibold">{ticket.name}</h3>
+                  <p className="text-sm text-gray-400"> 
+                    {ticket.price === 0 ? 'Free' : `Rp ${ticket.price.toLocaleString()}`}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => decreaseQty(ticket.id)}
+                    className="w-6 h-6 bg-black text-white text-sm rounded flex items-center justify-center"
+                  >
+                    –
+                  </button>
+                  <span className="w-6 text-center">{quantities[ticket.id]}</span>
+                  <button
+                    onClick={() => increaseQty(ticket.id)}
+                    className="w-6 h-6 bg-white text-black text-sm rounded flex items-center justify-center"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            ))}
+            {errorMessage && (
+              <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
+            )}
+            <button
+              className="bg-white text-black w-full py-2 mt-4 rounded hover:bg-gray-300"
+              onClick={handleRegister}
+            >
               Register
             </button>
           </div>
+
+          {/* Register Modal */}
+          {showModal && (
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-start pt-10">
+              <div className="bg-[#1a1c29] p-6 rounded-lg w-[90%] max-w-md shadow-lg relative border border-blue-500">
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="absolute top-3 right-3 text-white text-xl font-bold"
+                >
+                  ×
+                </button>
+
+                <h2 className="text-2xl font-bold mb-4 text-white">Your Info</h2>
+
+                <form className="space-y-4" onSubmit={handleSubmitRegister}>
+                  <div>
+                    <label className="block text-sm text-white mb-1">Name *</label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-3 py-2 rounded bg-[#2a2d3e] text-white"
+                      placeholder="Your Name"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-white mb-1">Email *</label>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-3 py-2 rounded bg-[#2a2d3e] text-white"
+                      placeholder="you@gmail.com"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-white mb-1">Phone Number *</label>
+                    <input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className="w-full px-3 py-2 rounded bg-[#2a2d3e] text-white"
+                      placeholder="08XXXXXXXX"
+                      required
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="bg-white text-black w-full py-2 rounded hover:bg-gray-300 mt-4 disabled:opacity-50"
+                    disabled={isRegistered}
+                  >
+                    {isRegistered ? 'Registered...' : 'Register'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
 
           {/* About Section */}
           <div>
@@ -190,4 +367,4 @@ function EventDetail() {
   );
 }
 
-export default EventDetail;
+export default EventDetailGuest;
