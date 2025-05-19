@@ -29,10 +29,18 @@ function QRScanner() {
             const event_id = parts[1] || null;
             const token_received = parts[2] || null;
             try {
-              const res = await axios.post('https://jdticket-production.up.railway.app/user/get-user-scan', {
+              const res = await axios.post(
+              'https://jdticket-production.up.railway.app/user/get-user-scan',
+              {
                 event_id,
                 token_received,
-              });
+              },
+              {
+                headers: {
+                  'x-jdticket': localStorage.getItem('token') || '',
+                },
+              }
+            );
               setUserData(res.data.data);
               setShowModal(true);
             } catch (err) {
@@ -59,15 +67,21 @@ function QRScanner() {
   }, [scanned]);
 
   const handleCheckIn = async () => {
+    const invoice_code = userData.invoice_code;
     try {
-      await axios.post('https://jdticket-production.up.railway.app/api/check-in', {
-        event_id: userData.event_id,
-        email: userData.email,
-      });
-      alert('✅ Check-in berhasil!');
+      await axios.post(
+        'https://jdticket-production.up.railway.app/user/checkin-user',
+        { invoice_code },
+        {
+          headers: {
+            'x-jdticket': localStorage.getItem('token') || '',
+          },
+        }
+      );
+      alert('✅ Check in Successfull');
       setShowModal(false);
     } catch (err) {
-      alert('❌ Gagal check-in');
+      alert('❌ Failed check-in');
     }
   };
 
@@ -112,12 +126,25 @@ function QRScanner() {
                 {userData.role}
               </span>
             </div>
-            <div className="text-center text-gray-400 mb-1 text-sm">Registered</div>
-            <div className="text-center mb-4">{userData.create_at || '18 May 2025, 21:35 WIB'}</div>
-            <div className="flex gap-4">
-              <button onClick={() => setShowModal(false)} className="flex-1 py-2 rounded bg-[#2a2a2a]">Cancel</button>
-              <button onClick={handleCheckIn} className="flex-1 py-2 rounded bg-green-500 text-black font-semibold">Check In</button>
-            </div>
+            {/* Kalau sudah check-in */}
+            {userData.is_checkin === true ? (
+              <>
+                <div className="text-center text-gray-400 mb-1 text-sm">Check in</div>
+                <div className="text-center mb-4">{userData.checkin_date}</div>
+                <div className="flex gap-4">
+                  <button onClick={() => setShowModal(false)} className="flex-1 py-2 rounded bg-red-500 text-white font-semibold">Already Check in</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-center text-gray-400 mb-1 text-sm">Registered</div>
+                <div className="text-center mb-4">{userData.create_date}</div>
+                <div className="flex gap-4">
+                  <button onClick={() => setShowModal(false)} className="flex-1 py-2 rounded bg-[#2a2a2a]">Cancel</button>
+                  <button onClick={handleCheckIn} className="flex-1 py-2 rounded bg-green-500 text-black font-semibold">Check In</button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
