@@ -47,7 +47,7 @@ function UserProfile() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto min-h-screen relative px-8 py-8 text-white">
+    <div className="max-w-3xl mx-auto">
       {/* Profile Header */}
       <div className="flex space-x-4 p-8">
         <img

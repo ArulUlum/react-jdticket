@@ -131,7 +131,7 @@ function EventDetailGuest() {
   
 
   return (
-    <div className="bg-[#060810] text-white min-h-screen py-12 px-6">
+    <div>
       <div className="max-w-[1250px] mx-auto px-6 flex justify-between items-center mb-6">
 
         <button

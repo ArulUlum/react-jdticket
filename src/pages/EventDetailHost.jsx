@@ -54,12 +54,7 @@ function EventDetailHost() {
   const formattedEndTime = format(endDate, 'HH:mm');
 
   return (
-    <div
-      className="min-h-screen relative overflow-hidden text-white py-12 px-6"
-      style={{
-        background: 'linear-gradient(151.79deg, rgba(0, 28, 25, 1) 0%, rgba(9, 9, 9, 1) 100%)'
-      }}
-    >
+    <div>
       <div className="max-w-5xl mx-auto">
         <div className="text-3xl font-bold mb-2">{event.name}</div>
         <div className="flex gap-4 mb-6">
