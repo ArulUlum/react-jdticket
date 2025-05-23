@@ -26,7 +26,7 @@ function Dashboard() {
   };
 
   return (
-    <div>
+    <div className="max-w-3xl mx-auto">
       <div className='flex flex-col mb-8 px-8'>
         <h1 className="text-3xl font-bold">Browse Event</h1>
         <p className="text-gray-400 text-lg mt-2">
@@ -52,7 +52,7 @@ function Dashboard() {
             <div 
               key={event.id}
               onClick={() => navigate(`/event/${event.id}`)} 
-              className="flex items-start gap-4 bg-[#1a1c29] p-4 rounded-lg hover:bg-gray-700"
+              className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-700"
             >
               <img
                 src={event.image || 'https://source.unsplash.com/random/100x100?concert'}

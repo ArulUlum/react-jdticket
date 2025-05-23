@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import GoogleLoginCustom from './GoogleLoginCustom';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 
- function LoginPage() {
+function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,6 +35,7 @@ import axios from "axios";
   };
 
   return (
+    <GoogleOAuthProvider clientId="785284739839-i6i68i0ft8ep1bqf9ogdrkg9i38rutcs.apps.googleusercontent.com">
     <div className="flex justify-center items-center h-screen bg-[#1a1c29] text-white">
       <div className="bg-[#2a2d3e] p-6 rounded-lg w-[400px] shadow-lg">
         <h2 className="text-xl font-bold mb-4 text-center">Login</h2>
@@ -75,8 +78,10 @@ import axios from "axios";
             </button>
           </div>
         </form>
+        <GoogleLoginCustom />
       </div>
     </div>
+    </GoogleOAuthProvider>
   );
 }
 

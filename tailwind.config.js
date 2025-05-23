@@ -15,6 +15,13 @@ export default {
       animation: {
         pulseShrink: 'pulseShrink 2s ease-in-out infinite',
       },
+      colors: {
+        strokesss: "#212121",
+      },
+      fontFamily: {
+        lexend: ['Lexend', 'sans-serif'],
+        satoshi: ['Satoshi', 'sans-serif'],
+      },
     },
   },
   plugins: [],

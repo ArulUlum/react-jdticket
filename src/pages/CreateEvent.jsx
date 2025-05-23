@@ -2,8 +2,37 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { format, addMinutes } from 'date-fns';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import {
+  Eye,
+  Calendar,
+  Clock,
+  MapPin,
+  Edit,
+  CreditCard,
+  Lock,
+  X,
+  Users,
+  Video,
+  ImagePlus 
+} from "lucide-react";
+
+const SelectBox = ({ icon, label, rightIcon }) => (
+  <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full max-w-md">
+    <div className="flex items-center gap-2.5">
+      <img src={icon} alt="" className="w-6 h-6" />
+      <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">{label}</span>
+    </div>
+    <img src={rightIcon} alt="" className="w-6 h-6" />
+  </div>
+);
 
 function CreateEvent() {
+  const now = new Date();
+  const roundedNow = new Date(Math.ceil(now.getTime() / (30 * 60000)) * 30 * 60000);
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -19,6 +48,42 @@ function CreateEvent() {
   const [ticketInput, setTicketInput] = useState({ name: '', price: '', max_capacity: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [visibility, setVisibility] = useState("Public");
+  const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
+  const [startDate, setStartDate] = useState(now);
+  const [endDate, setEndDate] = useState(now);
+  const [startTime, setStartTime] = useState(roundedNow);
+  const [endTime, setEndTime] = useState(addMinutes(roundedNow, 60));
+  const [locationInput, setLocationInput] = useState("");
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [showLocationOptions, setShowLocationOptions] = useState(false);
+  const [capacityMode, setCapacityMode] = useState("unlimited");
+  const [customCapacity, setCustomCapacity] = useState("");
+  const [eventType, setEventType] = useState("Free Event");
+  const [showEventTypeOptions, setShowEventTypeOptions] = useState(false);
+  const [requireApproval, setRequireApproval] = useState(true);
+  const [eventImage, setEventImage] = useState("https://wallpapercave.com/wp/wp9297718.jpg");
+  const [eventName, setEventName] = useState("");
+  const [description, setDescription] = useState("");
+  const [tags, setTags] = useState("");
+
+  const fetchLocationSuggestions = async (input) => {
+    try {
+      const response = await axios.get("https://maps.googleapis.com/maps/api/place/autocomplete/json", {
+        params: {
+          input,
+          key: "AIzaSyDBnmmNXN3uCvSfjxeGafgUnRxtWxxLbOw",
+          components: "country:ID"
+        },
+        headers: {
+          "x-requested-with" : "XMLHttpRequest"
+        }
+      });
+      setLocationSuggestions(response.data.predictions);
+    } catch (error) {
+      console.error("Error fetching Google Places suggestions", error);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -103,183 +168,286 @@ function CreateEvent() {
   };
 
   return (
-    <div className="bg-[#060810] w-full min-h-screen relative p-20 text-white">
-      <div className="max-w-[1250px] mx-auto px-6 mb-6">
-        <div className="flex justify-between items-center">
-          <button
-            onClick={() => navigate('/')}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded"
+    <div className="flex flex-col lg:flex-row gap-6 p-4 justify-center items-start">
+      {/* Left Card */}
+      <div className="bg-bg-card rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[350px] p-4 relative">
+        <label htmlFor="image-upload" className="relative w-full flex justify-center cursor-pointer">
+          <img
+            className="rounded-[7px] w-full h-[317px] object-cover"
+            src={eventImage}
+            alt="Event Preview"
+          />
+          <label
+            htmlFor="image-upload"
+            className="absolute bottom-[12px] right-[12px] w-[43px] h-[43px] rounded-full border border-white bg-bg-card flex items-center justify-center cursor-pointer group"
           >
-            ←
-          </button>
-          <h1 className="text-3xl font-bold">Create Event</h1>
+            <ImagePlus className="w-5 h-5 text-white group-hover:text-green-500 transition-colors duration-200" />
+          </label>
+          <input
+            id="image-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => setEventImage(reader.result);
+                reader.readAsDataURL(file);
+              }
+            }}
+          />
+        </label>
+
+        <div className="space-y-4 mt-6">
+          <input
+            type="text"
+            placeholder="Event Name"
+            value={eventName}
+            onChange={(e) => setEventName(e.target.value)}
+            className="w-full bg-[#0f0f0f] border border-putih-parah rounded-lg p-4 text-grey-in-white font-['Satoshi-Medium'] text-base outline-none"
+          />
+          <textarea
+            placeholder="Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full bg-[#0f0f0f] border border-putih-parah rounded-lg p-4 text-grey-in-white font-['Satoshi-Medium'] text-base outline-none resize-none h-16"
+          />
+          <input
+            type="text"
+            placeholder="Add tags..."
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            className="w-full bg-[#0f0f0f] border border-strokesss rounded-lg p-4 text-grey-in-white font-['Satoshi-Medium'] text-base outline-none"
+          />
         </div>
       </div>
 
-      <div className="max-w-[1250px] mx-auto px-6">
-        <form onSubmit={handleSubmit} className="w-full flex flex-col lg:flex-row gap-8">
-          <div className="w-full lg:w-1/3">
-            <div className="bg-gray-400 rounded-xl w-full aspect-square"></div>
+      {/* Right Card */}
+      <div className="bg-bg-card rounded-[10px] border border-strokesss border-solid w-full max-w-3xl p-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-y-4 gap-x-6 items-center">
+          {/* Visibility */}
+          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+            Visibility
           </div>
-
-          <div className="w-full lg:w-2/3 space-y-4">
-            <input
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-gray-800 text-white"
-              placeholder="Event Name"
-            />
-
-            <div className="flex gap-4">
-              <input
-                type="datetime-local"
-                name="start"
-                value={formData.start}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-800 text-white"
-              />
-              <input
-                type="datetime-local"
-                name="end"
-                value={formData.end}
-                onChange={handleChange}
-                className="w-full p-2 rounded bg-gray-800 text-white"
-              />
-            </div>
-
-            <input
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-gray-800 text-white"
-              placeholder="Location"
-            />
-
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-gray-800 text-white"
-              placeholder="Description"
-              rows={3}
-            />
-
-            <input
-              type="number"
-              name="capacity"
-              value={formData.capacity}
-              onChange={handleChange}
-              className="w-full p-2 rounded bg-gray-800 text-white"
-              placeholder="Total Capacity"
-            />
-
-            <div>
-              <h2 className="text-xl font-bold mb-2">Ticket Option</h2>
-              <div className="flex gap-4">
-                <div
-                  onClick={() => openModal('Free')}
-                  className="cursor-pointer bg-[#1b2141] p-6 rounded-xl text-center w-1/2 hover:bg-[#2a335f]"
-                >
-                  Free
-                </div>
-                <div
-                  onClick={() => openModal('Paid')}
-                  className="cursor-pointer bg-[#1b2141] p-6 rounded-xl text-center w-1/2 hover:bg-[#2a335f]"
-                >
-                  Paid
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-2">Added Tickets:</h3>
-              <ul className="space-y-2">
-                {tickets.map((ticket, index) => (
-                  <li
-                    key={index}
-                    className="bg-gray-800 p-4 rounded flex justify-between items-center"
-                  >
-                    <div>
-                      <strong>{ticket.name}</strong> - {ticket.price === 0 ? 'Free' : `Rp ${ticket.price}`} ({
-                        ticket.max_capacity
-                      } pcs)
-                    </div>
-                    <button
-                      onClick={() => handleRemoveTicket(index)}
-                      className="text-red-400 hover:text-red-600 ml-4"
-                    >
-                      ✕
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {submitError && <div className="text-red-500 font-semibold">{submitError}</div>}
-
-            <button
-              type="submit"
-              className="bg-white text-black font-semibold px-4 py-2 rounded hover:bg-gray-200 disabled:opacity-50 w-full"
-              disabled={isSubmitting}
+          <div className="relative w-full">
+            <div
+              onClick={() => setShowVisibilityOptions(!showVisibilityOptions)}
+              className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 cursor-pointer"
             >
-              {isSubmitting ? 'Creating...' : 'Create Event'}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {showTicketModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#1a1c29] p-6 rounded-lg w-[400px] shadow-lg">
-            <h2 className="text-xl font-bold mb-4 text-center">Add {selectedType} Ticket</h2>
-            <div className="space-y-4">
-              <input
-                name="name"
-                value={ticketInput.name}
-                onChange={handleTicketInputChange}
-                placeholder="Ticket Name"
-                className="w-full p-2 rounded bg-[#2a2d3e] text-white"
-              />
-              {selectedType === 'Paid' && (
-                <input
-                  name="price"
-                  type="number"
-                  value={ticketInput.price}
-                  onChange={handleTicketInputChange}
-                  placeholder="Ticket Price"
-                  className="w-full p-2 rounded bg-[#2a2d3e] text-white"
-                />
-              )}
-              <input
-                name="max_capacity"
-                type="number"
-                value={ticketInput.max_capacity}
-                onChange={handleTicketInputChange}
-                placeholder="Max Capacity"
-                className="w-full p-2 rounded bg-[#2a2d3e] text-white"
-              />
-              <div className="flex justify-between items-center mt-4">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="text-gray-400 hover:text-white"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleAddTicket}
-                  className="bg-white text-black px-4 py-2 rounded hover:bg-gray-200"
-                >
-                  Add Ticket
-                </button>
+              <div className="flex items-center gap-2.5">
+                <Eye className="w-5 h-5 text-white" />
+                <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">{visibility}</span>
               </div>
+              <span className="text-white text-sm">▼</span>
+            </div>
+            {showVisibilityOptions && (
+              <div className="absolute z-10 mt-2 w-full bg-[#0f0f0f] border border-strokesss rounded-lg shadow-md">
+                {['Public', 'Private'].map(option => (
+                  <div
+                    key={option}
+                    className="px-4 py-2 hover:bg-gray-800 text-white cursor-pointer"
+                    onClick={() => {
+                      setVisibility(option);
+                      setShowVisibilityOptions(false);
+                    }}
+                  >
+                    {option}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Start Date */}
+          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+            Start
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <DatePickerBox value={startDate} onChange={setStartDate} />
+            <TimePickerBox value={startTime} onChange={setStartTime} />
+          </div>
+
+          {/* End Date */}
+          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+            End
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <DatePickerBox value={endDate} onChange={setEndDate} />
+            <TimePickerBox value={endTime} onChange={setEndTime} />
+          </div>
+
+          {/* Location */}
+          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+            Location
+          </div>
+          <div className="relative w-full">
+            <div className="flex items-center gap-2.5 bg-[#0f0f0f] border border-strokesss rounded-lg p-4">
+              <MapPin className="w-5 h-5 text-white" />
+              <input
+                value={locationInput}
+                onChange={e => {
+                  const val = e.target.value;
+                  setLocationInput(val);
+                  setShowLocationOptions(true);
+                  if (val.length > 1) fetchLocationSuggestions(val);
+                }}
+                placeholder="Enter location or virtual link"
+                className="bg-transparent outline-none text-white w-full font-['Satoshi-Medium']"
+              />
+              <X className="w-5 h-5 text-white cursor-pointer" onClick={() => setLocationInput("")} />
+            </div>
+            {showLocationOptions && locationInput && (
+              <div className="absolute z-10 w-full bg-[#0f0f0f] border border-strokesss rounded-lg mt-2 shadow-lg max-h-[300px] overflow-y-auto">
+                {locationSuggestions.map((item, i) => (
+                  <div
+                    key={i}
+                    className="px-4 py-2 hover:bg-gray-800 cursor-pointer text-white"
+                    onClick={() => {
+                      setLocationInput(item.description);
+                      setShowLocationOptions(false);
+                    }}
+                  >
+                    <div className="font-semibold">{item.structured_formatting.main_text}</div>
+                    <div className="text-xs text-gray-400">{item.structured_formatting.secondary_text}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Capacity */}
+          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+            Capacity
+          </div>
+          {capacityMode === "unlimited" ? (
+            <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4">
+              <div className="flex items-center gap-2.5">
+                <Users className="w-5 h-5 text-white" />
+                <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">Unlimited</span>
+              </div>
+              <Edit className="w-4 h-4 text-white cursor-pointer" onClick={() => setCapacityMode("custom")} />
+            </div>
+          ) : (
+            <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4">
+              <div className="flex items-center gap-2.5 w-full">
+                <Users className="w-5 h-5 text-white" />
+                <input
+                  type="number"
+                  min={1}
+                  value={customCapacity}
+                  onChange={(e) => setCustomCapacity(e.target.value)}
+                  placeholder="Enter capacity"
+                  className="bg-transparent text-white outline-none w-full font-['Satoshi-Medium']"
+                />
+              </div>
+              <X className="w-4 h-4 text-white cursor-pointer" onClick={() => { setCapacityMode("unlimited"); setCustomCapacity(""); }} />
+            </div>
+          )}
+
+          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+            Event Type
+          </div>
+          <div className="relative w-full">
+            <div
+              onClick={() => setShowEventTypeOptions(!showEventTypeOptions)}
+              className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <CreditCard className="w-5 h-5 text-white" />
+                <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+                  {eventType}
+                </span>
+              </div>
+              <span className="text-white text-sm">▼</span>
+            </div>
+
+            {showEventTypeOptions && (
+              <div className="absolute z-10 mt-2 w-full bg-[#0f0f0f] border border-strokesss rounded-lg shadow-md">
+                {["Free Event", "Paid Event"].map((option) => (
+                  <div
+                    key={option}
+                    className="px-4 py-2 hover:bg-gray-800 text-white cursor-pointer"
+                    onClick={() => {
+                      setEventType(option);
+                      setShowEventTypeOptions(false);
+                    }}
+                  >
+                    {option}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+
+          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+            Approval
+          </div>
+          <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full">
+            <div className="flex items-center gap-2.5">
+              <Lock className="w-5 h-5 text-white" />
+              <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+                {requireApproval ? "Require Approval" : "No Approval"}
+              </span>
+            </div>
+            <div
+              onClick={() => setRequireApproval(!requireApproval)}
+              className="w-10 h-5 bg-gray-700 rounded-full flex items-center cursor-pointer px-1"
+            >
+              <div
+                className={`w-3 h-3 rounded-full transition-transform duration-300 ${
+                  requireApproval ? "translate-x-5 bg-white" : "translate-x-0 bg-gray-400"
+                }`}
+              />
             </div>
           </div>
         </div>
-      )}
+
+        <div className="flex flex-col sm:flex-row gap-4 pt-6">
+          <button className="bg-[#303030] rounded-lg px-6 py-3 font-bold text-white font-['Satoshi-Bold'] w-full sm:w-1/2">Save as Draft</button>
+          <button className="bg-[#00594F] rounded-lg px-6 py-3 font-bold text-white font-['Satoshi-Bold'] w-full sm:w-1/2">Create Event</button>
+        </div>
+      </div>
     </div>
   );
 }
+
+const DatePickerBox = ({ value, onChange }) => (
+  <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg px-4 py-2 cursor-pointer">
+    <div className="flex items-center gap-2.5 w-full">
+      <Calendar className="w-5 h-5 text-white" />
+      <DatePicker
+        selected={value}
+        onChange={onChange}
+        dateFormat="EEE, MMM d"
+        placeholderText="Select date"
+        className="bg-transparent text-red font-['Satoshi-Medium'] text-base w-full outline-none"
+      />
+    </div>
+    <span className="text-white text-sm">▼</span>
+  </div>
+);
+
+const TimePickerBox = ({ value, onChange }) => (
+  <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg px-4 py-2 cursor-pointer w-full">
+    <div className="flex items-center gap-2.5 w-full">
+      <Clock className="w-5 h-5 text-white" />
+      <DatePicker
+        selected={value}
+        onChange={onChange}
+        showTimeSelect
+        showTimeSelectOnly
+        timeIntervals={30}
+        timeCaption="Time"
+        dateFormat="hh:mm"
+        placeholderText="Select time"
+        className="bg-transparent text-white font-['Satoshi-Medium'] text-base w-full outline-none"
+      />
+    </div>
+    <span className="text-white text-sm">▼</span>
+  </div>
+);
+
 
 export default CreateEvent;

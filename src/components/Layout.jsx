@@ -53,14 +53,22 @@ function Layout() {
       setIsLoggedIn(false);
       navigate('/'); // redirect ke home atau login
     } catch (err) {
-      console.error('Token invalid or expired:', err);
+      console.error('Error:', err);
     }
     
   };
 
   return (
     <>
-      <div className="bg-[#060810] w-full min-h-screen relative px-8 text-white">
+      <div
+        className="relative overflow-hidden pt-24"
+        style={{
+          background: "var(--backgroundd, linear-gradient(151.79deg, rgba(0, 28, 25, 1) 0%, rgba(9, 9, 9, 1) 50%))",
+          backgroundAttachment: "fixed",
+          minHeight: "100vh",
+          color: "#fff"
+        }}
+      >
         <Header user={user} isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
         <main className="px-6">
           <Outlet />
