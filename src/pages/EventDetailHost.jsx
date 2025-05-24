@@ -1,7 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
-import { FaMapPin } from 'react-icons/fa'; 
+import { 
+  UserPlus, 
+  Send, 
+  Share2,
+  CalendarDays,
+  MapPin,
+  Pencil,
+  ScanLine,
+  TrendingUp, 
+  TrendingDown,
+  Eye, 
+  EyeOff
+} from "lucide-react";
 import logo from '../assets/logo.png';
 import axios from 'axios';
 
@@ -10,6 +22,32 @@ function EventDetailHost() {
   const { id } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("Overview");
+  const [visibility, setVisibility] = useState("public");
+
+  const tabs = ["Overview", "Guests", "Registration", "Blast", "Insight", "More"];
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    console.log("Klik tab:", tab);
+  };
+
+  const actions = [
+    {
+      icon: <UserPlus className="w-5 h-5 text-white" />,
+      label: "Invite Guests",
+      onClick: () => console.log("Invite"),
+    },
+    {
+      icon: <Send className="w-5 h-5 text-white" />,
+      label: "Send a Blast",
+      onClick: () => console.log("Blast"),
+    },
+    {
+      icon: <Share2 className="w-5 h-5 text-white" />,
+      label: "Share Event",
+      onClick: () => console.log("Share"),
+    },
+  ];
 
   useEffect(() => {
     axios.get(`https://jdticket-production.up.railway.app/events/get-detail/${id}`,
@@ -23,7 +61,8 @@ function EventDetailHost() {
         const data = res.data.data;
         setEvent(data);
       })
-      .catch(() => {
+      .catch((res) => {
+        console.log(res.data.message)
         setEvent(null);
       })
       .finally(() => setLoading(false));
@@ -41,6 +80,30 @@ function EventDetailHost() {
     );
   }
 
+  const salesData = [
+    {
+      label: "Total Sales",
+      value: event.total_sales,
+      trend: "up",
+      percent: "20%",
+      color: "green",
+    },
+    {
+      label: "Tickets Sold",
+      value: event.ticket_sold + "/" + event.total_ticket,
+      trend: "down",
+      percent: "18%",
+      color: "red",
+    },
+    {
+      label: "Total Visitor",
+      value: "42.584",
+      trend: "up",
+      percent: "75%",
+      color: "green",
+    },
+  ];
+
   if (!event) return <p className="text-red-500">Event not found.</p>;
 
   const startDate = new Date(event.start_date);
@@ -54,115 +117,298 @@ function EventDetailHost() {
   const formattedEndTime = format(endDate, 'HH:mm');
 
   return (
-    <div>
+    <div className="text-white min-h-screen px-4 pb-20">
       <div className="max-w-5xl mx-auto">
-        <div className="text-3xl font-bold mb-2">{event.name}</div>
-        <div className="flex gap-4 mb-6">
-          <button className="bg-white text-black px-4 py-1 rounded-full">Overview</button>
-          <button className="px-4 py-1">Guests</button>
-          <button className="px-4 py-1">Registration</button>
-          <button className="px-4 py-1">Blast</button>
-          <button className="px-4 py-1">Insight</button>
+        <div className="font-['Satoshi-Bold',_sans-serif] text-white mb-6">
+        {/* Title */}
+        <h1 className="text-3xl font-bold mb-4">{event.name}</h1>
+
+        {/* Tab Navigasi */}
+        <div className="flex gap-4">
+          {tabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => handleTabClick(tab)}
+              className={`px-4 py-1 rounded-full text-sm transition-all duration-200 ${
+                activeTab === tab
+                  ? "bg-[#2F645E] text-white"
+                  : "bg-transparent text-gray-400 hover:text-white"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4">
+          {actions.map(({ icon, label, onClick }, i) => (
+            <button
+              key={i}
+              onClick={onClick}
+              className="flex items-center gap-3 bg-[#121212] border border-[#2F645E] rounded-xl px-4 py-2 hover:bg-[#1d1d1d] transition"
+            >
+              <div className="bg-[#2F645E] p-2 rounded-md">
+                {icon}
+              </div>
+              <span className="text-white font-satoshi font-medium text-sm">
+                {label}
+              </span>
+            </button>
+          ))}
         </div>
 
-        <div className="flex gap-4 mb-6">
-          <button className="bg-[#00594F] text-white px-4 py-2 rounded">Invite Guests</button>
-          <button className="bg-[#00594F] text-white px-4 py-2 rounded">Send a Blast</button>
-          <button className="bg-[#00594F] text-white px-4 py-2 rounded">Share Event</button>
-        </div>
-
-        <div className="bg-[#0D1F1E] p-6 rounded-lg flex gap-6 mb-6">
+        {/* Event Card */}
+        <div className="bg-[#121212] rounded-xl p-6 flex gap-6 items-start text-white font-satoshi">
+          {/* Left: Image */}
           <img
-            src="https://images.unsplash.com/photo-1533106418989-88406c7cc8b6"
+            src={event.image || "https://wallpapercave.com/wp/wp9297718.jpg"}
             alt="event"
-            className="w-48 h-32 object-cover rounded"
+            className="w-[250px] h-[200px] object-cover rounded-lg"
           />
+
+          {/* Right: Content */}
           <div className="flex-1">
-            <div>
-              <h1 className="text-3xl font-bold mb-1">{event.name}</h1>
+            <div className="flex justify-between items-start">
+              <h1 className="text-2xl font-bold mb-4">{event.name}</h1>
+              <button className="flex items-center gap-1 text-sm text-white bg-[#1e1e1e] px-3 py-1 rounded-lg border border-[#333] hover:bg-[#2a2a2a] transition">
+                <Pencil className="w-4 h-4" />
+                Edit Event
+              </button>
             </div>
-            
-            <div className="flex flex-row">
-              {/* Calendar Icon */}
-              <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
-                <div className="text-[10px]">{startMonth}</div>
-                <div className="text-lg pt-1">{startDay}</div>
+
+            {/* Date */}
+            <div className="flex items-start gap-3 mb-3">
+              <div className="bg-[#121212] w-10 h-10 rounded-lg border border-[#666] flex flex-col items-center justify-center text-xs leading-tight">
+                <div className="text-gray-400">{startMonth}</div>
+                <div className="text-lg font-bold">{startDay}</div>
               </div>
-              <div className="flex flex-col ml-4">
-                <p className="text-sm text-gray-500 mt-1">
-                  {formattedStartDate}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">
-                  {formattedStartTime} - {formattedEndTime} WIB 
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-row">
-              {/* Map Pointer Icon */}
-              <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
-                <FaMapPin className="text-white text-2xl" />
-              </div>
-              
-              <div className="flex flex-col ml-4">
-                <p className="text-sm text-gray-500 mt-1">
-                  Gambir Expo Kemayoran
-                </p>
-                <p className="text-gray-400">{event.location}</p>
+              <div>
+                <div className="text-sm font-semibold">{formattedStartDate}</div>
+                <div className="text-sm text-gray-400">{formattedStartTime} - {formattedEndTime} WIB</div>
               </div>
             </div>
-            <button onClick={() => navigate('/scan')} className="bg-[#00594F] px-6 py-2 rounded mt-6">
-                Scan QR
+
+            {/* Location */}
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg border border-[#666] flex items-center justify-center">
+                <MapPin className="text-white w-5 h-5" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Gambir Expo Kemayoran</div>
+                <div className="text-sm text-gray-400">
+                  Jakarta Pusat, Daerah Khusus Ibukota Jakarta
+                </div>
+              </div>
+            </div>
+
+            {/* Start Check-In */}
+            <button
+              onClick={() => navigate('/scan')}
+              className="w-full bg-[#2F645E] text-white py-3 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#35796f] transition"
+            >
+              <ScanLine className="w-4 h-4" />
+              Start Check-In
             </button>
           </div>
         </div>
 
-        <div className="mb-6">
-          <div className="font-semibold mb-2">Registration</div>
-          <div className="flex gap-8 text-sm">
-            <div>{event.total_checkin}/{event.total_registered} Guests Checked in</div>
-            <div>{event.checkin_invitees}/{event.total_invitees} Invitees Checked in</div>
-            <div>{event.checkin_guest}/{event.total_guest} Total Registered</div>
+        {/* Registration Info */}
+        <div className="bg-transparent p-6 rounded-xl font-satoshi text-white">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-4">
+            <div className="text-lg font-semibold">Registration</div>
+            <button className="text-sm bg-[#1e1e1e] border border-[#333] px-3 py-1 rounded-lg hover:bg-[#2a2a2a]">
+              View All
+            </button>
           </div>
-          <div className="mt-4 bg-[#0F2625] p-4 rounded">
-            {event.user_checkin.map((r, i) => (
-              <div key={i} className="flex justify-between py-1 border-b border-[#1a2f2e]">
-                <div>{r.name}</div>
-                <div>{r.email}</div>
-                <div><span className="bg-[#1a2f2e] px-2 py-1 rounded text-xs">{r.role}</span></div>
-                <div>{format(new Date(r.checkin_date), 'HH:mm')} WIB</div>
+
+          {/* Stats */}
+          <div className="flex gap-10 mb-6">
+            <div>
+              <span className="text-2xl font-bold">{event.checkin_guest}/{event.total_guest}</span>
+              <div className="text-sm text-gray-400">Guests Checked in</div>
+            </div>
+            <div>
+              <span className="text-2xl font-bold">{event.checkin_invitees}/{event.total_invitees}</span>
+              <div className="text-sm text-gray-400">Invitees Checked in</div>
+            </div>
+            <div>
+              <span className="text-2xl font-bold">{event.total_checkin}/{event.total_registered}</span>
+              <div className="text-sm text-gray-400">Total Registered</div>
+            </div>
+          </div>
+
+          {/* User List */}
+          <div className="bg-[#1A1A1A] rounded-xl overflow-hidden divide-y divide-[#2a2a2a]">
+            {event.user_checkin.map((user, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between px-4 py-3 text-sm"
+              >
+                {/* Left: Avatar & Name */}
+                <div className="flex items-center gap-3">
+                  <img
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full object-cover"
+                  />
+                  <div>
+                    <div className="font-medium">{user.name}</div>
+                    <div className="text-gray-400 text-xs">{user.email}</div>
+                  </div>
+                </div>
+
+                {/* Center: Role */}
+                <div>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                      user.role === "GUEST"
+                        ? "border-green-600 text-green-300"
+                        : "border-blue-600 text-blue-300"
+                    }`}
+                  >
+                    {user.role}
+                  </span>
+                </div>
+
+                {/* Right: Time */}
+                <div className="text-gray-400 text-sm">{format(new Date(user.checkin_date), 'HH:mm')} WIB</div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="mb-6">
-          <div className="font-semibold mb-2">Sales Report</div>
-          <div className="flex gap-6 text-sm">
-            <div>Total Sales: <span className="text-green-400">{event.total_sales}</span></div>
-            <div>Tickets Sold: <span className="text-red-400">{event.ticket_sold}/{event.total_ticket}</span></div>
-            <div>Total Visitor: <span className="text-green-400">1231231231</span></div>
+        {/* Sales Report */}
+        <div className="font-satoshi text-white p-6">
+          {/* Heading */}
+          <div className="mb-2 text-lg font-semibold">Sales Report</div>
+          <p className="text-sm text-gray-400 mb-4">
+            Track how your tickets are selling—see total sales, tickets sold, and total visitor.
+          </p>
+
+          {/* Card Grid */}
+          <div className="flex gap-4 flex-wrap">
+            {salesData.map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-[#1a1a1a] rounded-xl p-4 w-full max-w-[280px] flex-1"
+              >
+                <div className="text-sm text-gray-400 mb-1">{item.label}</div>
+                <div className="text-xl font-bold mb-1">{item.value}</div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-500">All time</span>
+                  <div
+                    className={`flex items-center gap-1 px-2 py-[2px] text-xs font-medium rounded-md ${
+                      item.color === "green"
+                        ? "bg-green-800 text-green-300"
+                        : "bg-red-800 text-red-300"
+                    }`}
+                  >
+                    {item.trend === "up" ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
+                    {item.percent}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="mb-6">
-          <div className="font-semibold mb-2">Hosts</div>
-          {event.hosts.map((host, i) => (
-            <div key={i} className="bg-[#0F2625] p-3 rounded mb-2 flex justify-between">
-              <div>
-                <div>{host.name}</div>
-                <div className="text-sm text-gray-400">{host.email}</div>
+        {/* Hosts */}
+        <div className="font-satoshi text-white p-6">
+          {/* Heading */}
+          <div className="mb-2 text-lg font-semibold">Hosts</div>
+          <p className="text-sm text-gray-400 mb-4">
+            Manage your event team and special guests here.
+          </p>
+
+          {/* Host List */}
+          <div className="space-y-3">
+            {event.hosts.map((host, index) => (
+              <div
+                key={index}
+                className="bg-[#1a1a1a] rounded-xl p-4 flex items-center justify-between"
+              >
+                {/* Left: Avatar, Name, Email */}
+                <div className="flex items-center gap-4">
+                  <img
+                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      host.name
+                    )}&background=random&bold=true`}
+                    alt={host.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div>
+                    <div className="font-medium">{host.name}</div>
+                    <div className="text-sm text-gray-400">{host.email}</div>
+                  </div>
+                </div>
+
+                {/* Right: Role Badge + Add Button (only first) */}
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-3 py-1 text-sm font-medium rounded-full border ${
+                      host.role === "Creator"
+                        ? "border-green-600 text-green-300"
+                        : "border-blue-600 text-blue-300"
+                    }`}
+                  >
+                    {host.role}
+                  </span>
+
+                  {index === 0 && (
+                    <button className="text-sm bg-[#1e1e1e] border border-[#333] px-3 py-1 rounded-lg hover:bg-[#2a2a2a] flex items-center gap-1">
+                      Add Host <span className="text-lg leading-none">+</span>
+                    </button>
+                  )}
+                </div>
               </div>
-              {/* <div className="text-sm px-2 py-1 border rounded border-gray-400">{host.role}</div> */}
-            </div>
-          ))}
-          <button className="mt-2 bg-[#1d4d41] px-4 py-2 rounded">Add Host</button>
+            ))}
+          </div>
         </div>
 
-        <div className="mb-6">
-          <div className="font-semibold mb-2">Visibility & Discovery</div>
+        {/* Visibility */}
+        <div className="font-satoshi text-white p-6">
+          {/* Heading */}
+          <div className="mb-2 text-lg font-semibold">Visibility & Discovery</div>
+          <p className="text-sm text-gray-400 mb-4">
+            Manage how your event appears on search and listings.
+          </p>
+
+          {/* Toggle Buttons */}
           <div className="flex gap-4">
-            <button className="bg-white text-black px-4 py-2 rounded">Public</button>
-            <button className="bg-gray-600 text-white px-4 py-2 rounded" disabled>Private</button>
+            {/* Public Button */}
+            <button
+              onClick={() => setVisibility("public")}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl border text-sm w-full max-w-[200px] justify-center
+                ${
+                  visibility === "public"
+                    ? "border-[#3DAA95] bg-[#1a1a1a] text-white"
+                    : "border-transparent bg-[#1a1a1a] text-gray-500"
+                }`}
+            >
+              <Eye className="w-4 h-4" />
+              Public
+            </button>
+
+            {/* Private Button */}
+            <button
+              onClick={() => setVisibility("private")}
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl border text-sm w-full max-w-[200px] justify-center
+                ${
+                  visibility === "private"
+                    ? "border-[#3DAA95] bg-[#1a1a1a] text-white"
+                    : "border-transparent bg-[#1a1a1a] text-gray-500"
+                }`}
+            >
+              <EyeOff className="w-4 h-4" />
+              Private
+            </button>
           </div>
         </div>
       </div>

@@ -7,12 +7,14 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
   Eye,
+  EyeOff,
   Calendar,
   Clock,
   MapPin,
   Edit,
   CreditCard,
   Lock,
+  Unlock,
   X,
   Users,
   Video,
@@ -69,7 +71,7 @@ function CreateEvent() {
 
   const fetchLocationSuggestions = async (input) => {
     try {
-      const response = await axios.get("https://maps.googleapis.com/maps/api/place/autocomplete/json", {
+      const response = await axios.get("http://localhost:5000/image/autocomplete", {
         params: {
           input,
           key: "AIzaSyDBnmmNXN3uCvSfjxeGafgUnRxtWxxLbOw",
@@ -236,7 +238,11 @@ function CreateEvent() {
               className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
-                <Eye className="w-5 h-5 text-white" />
+                {visibility === 'Public' ? (
+                  <Eye className="w-5 h-5 text-white" />
+                ) : (
+                  <EyeOff className="w-5 h-5 text-white" />
+                )}
                 <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">{visibility}</span>
               </div>
               <span className="text-white text-sm">▼</span>
@@ -386,10 +392,17 @@ function CreateEvent() {
           </div>
           <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full">
             <div className="flex items-center gap-2.5">
-              <Lock className="w-5 h-5 text-white" />
-              <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
-                {requireApproval ? "Require Approval" : "No Approval"}
-              </span>
+              {requireApproval ? (
+                <>
+                  <Lock className="w-5 h-5 text-white" />
+                  <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">Require Approval</span>
+                </>
+              ) : (
+                <>
+                  <Unlock className="w-5 h-5 text-white" />
+                  <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">No Need Approval</span>
+                </>
+              )}
             </div>
             <div
               onClick={() => setRequireApproval(!requireApproval)}
