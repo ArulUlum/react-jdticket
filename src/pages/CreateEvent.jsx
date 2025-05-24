@@ -71,7 +71,7 @@ function CreateEvent() {
 
   const fetchLocationSuggestions = async (input) => {
     try {
-      const response = await axios.get("http://localhost:5000/image/autocomplete", {
+      const response = await axios.get("https://maps.googleapis.com/maps/api/place/autocomplete/json", {
         params: {
           input,
           key: "AIzaSyDBnmmNXN3uCvSfjxeGafgUnRxtWxxLbOw",
