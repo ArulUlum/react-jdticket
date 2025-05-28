@@ -3,6 +3,8 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 
+const urlBe = import.meta.env.VITE_URL_CLAW;
+
 function Layout() {
   const [user, setUser] = useState(() => {
     const data = localStorage.getItem("user");
@@ -26,23 +28,24 @@ function Layout() {
     if (!token) return;
   
     try {
-      await axios.get('https://jdticket-production.up.railway.app/user/check-token', {
+      await axios.get(`${urlBe}/user/check-token`, {
         headers: {
           'x-jdticket': token
         }
       });
       // token valid
     } catch (err) {
-      console.error('Token invalid or expired:', err);
+      console.error('Token invalid or expired:', err.response.data.message);
+      alert(err.response.data.message)
       handleLogout();
-      navigate('/'); // redirect ke home atau login
+      navigate('/login'); // redirect ke home atau login
     }
   };
 
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.get('https://jdticket-production.up.railway.app/user/logout', {
+      await axios.get(`${urlBe}/user/logout`, {
         headers: {
           'x-jdticket': token
         }
@@ -61,7 +64,7 @@ function Layout() {
   return (
     <>
       <div
-        className="relative overflow-hidden pt-24"
+        className="relative overflow-hidden pt-20"
         style={{
           background: "var(--backgroundd, linear-gradient(151.79deg, rgba(0, 28, 25, 1) 0%, rgba(9, 9, 9, 1) 50%))",
           backgroundAttachment: "fixed",
@@ -70,7 +73,7 @@ function Layout() {
         }}
       >
         <Header user={user} isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
-        <main className="px-6">
+        <main className="px-6 max-w-5xl mx-auto">
           <Outlet />
         </main>
       </div>

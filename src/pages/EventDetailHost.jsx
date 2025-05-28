@@ -17,6 +17,8 @@ import {
 import logo from '../assets/logo.png';
 import axios from 'axios';
 
+const urlBe = import.meta.env.VITE_URL_CLAW;
+
 function EventDetailHost() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -50,7 +52,7 @@ function EventDetailHost() {
   ];
 
   useEffect(() => {
-    axios.get(`https://jdticket-production.up.railway.app/events/get-detail/${id}`,
+    axios.get(`${urlBe}/events/get-detail/${id}`,
       {
         headers: {
             'x-jdticket': localStorage.getItem('token') || '',
@@ -117,32 +119,32 @@ function EventDetailHost() {
   const formattedEndTime = format(endDate, 'HH:mm');
 
   return (
-    <div className="text-white min-h-screen px-4 pb-20">
-      <div className="max-w-5xl mx-auto">
+    <div className="px-4 pb-20">
+      <div className="max-w-4xl mx-auto">
         <div className="font-['Satoshi-Bold',_sans-serif] text-white mb-6">
-        {/* Title */}
-        <h1 className="text-3xl font-bold mb-4">{event.name}</h1>
+          {/* Title */}
+          <h1 className="text-3xl font-bold mb-4">{event.name}</h1>
 
-        {/* Tab Navigasi */}
-        <div className="flex gap-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => handleTabClick(tab)}
-              className={`px-4 py-1 rounded-full text-sm transition-all duration-200 ${
-                activeTab === tab
-                  ? "bg-[#2F645E] text-white"
-                  : "bg-transparent text-gray-400 hover:text-white"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+          {/* Tab Navigasi */}
+          <div className="flex gap-4">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => handleTabClick(tab)}
+                className={`px-4 py-1 rounded-full text-sm transition-all duration-200 ${
+                  activeTab === tab
+                    ? "bg-[#2F645E] text-white"
+                    : "bg-transparent text-gray-400 hover:text-white"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 justify-between">
           {actions.map(({ icon, label, onClick }, i) => (
             <button
               key={i}

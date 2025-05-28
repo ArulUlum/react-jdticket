@@ -21,15 +21,7 @@ import {
   ImagePlus 
 } from "lucide-react";
 
-const SelectBox = ({ icon, label, rightIcon }) => (
-  <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full max-w-md">
-    <div className="flex items-center gap-2.5">
-      <img src={icon} alt="" className="w-6 h-6" />
-      <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">{label}</span>
-    </div>
-    <img src={rightIcon} alt="" className="w-6 h-6" />
-  </div>
-);
+const urlBe = import.meta.env.VITE_URL_CLAW;
 
 function CreateEvent() {
   const now = new Date();
@@ -71,7 +63,7 @@ function CreateEvent() {
 
   const fetchLocationSuggestions = async (input) => {
     try {
-      const response = await axios.get("https://maps.googleapis.com/maps/api/place/autocomplete/json", {
+      const response = await axios.get(`${urlBe}/image/autocomplete`, {
         params: {
           input,
           key: "AIzaSyDBnmmNXN3uCvSfjxeGafgUnRxtWxxLbOw",
@@ -124,24 +116,65 @@ function CreateEvent() {
     setTickets(updatedTickets);
   };
 
+  const formatDateTime = (dateObj, timeObj) => {
+    const date = new Date(dateObj);
+    const time = new Date(timeObj);
+
+    // Gabungkan tanggal dari `dateObj` dan jam/menit/detik dari `timeObj`
+    date.setHours(time.getHours());
+    date.setMinutes(time.getMinutes());
+    date.setSeconds(time.getSeconds());
+
+    const pad = (num) => String(num).padStart(2, '0');
+
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1); // 0-indexed
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+
+  const handleSaveDraft = async (e) => {
+    e.preventDefault();
+    const payload = {
+      name: eventName,
+      description: description,
+      visibility: visibility,
+      start_date: formatDateTime(startDate, startTime),
+      end_date: formatDateTime(endDate, endTime),
+      location: locationInput,
+      max_capacity: parseInt(capacityMode === "unlimited" ? -1 : capacityMode),
+      list_ticket: tickets,
+      approval: requireApproval
+    };
+    console.log(payload)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError(null);
 
     const payload = {
-      name: formData.name,
-      location: formData.location,
-      description: formData.description,
-      max_capacity: parseInt(formData.capacity),
-      start_date: formData.start.replace('T', ' ') + ':00',
-      end_date: formData.end.replace('T', ' ') + ':00',
+      name: eventName,
+      description: description,
+      visibility: visibility,
+      start_date: formatDateTime(startDate, startTime),
+      end_date: formatDateTime(endDate, endTime),
+      location: locationInput,
+      max_capacity: parseInt(capacityMode === "unlimited" ? -1 : capacityMode),
       list_ticket: tickets,
+      approval: requireApproval
     };
+    console.log(payload)
 
     try {
       const response = await axios.post(
-        'https://jdticket-production.up.railway.app/events/create',
+        `${urlBe}/events/create`,
         payload,
         {
           headers: {
@@ -151,6 +184,7 @@ function CreateEvent() {
       );
       const { code, message } = response.data;
       if (code !== '1') {
+        console.log(message)
         setSubmitError(message);
       } else {
         alert(message);
@@ -170,9 +204,9 @@ function CreateEvent() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-4 justify-center items-start">
+    <div className="flex flex-col lg:flex-row gap-4 pb-10 justify-center items-start">
       {/* Left Card */}
-      <div className="bg-bg-card rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[350px] p-4 relative">
+      <div className="bg-bg-card bg-[#141717] rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[350px] p-4 relative">
         <label htmlFor="image-upload" className="relative w-full flex justify-center cursor-pointer">
           <img
             className="rounded-[7px] w-full h-[317px] object-cover"
@@ -226,7 +260,7 @@ function CreateEvent() {
       </div>
 
       {/* Right Card */}
-      <div className="bg-bg-card rounded-[10px] border border-strokesss border-solid w-full max-w-3xl p-6 space-y-6">
+      <div className="bg-bg-card bg-[#141717] rounded-[10px] border border-strokesss border-solid w-full max-w-3xl p-6 space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-y-4 gap-x-6 items-center">
           {/* Visibility */}
           <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
@@ -351,6 +385,7 @@ function CreateEvent() {
             </div>
           )}
 
+          {/* Event Type */}
           <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
             Event Type
           </div>
@@ -406,11 +441,13 @@ function CreateEvent() {
             </div>
             <div
               onClick={() => setRequireApproval(!requireApproval)}
-              className="w-10 h-5 bg-gray-700 rounded-full flex items-center cursor-pointer px-1"
+              className={`w-10 h-5 rounded-full flex items-center cursor-pointer px-1 ${
+                requireApproval ? "bg-[#31D34F]" : "bg-gray-400"
+              }`}
             >
               <div
-                className={`w-3 h-3 rounded-full transition-transform duration-300 ${
-                  requireApproval ? "translate-x-5 bg-white" : "translate-x-0 bg-gray-400"
+                className={`w-3 h-3 rounded-full bg-white transition-transform duration-300 ${
+                  requireApproval ? "translate-x-5" : "translate-x-0"
                 }`}
               />
             </div>
@@ -418,8 +455,18 @@ function CreateEvent() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 pt-6">
-          <button className="bg-[#303030] rounded-lg px-6 py-3 font-bold text-white font-['Satoshi-Bold'] w-full sm:w-1/2">Save as Draft</button>
-          <button className="bg-[#00594F] rounded-lg px-6 py-3 font-bold text-white font-['Satoshi-Bold'] w-full sm:w-1/2">Create Event</button>
+          <button
+            onClick={handleSaveDraft} 
+            className="bg-[#303030] rounded-lg px-6 py-3 font-bold text-white font-['Satoshi-Bold'] w-full sm:w-1/2"
+          >
+            Save as Draft
+          </button>
+          <button 
+            onClick={handleSubmit} 
+            className="bg-[#00594F] rounded-lg px-6 py-3 font-bold text-white font-['Satoshi-Bold'] w-full sm:w-1/2"
+          >
+            Create Event
+          </button>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import googleIcon from '../assets/Google.svg'
 
+const urlBe = import.meta.env.VITE_URL_CLAW;
 
 function GoogleLoginCustom() {
   const login = useGoogleLogin({
@@ -8,7 +9,7 @@ function GoogleLoginCustom() {
       console.log('Login Success:', tokenResponse);
       // Kirim tokenResponse.access_token atau id_token ke backend
       try {
-        const res = await axios.post("https://jdticket-production.up.railway.app/user/login-google", {
+        const res = await axios.post(`${urlBe}/user/login-google`, {
             access_token: tokenResponse.access_token,
         });
         if (res.data.code === "1") {

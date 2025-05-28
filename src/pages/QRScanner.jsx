@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import axios from 'axios';
 
+const urlBe = import.meta.env.VITE_URL_CLAW;
+
 function QRScanner() {
   const qrCodeRegionId = 'qr-reader';
   const [userData, setUserData] = useState(null);
@@ -30,7 +32,7 @@ function QRScanner() {
             const token_received = parts[2] || null;
             try {
               const res = await axios.post(
-              'https://jdticket-production.up.railway.app/user/get-user-scan',
+              `${urlBe}/user/get-user-scan`,
               {
                 event_id,
                 token_received,
@@ -70,7 +72,7 @@ function QRScanner() {
     const invoice_code = userData.invoice_code;
     try {
       await axios.post(
-        'https://jdticket-production.up.railway.app/user/checkin-user',
+        `${urlBe}/user/checkin-user`,
         { invoice_code },
         {
           headers: {

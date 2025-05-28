@@ -4,6 +4,8 @@ import axios from "axios";
 import GoogleLoginCustom from './GoogleLoginCustom';
 import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 
+const urlBe = import.meta.env.VITE_URL_CLAW;
+
 function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -15,7 +17,7 @@ function LoginPage() {
     e.preventDefault();
     setIsLoggingIn(true);
     try {
-      const res = await axios.post("https://jdticket-production.up.railway.app/user/login", {
+      const res = await axios.post(`${urlBe}/user/login`, {
         email,
         password,
       });
