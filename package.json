@@ -15,6 +15,7 @@
     "axios": "^1.9.0",
     "date-fns": "^4.1.0",
     "html5-qrcode": "^2.3.8",
+    "keen-slider": "^6.8.6",
     "lucide-react": "^0.511.0",
     "react": "^19.0.0",
     "react-datepicker": "^8.3.0",

@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { format } from 'date-fns';
+import { useKeenSlider } from "keen-slider/react"
+import logo from '../assets/logo.png'
 
 const urlBe = import.meta.env.VITE_URL_CLAW;
 
 function Dashboard() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [currentSlide, setCurrentSlide] = useState(0)
 
   useEffect(() => {
     fetchEvents();
@@ -21,74 +24,123 @@ function Dashboard() {
       setEvents(response.data.data); // <- sesuaikan dengan format response API kamu
     } catch (err) {
       console.error(err);
-      setError('Gagal memuat event.');
+      setError(err);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (!loading && instanceRef.current) {
+      instanceRef.current.update()
+    }
+  }, [events, loading])
+
+  if (error) return <p className="text-red-500">Event not found. {error}</p>;
+
+  const [sliderRef, instanceRef] = useKeenSlider({
+    loop: false,
+    slides: {
+      origin: "auto",
+      perView: 4,
+      spacing: 15,
+    },
+    slideChanged(slider) {
+      setCurrentSlide(slider.track.details.rel)
+    }
+  })
+
+  const totalDots = instanceRef.current
+  ? Math.ceil(
+      instanceRef.current.track.details.slides.length -
+        instanceRef.current.options.slides.perView +
+        1
+    )
+  : 0
+
   return (
     <div>
-      <div className='flex flex-col mb-8 px-8'>
-        <h1 className="text-3xl font-bold">Browse Event</h1>
+      <div className='flex flex-col mb-8'>
+        <h1 className="text-3xl font-['Satoshi-Bold']">Browse Event</h1>
         <p className="text-gray-400 text-lg mt-2">
           Explore popular events near you, browse by category, or check out some of the great community calendars.
         </p>
       </div>
 
       {/* Popular Events */}
-      <div className="flex justify-between items-center mb-4 px-8">
+      <div className="flex justify-between items-center mb-4">
         <div>
-            <h2 className="text-2xl font-bold">Popular Events</h2>
+            <h2 className="text-2xl font-['Satoshi-Bold']">Popular Events</h2>
             <p className="text-gray-400 text-lg">Jakarta</p>
         </div>
         <button className="text-gray-400 hover:text-white">View All</button>
       </div>
 
       {/* Event Grid */}
-      <div className="grid grid-cols-2 gap-8 mt-6 w-full px-8">
-        {loading && (
-          <>
-             {[...Array(6)].map((_, index) => (
-                <div className="flex items-start gap-4 p-4 rounded-lg animate-pulse">
-                  {/* Gambar placeholder */}
-                  <div className="w-16 h-16 bg-gray-700 rounded-md"></div>
+      <div ref={sliderRef} className="keen-slider">
+        {loading && [...Array(4)].map((_, i) => (
+          <div
+            key={i}
+            className="keen-slider__slide bg-[#1a1a1a] animate-pulse p-4"
+          >
+            <div className="w-full h-[140px] bg-gray-700 rounded-lg mb-3"></div>
+            <div className="h-4 bg-gray-600 rounded w-3/4 mb-2"></div>
+            <div className="h-3 bg-gray-600 rounded w-2/4 mb-2"></div>
+            <div className="h-3 bg-gray-700 rounded w-5/6"></div>
+          </div>
+        ))}
 
-                  {/* Text placeholders */}
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-700 rounded w-2/4"></div>
-                    <div className="h-4 bg-gray-800 rounded w-5/6"></div>
-                  </div>
-                </div>
-             ))}
-          </>
-        )}
-        {error && <p className="text-red-500">{error}</p>}
+        {!loading && events.map((event) => (
+          <div
+            key={event.id}
+            className="keen-slider__slide bg-[#141717] border border-[#2a2a2a] rounded-2xl cursor-pointer"
+            onClick={() => navigate(`/event/${event.id}`)}
+          >
+            {/* Gambar Event */}
+            <img
+              src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
+              alt={event.name}
+              className="w-full h-[200px] object-cover rounded-t-2xl p-4"
+            />
 
-        {events.map(event => (
-            <div 
-              key={event.id}
-              onClick={() => navigate(`/event/${event.id}`)} 
-              className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-700"
-            >
-              <img
-                src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
-                alt={event.name}
-                className="w-16 h-16 rounded-md object-cover"
-              />
-              <div>
-                <h3 className="font-semibold text-white text-lg">{event.name}</h3>
-                <p className="text-gray-400 text-sm mt-1">
-                  {format(new Date(event.start_date), 'EEE, d MMM yyyy')} {format(new Date(event.start_date), 'HH:mm')} WIB
-                </p>
-                <p className="text-gray-400 text-sm">{event.location}</p>
-              </div>
+            {/* Konten */}
+            <div className="px-4 pb-4">
+              <h3 className="text-white text-lg font-semibold">{event.name}</h3>
+              <p className="text-gray-400 text-sm mt-1">{format(new Date(event.start_date), 'd MMM yyyy')}</p>
+              <p className="text-white text-sm mt-1">
+                {!event.price || Number(event.price) === 0
+                  ? 'Free'
+                  : `Rp ${Number(event.price).toLocaleString()}`}
+              </p>
             </div>
+
+            {/* Garis Pembatas */}
+            <div className="border-t border-[#303030] mx-4"></div>
+
+            {/* Info Komunitas */}
+            <div className="flex items-center gap-2 p-4 pt-3">
+              <img src={logo} alt="JoinDong" className="w-6 h-6 rounded-full" />
+              <span className="text-white text-sm font-medium">JoinDong</span>
+            </div>
+          </div>
         ))}
       </div>
+
+      <div className="flex justify-center gap-2 mt-4">
+        {Array.from({ length: totalDots }).map((_, idx) => (
+          <button
+            key={idx}
+            onClick={() => instanceRef.current?.moveToIdx(idx)}
+            className={`rounded-full p-0 appearance-none border-none outline-none ${
+              currentSlide === idx ? "bg-white w-6 h-2" : "bg-white/20 w-2 h-2"
+            }`}
+            type="button"
+          />
+        ))}
+      </div>
+      
       {/* Garis Bawah */}
-      <div className="border-t border-gray-700 mt-8 m-8"></div>
+      <div className="border-t border-[#A2A2A2] m-8"></div>
     </div>
   );
 }
