@@ -8,10 +8,6 @@ function Header({ user, isLoggedIn, handleLogout }) {
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // Hide Header on specific routes
-  const hiddenRoutes = ["/login"];
-  if (hiddenRoutes.includes(location.pathname)) return null;
-
   return (
     <div className="w-full fixed top-0 z-50 bg-[rgba(103,103,103,0.10)] backdrop-blur-[8.8px]">
       <div className="px-4 mx-auto h-[53px] flex items-center justify-between">
@@ -106,7 +102,7 @@ function Header({ user, isLoggedIn, handleLogout }) {
             </>
           ) : (
             <button
-              className="rounded-[20px] px-4 py-1 flex items-center justify-center text-white text-lg font-['Satoshi-Medium',sans-serif]"
+              className="rounded-[20px] px-4 py-1 flex items-center justify-center text-white text-sm font-['Satoshi-Medium',sans-serif]"
               style={{
                 background: "linear-gradient(90deg, rgba(68,160,141,1) 0%, rgba(0,89,79,1) 100%)"
               }}

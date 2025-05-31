@@ -12,11 +12,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
         <Route path="/scan" element={<QRScanner />} />
 
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/create-event" element={<CreateEvent />} />
           <Route path="/event/:id" element={<EventDetailGuest />} />
           <Route path="/profile" element={<UserProfile />} />

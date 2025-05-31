@@ -54,7 +54,7 @@ function Layout() {
       localStorage.removeItem("user");
       setUser(null);
       setIsLoggedIn(false);
-      navigate('/'); // redirect ke home atau login
+      navigate('/login'); // redirect ke home atau login
     } catch (err) {
       console.error('Error:', err);
     }

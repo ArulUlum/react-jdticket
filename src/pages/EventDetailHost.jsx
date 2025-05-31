@@ -7,7 +7,7 @@ import {
   Share2,
   CalendarDays,
   MapPin,
-  Pencil,
+  PencilLine,
   ScanLine,
   TrendingUp, 
   TrendingDown,
@@ -27,7 +27,7 @@ function EventDetailHost() {
   const [activeTab, setActiveTab] = useState("Overview");
   const [visibility, setVisibility] = useState("public");
 
-  const tabs = ["Overview", "Guests", "Registration", "Blast", "Insight", "More"];
+  const tabs = ["Overview", "Guests", "Sales Report", "Tickets", "Blast", "Insight", "More"];
   const handleTabClick = (tab) => {
     setActiveTab(tab);
     console.log("Klik tab:", tab);
@@ -35,17 +35,17 @@ function EventDetailHost() {
 
   const actions = [
     {
-      icon: <UserPlus className="w-5 h-5 text-white" />,
-      label: "Invite Guests",
+      icon: <UserPlus className="w-6 h-6 text-white" />,
+      label: "Create Invitation",
       onClick: () => console.log("Invite"),
     },
     {
-      icon: <Send className="w-5 h-5 text-white" />,
+      icon: <Send className="w-6 h-6 text-white" />,
       label: "Send a Blast",
       onClick: () => console.log("Blast"),
     },
     {
-      icon: <Share2 className="w-5 h-5 text-white" />,
+      icon: <Share2 className="w-6 h-6 text-white" />,
       label: "Share Event",
       onClick: () => console.log("Share"),
     },
@@ -123,83 +123,87 @@ function EventDetailHost() {
       <div className="max-w-4xl mx-auto">
         <div className="font-['Satoshi-Bold',_sans-serif] text-white mb-6">
           {/* Title */}
-          <h1 className="text-3xl font-bold mb-4">{event.name}</h1>
+          <h1 className="text-3xl font-['Satoshi-Bold',_sans-serif] mb-4">{event.name}</h1>
 
           {/* Tab Navigasi */}
           <div className="flex gap-4">
             {tabs.map((tab) => (
-              <button
+              <div
                 key={tab}
                 onClick={() => handleTabClick(tab)}
-                className={`px-4 py-1 rounded-full text-sm transition-all duration-200 ${
+                className={`mr-4 text-lg cursor-pointer ${
                   activeTab === tab
-                    ? "bg-[#2F645E] text-white"
-                    : "bg-transparent text-gray-400 hover:text-white"
+                    ? "text-white font-['Satoshi-Bold',_sans-serif] border-b-2 border-[#2F645E]"
+                    : "text-[#A2A2A2] font-['Satoshi-Regular'] hover:text-white"
                 }`}
               >
                 {tab}
-              </button>
+              </div>
             ))}
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-4 justify-between">
+        <div className="grid grid-cols-3 gap-4">
           {actions.map(({ icon, label, onClick }, i) => (
             <button
               key={i}
               onClick={onClick}
-              className="flex items-center gap-3 bg-[#121212] border border-[#2F645E] rounded-xl px-4 py-2 hover:bg-[#1d1d1d] transition"
+              className="w-full flex gap-3 bg-[#141717] rounded-xl px-4"
             >
-              <div className="bg-[#2F645E] p-2 rounded-md">
+              <div 
+                className="p-1 rounded-md flex w-8 h-8"
+                style={{
+                  background: "var(--backgroundd, linear-gradient(90deg, rgba(68, 160, 141, 1) 0%, rgba(0, 89, 79, 1) 100%))",
+                  color: "#fff"
+                }}
+              >
                 {icon}
               </div>
-              <span className="text-white font-satoshi font-medium text-sm">
-                {label}
-              </span>
+              <span className="text-white font-['Satoshi-Bold',_sans-serif] text-lg">{label}</span>
             </button>
           ))}
         </div>
 
         {/* Event Card */}
-        <div className="bg-[#121212] rounded-xl p-6 flex gap-6 items-start text-white font-satoshi">
+        <div className="bg-[#141717] rounded-xl mt-6 p-5 flex gap-6 items-start text-white font-satoshi">
           {/* Left: Image */}
           <img
             src={event.image || "https://wallpapercave.com/wp/wp9297718.jpg"}
             alt="event"
-            className="w-[250px] h-[200px] object-cover rounded-lg"
+            className="w-[250px] h-[250px] object-cover rounded-lg"
           />
 
           {/* Right: Content */}
           <div className="flex-1">
             <div className="flex justify-between items-start">
-              <h1 className="text-2xl font-bold mb-4">{event.name}</h1>
-              <button className="flex items-center gap-1 text-sm text-white bg-[#1e1e1e] px-3 py-1 rounded-lg border border-[#333] hover:bg-[#2a2a2a] transition">
-                <Pencil className="w-4 h-4" />
+              <h1 className="text-3xl font-['Satoshi-Bold',_sans-serif]  mb-4">{event.name}</h1>
+              <button className="flex items-center gap-1 text-sm text-white bg-[#1c1d1d] px-3 py-1 rounded-lg border border-[#212121] hover:bg-[#2a2a2a] transition">
                 Edit Event
+                <PencilLine className="w-4 h-4" />
               </button>
             </div>
 
             {/* Date */}
-            <div className="flex items-start gap-3 mb-3">
-              <div className="bg-[#121212] w-10 h-10 rounded-lg border border-[#666] flex flex-col items-center justify-center text-xs leading-tight">
-                <div className="text-gray-400">{startMonth}</div>
-                <div className="text-lg font-bold">{startDay}</div>
+            <div className="flex items-start gap-3 mb-6 mt-2">
+              <div className="w-11 h-11 rounded-lg border border-[#666] flex flex-col items-center justify-center text-xs leading-tight">
+                <div className="text-[#A2A2A2] font-['Satoshi-Regular']">{startMonth}</div>
+                <div className="text-lg font-['Satoshi-Regular']">{startDay}</div>
               </div>
               <div>
-                <div className="text-sm font-semibold">{formattedStartDate}</div>
-                <div className="text-sm text-gray-400">{formattedStartTime} - {formattedEndTime} WIB</div>
+                <div className="text-base font-['Satoshi-Bold',_sans-serif]">{formattedStartDate}</div>
+                <div className="text-sm text-[#A2A2A2] font-['Satoshi-Regular']">{formattedStartTime} - {formattedEndTime} WIB</div>
               </div>
             </div>
 
             {/* Location */}
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg border border-[#666] flex items-center justify-center">
+            <div className="flex items-start gap-3 mb-6">
+              <div className="w-11 h-11 rounded-lg border border-[#666] flex items-center justify-center">
                 <MapPin className="text-white w-5 h-5" />
               </div>
               <div>
-                <div className="text-sm font-semibold">Gambir Expo Kemayoran</div>
-                <div className="text-sm text-gray-400">
+                <div className="text-base font-['Satoshi-Bold',_sans-serif]">Gambir Expo Kemayoran</div>
+                <div className="text-sm text-[#A2A2A2] font-['Satoshi-Regular']">
                   Jakarta Pusat, Daerah Khusus Ibukota Jakarta
                 </div>
               </div>
@@ -208,9 +212,9 @@ function EventDetailHost() {
             {/* Start Check-In */}
             <button
               onClick={() => navigate('/scan')}
-              className="w-full bg-[#2F645E] text-white py-3 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#35796f] transition"
+              className="w-full bg-[#00594f] text-white rounded-lg text-lg font-['Satoshi-Bold',_sans-serif] flex items-center justify-center gap-2 hover:bg-[#35796f] transition"
             >
-              <ScanLine className="w-4 h-4" />
+              <ScanLine className="w-5 h-5" />
               Start Check-In
             </button>
           </div>
@@ -220,7 +224,7 @@ function EventDetailHost() {
         <div className="bg-transparent p-6 rounded-xl font-satoshi text-white">
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
-            <div className="text-lg font-semibold">Registration</div>
+            <div className="text-lg font-['Satoshi-Bold',_sans-serif]">Registration</div>
             <button className="text-sm bg-[#1e1e1e] border border-[#333] px-3 py-1 rounded-lg hover:bg-[#2a2a2a]">
               View All
             </button>
@@ -229,16 +233,16 @@ function EventDetailHost() {
           {/* Stats */}
           <div className="flex gap-10 mb-6">
             <div>
-              <span className="text-2xl font-bold">{event.checkin_guest}/{event.total_guest}</span>
-              <div className="text-sm text-gray-400">Guests Checked in</div>
+              <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.checkin_guest}/{event.total_guest}</span>
+              <div className="text-sm text-[#A2A2A2]">Guests Checked in</div>
             </div>
             <div>
-              <span className="text-2xl font-bold">{event.checkin_invitees}/{event.total_invitees}</span>
-              <div className="text-sm text-gray-400">Invitees Checked in</div>
+              <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.checkin_invitees}/{event.total_invitees}</span>
+              <div className="text-sm text-[#A2A2A2]">Invitees Checked in</div>
             </div>
             <div>
-              <span className="text-2xl font-bold">{event.total_checkin}/{event.total_registered}</span>
-              <div className="text-sm text-gray-400">Total Registered</div>
+              <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.total_checkin}/{event.total_registered}</span>
+              <div className="text-sm text-[#A2A2A2]">Total Registered</div>
             </div>
           </div>
 
@@ -258,7 +262,7 @@ function EventDetailHost() {
                   />
                   <div>
                     <div className="font-medium">{user.name}</div>
-                    <div className="text-gray-400 text-xs">{user.email}</div>
+                    <div className="text-[#A2A2A2] text-xs">{user.email}</div>
                   </div>
                 </div>
 
@@ -276,7 +280,7 @@ function EventDetailHost() {
                 </div>
 
                 {/* Right: Time */}
-                <div className="text-gray-400 text-sm">{format(new Date(user.checkin_date), 'HH:mm')} WIB</div>
+                <div className="text-[#A2A2A2] text-sm">{format(new Date(user.checkin_date), 'HH:mm')} WIB</div>
               </div>
             ))}
           </div>
@@ -285,8 +289,8 @@ function EventDetailHost() {
         {/* Sales Report */}
         <div className="font-satoshi text-white p-6">
           {/* Heading */}
-          <div className="mb-2 text-lg font-semibold">Sales Report</div>
-          <p className="text-sm text-gray-400 mb-4">
+          <div className="mb-2 text-lg font-['Satoshi-Bold',_sans-serif]">Sales Report</div>
+          <p className="text-sm text-[#A2A2A2] mb-4">
             Track how your tickets are selling—see total sales, tickets sold, and total visitor.
           </p>
 
@@ -297,8 +301,8 @@ function EventDetailHost() {
                 key={idx}
                 className="bg-[#1a1a1a] rounded-xl p-4 w-full max-w-[280px] flex-1"
               >
-                <div className="text-sm text-gray-400 mb-1">{item.label}</div>
-                <div className="text-xl font-bold mb-1">{item.value}</div>
+                <div className="text-sm text-[#A2A2A2] mb-1">{item.label}</div>
+                <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-1">{item.value}</div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-500">All time</span>
                   <div
@@ -324,8 +328,8 @@ function EventDetailHost() {
         {/* Hosts */}
         <div className="font-satoshi text-white p-6">
           {/* Heading */}
-          <div className="mb-2 text-lg font-semibold">Hosts</div>
-          <p className="text-sm text-gray-400 mb-4">
+          <div className="mb-2 text-lg font-['Satoshi-Bold',_sans-serif]">Hosts</div>
+          <p className="text-sm text-[#A2A2A2] mb-4">
             Manage your event team and special guests here.
           </p>
 
@@ -347,7 +351,7 @@ function EventDetailHost() {
                   />
                   <div>
                     <div className="font-medium">{host.name}</div>
-                    <div className="text-sm text-gray-400">{host.email}</div>
+                    <div className="text-sm text-[#A2A2A2]">{host.email}</div>
                   </div>
                 </div>
 
@@ -377,8 +381,8 @@ function EventDetailHost() {
         {/* Visibility */}
         <div className="font-satoshi text-white p-6">
           {/* Heading */}
-          <div className="mb-2 text-lg font-semibold">Visibility & Discovery</div>
-          <p className="text-sm text-gray-400 mb-4">
+          <div className="mb-2 text-lg font-['Satoshi-Bold',_sans-serif]">Visibility & Discovery</div>
+          <p className="text-sm text-[#A2A2A2] mb-4">
             Manage how your event appears on search and listings.
           </p>
 

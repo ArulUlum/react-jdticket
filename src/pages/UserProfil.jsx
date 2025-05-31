@@ -118,7 +118,7 @@ function UserProfile() {
                     className="w-4 h-4 rounded-full"
                     alt="avatar"
                   />
-                  By {user.name}
+                  by {user.name}
                 </div>
                 <div className="text-sm mt-1 text-white-400 font-semibold">
                   {format(new Date(event.start_date), "EEE, d MMM yyyy")} ·{" "}

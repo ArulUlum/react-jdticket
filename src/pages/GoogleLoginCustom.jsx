@@ -1,9 +1,12 @@
 import { useGoogleLogin } from '@react-oauth/google';
 import googleIcon from '../assets/Google.svg'
+import axios from 'axios';
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const urlBe = import.meta.env.VITE_URL_CLAW;
 
 function GoogleLoginCustom() {
+  const navigate = useNavigate();
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       console.log('Login Success:', tokenResponse);
@@ -20,7 +23,7 @@ function GoogleLoginCustom() {
             alert("Login Google gagal: " + res.data.message);
         }
       } catch (err) {
-        alert('Login dengan Google gagal.');
+        alert('Login dengan Google gagal.' + err);
       }
     },
     onError: () => {
@@ -29,10 +32,10 @@ function GoogleLoginCustom() {
   });
 
   return (
-    <div className='py-1'>
+    <div className='pt-5'>
         <button
             onClick={() => login()}
-            className="flex items-center justify-center gap-3 w-full py-3 rounded-lg bg-[#303030] text-black font-medium hover:bg-gray-100 transition duration-150 shadow-sm"
+            className="flex items-center justify-center gap-3 w-full py-3 rounded-lg bg-[#303030] text-[#A2A2A2] font-['Satoshi-Bold',_sans-serif] hover:bg-[#535353] transition duration-150 shadow-sm"
             >
             <img
                 src={googleIcon}

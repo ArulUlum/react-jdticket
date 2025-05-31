@@ -13,6 +13,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [totalDots, setTotalDots] = useState(0)
 
   useEffect(() => {
     fetchEvents();
@@ -29,15 +30,9 @@ function Dashboard() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (!loading && instanceRef.current) {
-      instanceRef.current.update()
-    }
-  }, [events, loading])
-
+  
   if (error) return <p className="text-red-500">Event not found. {error}</p>;
-
+  
   const [sliderRef, instanceRef] = useKeenSlider({
     loop: false,
     slides: {
@@ -45,19 +40,34 @@ function Dashboard() {
       perView: 4,
       spacing: 15,
     },
+    created(slider) {
+      const perView = slider.options.slides.perView || 1
+      const totalSlides = slider.track.details.slides.length
+      const dots = Math.max(1, Math.ceil(totalSlides - perView + 1))
+      setTotalDots(dots)
+      setCurrentSlide(slider.track.details.rel)
+    },
     slideChanged(slider) {
       setCurrentSlide(slider.track.details.rel)
-    }
+    },
   })
 
-  const totalDots = instanceRef.current
-  ? Math.ceil(
-      instanceRef.current.track.details.slides.length -
-        instanceRef.current.options.slides.perView +
-        1
-    )
-  : 0
+  useEffect(() => {
+    if (!loading && instanceRef.current) {
+      instanceRef.current.update()
+    }
 
+    const slider = instanceRef.current
+    const perView = typeof slider.options.slides.perView === 'number' ? slider.options.slides.perView : 1
+    const totalSlides = slider.track?.details?.slides?.length || 0
+
+    if (totalSlides > 0) {
+      const dotCount = Math.max(1, Math.ceil(totalSlides - perView + 1))
+      setTotalDots(dotCount)
+    }
+
+  }, [events, loading, instanceRef.current])
+  
   return (
     <div>
       <div className='flex flex-col mb-8'>
