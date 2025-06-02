@@ -2,7 +2,7 @@ import { useState, useEffect, use } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import GoogleLoginCustom from './GoogleLoginCustom';
-import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { 
   LogIn,
   ChevronLeft,
@@ -109,18 +109,20 @@ function LoginPage() {
       });
 
       if (res.data.code === "1") {
-        localStorage.setItem("token", res.data.token);
         setName(res.data.data.name);
         setNoHp(res.data.data.no_hp);
 
-        if (!res.data.data.no_hp) {
-          setTimeout(() => setStep(3), 200);
-        } else if (res.data.data.no_hp && !res.data.data.name) {
-          setTimeout(() => setStep(4), 200);
-        } else {
-          localStorage.setItem("user", JSON.stringify(res.data.data));
-          goToHome();
+        if (res.data.data.name) {     // jika sudah ada nama langsung ke dashboard
+          goToHome(res);
+          return;
         }
+        
+        if (!res.data.data.no_hp ) {   // cek no hp
+          setTimeout(() => setStep(3), 200);
+        } else {
+          setTimeout(() => setStep(4), 200);
+        } 
+
       } else {
         setLoginError("Login gagal: " + res.data.message);
       }
@@ -194,13 +196,13 @@ function LoginPage() {
 
       const res = await axios.post(`${urlBe}/user/update`, {
         name,
+        email,
         no_hp: noHp,
         image: imgUrl,
       });
 
       if (res.data.code === "1") {
-        localStorage.setItem("user", JSON.stringify(res.data.data));
-        goToHome();
+        goToHome(res);
       } else {
         setLoginError("Login gagal: " + res.data.message);
       }
@@ -217,7 +219,9 @@ function LoginPage() {
     
   }
 
-  const goToHome = () => {
+  const goToHome = (res) => {
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify(res.data.data));
     setStep(5);
     setTimeout(() => {
       navigate('/')
@@ -257,6 +261,11 @@ function LoginPage() {
             placeholder="you@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleContinueEmail();
+              }
+            }}
           />
           <button
             className="w-full bg-white text-black font-['Satoshi-Bold'] mt-4 py-2 rounded disabled:opacity-50"
@@ -299,7 +308,21 @@ function LoginPage() {
             <br />
             <span className="text-white font-['Satoshi-Regular',_sans-serif]">{email}</span>
           </p>
-          <div className="flex justify-between gap-2 mb-4">
+          <div 
+            className="flex justify-between gap-2 mb-4"
+            onKeyDown={(e) => {
+              if (e.ctrlKey && e.key === "v") {
+                navigator.clipboard.readText().then((clipText) => {
+                  const numbers = clipText.replace(/\D/g, "").slice(0, 6).split("");
+                  if (numbers.length === 6) {
+                    setCodeOtp(numbers);
+                    handleSubmitCode(numbers.join(""));
+                  }
+                });
+              }
+            }}
+            tabIndex={0}
+          >
             {codeOtp.map((val, idx) => (
               <input
                 key={idx}
@@ -309,6 +332,15 @@ function LoginPage() {
                 maxLength={1}
                 value={val}
                 onChange={(e) => handleChangeCode(e, idx)}
+                onPaste={(e) => {
+                  const paste = e.clipboardData.getData("text");
+                  const numbers = paste.replace(/\D/g, "").slice(0, 6).split("");
+                  if (numbers.length === 6) {
+                    setCodeOtp(numbers);
+                    handleSubmitCode(numbers.join(""));
+                    e.preventDefault();
+                  }
+                }}
                 className="w-10 h-10 rounded-md bg-black border border-gray-700 text-white text-center text-lg focus:outline-white"
               />
             ))}

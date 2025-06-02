@@ -60,6 +60,42 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.react-datepicker-wrapper {
+  display: block !important; /* Atau flex / contents / sesuai kebutuhan */
+  width: 100% !important;
+}
+
+/* file: calendar-dark.css (atau Tailwind @layer) */
+/* .custom-calendar {
+  background-color: #1b1b1b;
+  border: none;
+  color: rgb(248, 0, 0);
+  font-family: 'Satoshi', sans-serif;
+} */
+
+/* .custom-calendar .react-datepicker__day--selected,
+.custom-calendar .react-datepicker__day--keyboard-selected {
+  background-color: #2f645e; Warna tanggal background dipilih
+  color: rgb(255, 255, 255); Warna Tanggal dipilih
+  border-radius: 9999px;
+} */
+
+/* .custom-calendar .react-datepicker__day:hover {
+  background-color: #2f645e66;
+  border-radius: 9999px;
+}
+
+.custom-calendar .react-datepicker__month {
+  background-color: #ff0000;    Warna tengah Kalender
+  border-bottom: 1px solid #7111d8;
+}
+
+.custom-calendar .react-datepicker__header {
+  background-color: #007c25;    Warna Header Kalender
+  border-bottom: 1px solid #333;
+} */
+
+
 /* Light theme fallback */
 @media (prefers-color-scheme: light) {
   html, body {

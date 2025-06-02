@@ -24,14 +24,22 @@ function Dashboard() {
       const response = await axios.get(`${urlBe}/events/get-all`);
       setEvents(response.data.data); // <- sesuaikan dengan format response API kamu
     } catch (err) {
-      console.error(err);
-      setError(err);
+      console.error("Error saat fetchEvents:", err);
+      // Tangani berdasarkan jenis error
+      if (err.response) {
+        // Error dari server (misal 4xx atau 5xx)
+        setError(`Server error: ${err.response.status} - ${err.response.data?.message || err.message}`);
+      } else if (err.request) {
+        // Request dikirim tapi tidak ada respon
+        setError("Tidak bisa terhubung ke server. Coba cek koneksi internetmu.");
+      } else {
+        // Error saat menyusun request
+        setError("Terjadi kesalahan saat memuat data. Silakan coba lagi.");
+      }
     } finally {
       setLoading(false);
     }
   };
-  
-  if (error) return <p className="text-red-500">Event not found. {error}</p>;
   
   const [sliderRef, instanceRef] = useKeenSlider({
     loop: false,
@@ -100,6 +108,7 @@ function Dashboard() {
           </div>
         ))}
 
+        {error && <p className="text-red-500">{error}</p>}
         {!loading && events.map((event) => (
           <div
             key={event.id}

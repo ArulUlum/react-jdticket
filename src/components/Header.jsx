@@ -50,7 +50,7 @@ function Header({ user, isLoggedIn, handleLogout }) {
 
               <div className="relative">
                 <img
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=random`}
+                  src={(user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`)}
                   alt="Profile"
                   className="w-6 h-6 rounded-full object-cover cursor-pointer"
                   onClick={() => setShowUserMenu(!showUserMenu)}

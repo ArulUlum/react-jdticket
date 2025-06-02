@@ -282,7 +282,7 @@ function CreateEvent() {
               <span className="text-white text-sm">▼</span>
             </div>
             {showVisibilityOptions && (
-              <div className="absolute z-10 mt-2 w-full bg-[#0f0f0f] border border-strokesss rounded-lg shadow-md">
+              <div className="absolute z-10 w-full bg-[#1f1f1f] border border-strokesss rounded-lg shadow-md">
                 {['Public', 'Private'].map(option => (
                   <div
                     key={option}
@@ -304,8 +304,12 @@ function CreateEvent() {
             Start
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <DatePickerBox value={startDate} onChange={setStartDate} />
-            <TimePickerBox value={startTime} onChange={setStartTime} />
+            <div className="border border-strokesss w-full">
+              <DatePickerBox value={startDate} onChange={setStartDate} />
+            </div>
+            <div className="border border-strokesss w-full"> 
+              <TimePickerBox value={startTime} onChange={setStartTime} />
+            </div>
           </div>
 
           {/* End Date */}
@@ -313,8 +317,12 @@ function CreateEvent() {
             End
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <DatePickerBox value={endDate} onChange={setEndDate} />
-            <TimePickerBox value={endTime} onChange={setEndTime} />
+            <div className="border border-strokesss w-full">
+              <DatePickerBox value={endDate} onChange={setEndDate} />
+            </div>
+            <div className="border border-strokesss w-full">
+              <TimePickerBox value={endTime} onChange={setEndTime} />
+            </div>
           </div>
 
           {/* Location */}
@@ -473,41 +481,65 @@ function CreateEvent() {
   );
 }
 
-const DatePickerBox = ({ value, onChange }) => (
-  <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg px-4 py-2 cursor-pointer">
-    <div className="flex items-center gap-2.5 w-full">
-      <Calendar className="w-5 h-5 text-white" />
-      <DatePicker
-        selected={value}
-        onChange={onChange}
-        dateFormat="EEE, MMM d"
-        placeholderText="Select date"
-        className="bg-transparent text-red font-['Satoshi-Medium'] text-base w-full outline-none"
-      />
+const DatePickerBox = ({ value, onChange }) => {
+  // Custom UI yang tidak pakai <input>
+  const CustomDateInput = React.forwardRef(({ value, onClick }, ref) => (
+    <div
+      onClick={onClick}
+      ref={ref}
+      className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg px-4 py-2 cursor-pointer w-full"
+    >
+      <div className="flex items-center gap-2.5 w-full">
+        <Calendar className="w-5 h-5 text-white" />
+        <span className="text-white text-base font-['Satoshi-Medium']">
+          {value || "Select date"}
+        </span>
+      </div>
+      <span className="text-white text-sm">▼</span>
     </div>
-    <span className="text-white text-sm">▼</span>
-  </div>
-);
+  ));
 
-const TimePickerBox = ({ value, onChange }) => (
-  <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg px-4 py-2 cursor-pointer w-full">
-    <div className="flex items-center gap-2.5 w-full">
-      <Clock className="w-5 h-5 text-white" />
-      <DatePicker
-        selected={value}
-        onChange={onChange}
-        showTimeSelect
-        showTimeSelectOnly
-        timeIntervals={30}
-        timeCaption="Time"
-        dateFormat="hh:mm"
-        placeholderText="Select time"
-        className="bg-transparent text-white font-['Satoshi-Medium'] text-base w-full outline-none"
-      />
+  return (
+    <DatePicker
+      selected={value}
+      onChange={onChange}
+      dateFormat="EEE, MMM d"
+      customInput={<CustomDateInput />}
+      calendarClassName="custom-calendar" // untuk styling dark mode
+    />
+  );
+};
+
+const TimePickerBox = ({ value, onChange }) => {
+  const CustomTimeInput = React.forwardRef(({ value, onClick }, ref) => (
+    <div
+      onClick={onClick}
+      ref={ref}
+      className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg px-4 py-2 cursor-pointer w-full"
+    >
+      <div className="flex items-center gap-2.5 w-full">
+        <Clock className="w-5 h-5 text-white" />
+        <span className="text-white text-base font-['Satoshi-Medium']">
+          {value || "Select time"}
+        </span>
+      </div>
+      <span className="text-white text-sm">▼</span>
     </div>
-    <span className="text-white text-sm">▼</span>
-  </div>
-);
+  ));
+
+  return (
+    <DatePicker
+      selected={value}
+      onChange={onChange}
+      showTimeSelect
+      showTimeSelectOnly
+      timeIntervals={30}
+      timeCaption="Time"
+      dateFormat="hh:mm"
+      customInput={<CustomTimeInput />}
+    />
+  );
+};
 
 
 export default CreateEvent;
