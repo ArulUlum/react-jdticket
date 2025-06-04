@@ -51,14 +51,19 @@ function CreateEvent() {
   const [locationInput, setLocationInput] = useState("");
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [showLocationOptions, setShowLocationOptions] = useState(false);
+  const [showMaps, setShowMaps] = useState(false);
   const [capacityMode, setCapacityMode] = useState("unlimited");
   const [customCapacity, setCustomCapacity] = useState("");
   const [eventType, setEventType] = useState("Free Event");
   const [showEventTypeOptions, setShowEventTypeOptions] = useState(false);
   const [requireApproval, setRequireApproval] = useState(true);
   const [eventImage, setEventImage] = useState("https://wallpapercave.com/wp/wp9297718.jpg");
+  const [eventImageFile, setEventImageFile] = useState(null);
   const [eventName, setEventName] = useState("");
   const [description, setDescription] = useState("");
+  const [price, setPrice] = useState(0);
+  const [locationName, setlocationName] = useState("");
+  const [locationAddress, setlocationAddress] = useState("");
   const [tags, setTags] = useState("");
 
   const fetchLocationSuggestions = async (input) => {
@@ -77,43 +82,6 @@ function CreateEvent() {
     } catch (error) {
       console.error("Error fetching Google Places suggestions", error);
     }
-  };
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const openModal = (type) => {
-    setSelectedType(type);
-    setShowTicketModal(true);
-  };
-
-  const closeModal = () => {
-    setShowTicketModal(false);
-    setTicketInput({ name: '', price: '', max_capacity: '' });
-  };
-
-  const handleTicketInputChange = (e) => {
-    setTicketInput({ ...ticketInput, [e.target.name]: e.target.value });
-  };
-
-  const handleAddTicket = () => {
-    const ticketToAdd = {
-      ...ticketInput,
-      price: selectedType === 'Free' ? 0 : parseFloat(ticketInput.price),
-      max_capacity: parseInt(ticketInput.max_capacity),
-    };
-    setTickets([...tickets, ticketToAdd]);
-    closeModal();
-  };
-
-  const handleRemoveTicket = (index) => {
-    const updatedTickets = [...tickets];
-    updatedTickets.splice(index, 1);
-    setTickets(updatedTickets);
   };
 
   const formatDateTime = (dateObj, timeObj) => {
@@ -143,7 +111,7 @@ function CreateEvent() {
     const payload = {
       name: eventName,
       description: description,
-      visibility: visibility,
+      visibility: (visibility === "Public" ? true : false),
       start_date: formatDateTime(startDate, startTime),
       end_date: formatDateTime(endDate, endTime),
       location: locationInput,
@@ -159,20 +127,43 @@ function CreateEvent() {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    const payload = {
-      name: eventName,
-      description: description,
-      visibility: visibility,
-      start_date: formatDateTime(startDate, startTime),
-      end_date: formatDateTime(endDate, endTime),
-      location: locationInput,
-      max_capacity: parseInt(capacityMode === "unlimited" ? -1 : capacityMode),
-      list_ticket: tickets,
-      approval: requireApproval
+    const tickets = {
+      name: eventType === "Free Event" ? "Free" : "Paid",
+      price: price,
+      max_capacity: -1,
     };
-    console.log(payload)
 
     try {
+      let imgUrl = eventImage; // default kosong
+
+      if (eventImageFile) {
+        const formData = new FormData();
+        formData.append("image", eventImageFile);
+
+        const saveImgRes = await axios.post(`${urlBe}/image/upload`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        imgUrl = saveImgRes.data.img_url; 
+      }
+
+      const payload = {
+        name: eventName,
+        image: imgUrl,
+        description: description,
+        visibility: visibility === "Public" ? true : false,
+        start_date: formatDateTime(startDate, startTime),
+        end_date: formatDateTime(endDate, endTime),
+        location: locationInput,
+        location_name: locationName,
+        location_address: locationAddress,
+        max_capacity: parseInt(capacityMode === "unlimited" ? -1 : capacityMode),
+        tickets: tickets,
+        approval: requireApproval
+      };
+      
       const response = await axios.post(
         `${urlBe}/events/create`,
         payload,
@@ -203,6 +194,10 @@ function CreateEvent() {
     }
   };
 
+  if (submitError) {
+    alert(submitError)
+  }
+
   return (
     <div className="flex flex-col lg:flex-row gap-4 pb-10 justify-center items-start">
       {/* Left Card */}
@@ -227,6 +222,7 @@ function CreateEvent() {
             onChange={(e) => {
               const file = e.target.files[0];
               if (file) {
+                setEventImageFile(file);
                 const reader = new FileReader();
                 reader.onloadend = () => setEventImage(reader.result);
                 reader.readAsDataURL(file);
@@ -343,7 +339,13 @@ function CreateEvent() {
                 placeholder="Enter location or virtual link"
                 className="bg-transparent outline-none text-white w-full font-['Satoshi-Medium']"
               />
-              <X className="w-5 h-5 text-white cursor-pointer" onClick={() => setLocationInput("")} />
+              <X 
+                className="w-5 h-5 text-white cursor-pointer" 
+                onClick={() => {
+                  setLocationInput("")
+                  setShowMaps(false);}
+                }
+              />
             </div>
             {showLocationOptions && locationInput && (
               <div className="absolute z-10 w-full bg-[#0f0f0f] border border-strokesss rounded-lg mt-2 shadow-lg max-h-[300px] overflow-y-auto">
@@ -353,16 +355,33 @@ function CreateEvent() {
                     className="px-4 py-2 hover:bg-gray-800 cursor-pointer text-white"
                     onClick={() => {
                       setLocationInput(item.description);
+                      setlocationName(item.structured_formatting.main_text)
+                      setlocationAddress(item.structured_formatting.secondary_text)
+                      setShowMaps(true)
                       setShowLocationOptions(false);
                     }}
                   >
-                    <div className="font-semibold">{item.structured_formatting.main_text}</div>
+                    <div className="font-['Satoshi-Bold']">{item.structured_formatting.main_text}</div>
                     <div className="text-xs text-gray-400">{item.structured_formatting.secondary_text}</div>
                   </div>
                 ))}
               </div>
             )}
           </div>
+          {showMaps && (
+            <>
+            <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+            </div>
+            <div>
+              <iframe
+                title="event-location"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(locationInput)}&output=embed`}
+                className="w-full h-60 rounded-lg border border-gray-700"
+                loading="lazy"
+              ></iframe>
+            </div>
+            </>
+          )}
           
           {/* Capacity */}
           <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
@@ -412,7 +431,7 @@ function CreateEvent() {
             </div>
 
             {showEventTypeOptions && (
-              <div className="absolute z-10 mt-2 w-full bg-[#0f0f0f] border border-strokesss rounded-lg shadow-md">
+              <div className="absolute z-10 w-full bg-[#1f1f1f] border border-strokesss rounded-lg shadow-md">
                 {["Free Event", "Paid Event"].map((option) => (
                   <div
                     key={option}
@@ -420,6 +439,9 @@ function CreateEvent() {
                     onClick={() => {
                       setEventType(option);
                       setShowEventTypeOptions(false);
+                      if (option === "Free Event") {
+                        setPrice(0);
+                      }
                     }}
                   >
                     {option}
@@ -428,8 +450,31 @@ function CreateEvent() {
               </div>
             )}
           </div>
+          {eventType === "Paid Event" && (
+            <>
+              <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+                Masukkan Harga
+              </div>
+              <div className="relative w-full">
+                <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full">
+                  <div className="flex items-center gap-2.5 w-full">
+                    <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+                      Rp
+                    </div>
+                    <input
+                      type="number"
+                      className="bg-transparent text-white outline-none w-full font-['Satoshi-Medium']"
+                      placeholder="Contoh: 50000"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
-
+          {/* Approval */}
           <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
             Approval
           </div>
@@ -465,15 +510,16 @@ function CreateEvent() {
         <div className="flex flex-col sm:flex-row gap-4 pt-6">
           <button
             onClick={handleSaveDraft} 
-            className="bg-[#303030] rounded-lg px-6 py-3 font-bold text-white font-['Satoshi-Bold'] w-full sm:w-1/2"
+            className="bg-[#303030] rounded-lg px-6 py-3 text-white font-['Satoshi-Bold'] w-full sm:w-1/2"
           >
             Save as Draft
           </button>
           <button 
             onClick={handleSubmit} 
-            className="bg-[#00594F] rounded-lg px-6 py-3 font-bold text-white font-['Satoshi-Bold'] w-full sm:w-1/2"
+            className="bg-[#00594F] rounded-lg px-6 py-3 text-white font-['Satoshi-Bold'] w-full sm:w-1/2 disabled:opacity-50"
+            disabled={isSubmitting}
           >
-            Create Event
+            {isSubmitting ? "Created..." : "Create Event"}
           </button>
         </div>
       </div>

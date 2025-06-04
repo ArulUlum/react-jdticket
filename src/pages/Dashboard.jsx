@@ -138,8 +138,11 @@ function Dashboard() {
 
             {/* Info Komunitas */}
             <div className="flex items-center gap-2 p-4 pt-3">
-              <img src={logo} alt="JoinDong" className="w-6 h-6 rounded-full" />
-              <span className="text-white text-sm font-medium">JoinDong</span>
+              <img 
+                src={(event.create_by.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event?.create_by.name || "User")}&background=random`)}
+                alt="ImageProfile" 
+                className="w-6 h-6 rounded-full" />
+              <span className="text-white text-sm font-medium">{event.create_by.name}</span>
             </div>
           </div>
         ))}

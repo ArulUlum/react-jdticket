@@ -203,7 +203,7 @@ function EventDetailGuest() {
                   alt="Host Avatar"
                   className="w-10 h-10 rounded-full object-cover"
                 />
-                <span className="text-white font-semibold">{event.created_by.name}</span>
+                <span className="text-white font-['Satoshi-Bold']">{event.created_by.name}</span>
               </div>
 
               <img
@@ -266,15 +266,15 @@ function EventDetailGuest() {
           
           <div className="flex flex-col ml-4">
             <p className="text-sm text-gray-500 mt-1">
-              Gambir Expo Kemayoran
+              {event.location_name}
             </p>
-            <p className="text-gray-400">{event.location}</p>
+            <p className="text-gray-400">{event.location_address}</p>
           </div>
         </div>
 
           {/* Register Box */}
           <div className="bg-[#1a1c29] p-6 rounded-lg border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4">Registration</h2>
+            <h2 className="text-xl font-['Satoshi-Bold'] mb-4">Registration</h2>
             <p className="text-sm text-gray-400 mb-4">
               Welcome! To join the event, please register below.
             </p>
@@ -284,7 +284,7 @@ function EventDetailGuest() {
                 className="flex justify-between items-center bg-[#11162a] rounded-lg px-4 py-3 mb-4 border border-white/20"
               >
                 <div>
-                  <h3 className="text-white text-md font-semibold">{ticket.name}</h3>
+                  <h3 className="text-white text-md font-['Satoshi-Bold']">{ticket.name}</h3>
                   <p className="text-sm text-gray-400"> 
                     {ticket.price === 0 ? 'Free' : `Rp ${ticket.price.toLocaleString()}`}
                   </p>
@@ -381,7 +381,7 @@ function EventDetailGuest() {
 
           {/* About Section */}
           <div>
-            <h2 className="text-xl font-semibold mb-2">About Event</h2>
+            <h2 className="text-xl font-['Satoshi-Bold'] mb-2">About Event</h2>
             <p className="text-gray-300 leading-relaxed whitespace-pre-line">
               {event.description || 'No description provided.'}
             </p>
@@ -389,8 +389,9 @@ function EventDetailGuest() {
 
           {/* Location Section */}
           <div>
-            <h2 className="text-xl font-semibold mb-2">Location</h2>
-            <p className="text-gray-300 mb-2">{event.location}</p>
+            <h2 className="text-xl font-['Satoshi-Bold'] mb-2">Location</h2>
+            <p className="text-base font-['Satoshi-Bold'] mb-2">{event.location_name}</p>
+            <p className="text-gray-300 mb-2">{event.location_address}</p>
             <iframe
               title="event-location"
               src={`https://www.google.com/maps?q=${encodeURIComponent(event.location)}&output=embed`}
