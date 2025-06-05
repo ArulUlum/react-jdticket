@@ -60,7 +60,7 @@ function Header({ user, isLoggedIn, handleLogout }) {
                     {/* Profile Info */}
                     <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2f645e]">
                       <img
-                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=random`}
+                        src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=random`}
                         alt="Profile"
                         className="w-10 h-10 rounded-full"
                       />

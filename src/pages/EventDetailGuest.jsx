@@ -199,7 +199,7 @@ function EventDetailGuest() {
             <div className='flex flex-row justify-between items-center'>
               <div className="flex items-center gap-3">
                 <img
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(event.created_by?.name || 'User')}&background=random`}
+                  src={event.created_by.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.created_by?.name || 'User')}&background=random`}
                   alt="Host Avatar"
                   className="w-10 h-10 rounded-full object-cover"
                 />

@@ -92,14 +92,14 @@ function EventDetailHost() {
     },
     {
       label: "Tickets Sold",
-      value: event.ticket_sold + "/" + event.total_ticket,
+      value: event.ticket_sold + "/" + (event.total_ticket === -1 ? "∞" : event.total_ticket),
       trend: "down",
       percent: "18%",
       color: "red",
     },
     {
       label: "Total Visitor",
-      value: "42.584",
+      value: event.total_visitor,
       trend: "up",
       percent: "75%",
       color: "green",
@@ -202,9 +202,9 @@ function EventDetailHost() {
                 <MapPin className="text-white w-5 h-5" />
               </div>
               <div>
-                <div className="text-base font-['Satoshi-Bold',_sans-serif]">Gambir Expo Kemayoran</div>
+                <div className="text-base font-['Satoshi-Bold',_sans-serif]">{event.location_name}</div>
                 <div className="text-sm text-[#A2A2A2] font-['Satoshi-Regular']">
-                  Jakarta Pusat, Daerah Khusus Ibukota Jakarta
+                  {event.location_address}
                 </div>
               </div>
             </div>
@@ -221,28 +221,39 @@ function EventDetailHost() {
         </div>
 
         {/* Registration Info */}
-        <div className="bg-transparent p-6 rounded-xl font-satoshi text-white">
+        <div className="bg-transparent pt-6 rounded-xl font-satoshi text-white">
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
-            <div className="text-lg font-['Satoshi-Bold',_sans-serif]">Registration</div>
+            <div className="text-lg font-['Satoshi-Bold',_sans-serif]">Guests</div>
             <button className="text-sm bg-[#1e1e1e] border border-[#333] px-3 py-1 rounded-lg hover:bg-[#2a2a2a]">
               View All
             </button>
           </div>
 
           {/* Stats */}
-          <div className="flex gap-10 mb-6">
-            <div>
-              <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.checkin_guest}/{event.total_guest}</span>
-              <div className="text-sm text-[#A2A2A2]">Guests Checked in</div>
+          <div className="flex justify-between mb-6">
+            <div className="flex gap-10">
+              <div className="flex items-start gap-2">
+                <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.checkin_guest}/{event.total_guest}</span>
+                <div className="text-sm text-[#A2A2A2] leading-tight">
+                  <div>Guests</div>
+                  <div>Checked in</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.checkin_invitees}/{event.total_invitees}</span>
+                <div className="text-sm text-[#A2A2A2] leading-tight">
+                  <div>Invitees</div>
+                  <div>Checked in</div>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.checkin_invitees}/{event.total_invitees}</span>
-              <div className="text-sm text-[#A2A2A2]">Invitees Checked in</div>
-            </div>
-            <div>
+            <div className="flex items-start gap-2">
               <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.total_checkin}/{event.total_registered}</span>
-              <div className="text-sm text-[#A2A2A2]">Total Registered</div>
+              <div className="text-sm text-[#A2A2A2] leading-tight">
+                <div>Total</div>
+                <div>Registered</div>
+              </div>
             </div>
           </div>
 
@@ -256,7 +267,7 @@ function EventDetailHost() {
                 {/* Left: Avatar & Name */}
                 <div className="flex items-center gap-3">
                   <img
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+                    src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
                     alt={user.name}
                     className="w-8 h-8 rounded-full object-cover"
                   />
@@ -287,7 +298,7 @@ function EventDetailHost() {
         </div>
 
         {/* Sales Report */}
-        <div className="font-satoshi text-white p-6">
+        <div className="font-satoshi text-white pt-6">
           {/* Heading */}
           <div className="mb-2 text-lg font-['Satoshi-Bold',_sans-serif]">Sales Report</div>
           <p className="text-sm text-[#A2A2A2] mb-4">
@@ -299,17 +310,24 @@ function EventDetailHost() {
             {salesData.map((item, idx) => (
               <div
                 key={idx}
-                className="bg-[#1a1a1a] rounded-xl p-4 w-full max-w-[280px] flex-1"
+                className="bg-[#1a1a1a] rounded-xl px-4 pt-4 w-full max-w-[280px] flex-1"
               >
-                <div className="text-sm text-[#A2A2A2] mb-1">{item.label}</div>
-                <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-1">{item.value}</div>
+                {/* Top row: Label kiri, All Time kanan */}
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-sm text-[#A2A2A2]">{item.label}</div>
+                  <span className="text-xs text-[#A2A2A2]">All time</span>
+                </div>
+
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-500">All time</span>
+                  <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-3">
+                    {item.value}
+                  </div>
+                  {/* Bottom: Trend (icon + percent) */}
                   <div
-                    className={`flex items-center gap-1 px-2 py-[2px] text-xs font-medium rounded-md ${
+                    className={`inline-flex items-center gap-1 px-2 py-[2px] text-xs font-medium rounded-md ${
                       item.color === "green"
-                        ? "bg-green-800 text-green-300"
-                        : "bg-red-800 text-red-300"
+                        ? "bg-green-900 text-green-400"
+                        : "bg-red-900 text-red-400"
                     }`}
                   >
                     {item.trend === "up" ? (
@@ -326,7 +344,7 @@ function EventDetailHost() {
         </div>
 
         {/* Hosts */}
-        <div className="font-satoshi text-white p-6">
+        <div className="font-satoshi text-white pt-6">
           {/* Heading */}
           <div className="mb-2 text-lg font-['Satoshi-Bold',_sans-serif]">Hosts</div>
           <p className="text-sm text-[#A2A2A2] mb-4">
@@ -379,7 +397,7 @@ function EventDetailHost() {
         </div>
 
         {/* Visibility */}
-        <div className="font-satoshi text-white p-6">
+        <div className="font-satoshi text-white pt-6">
           {/* Heading */}
           <div className="mb-2 text-lg font-['Satoshi-Bold',_sans-serif]">Visibility & Discovery</div>
           <p className="text-sm text-[#A2A2A2] mb-4">

@@ -78,7 +78,7 @@ function UserProfile() {
       {/* Profile Header */}
       <div className="flex space-x-4 p-8">
         <img
-          src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+          src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
           alt={user.name}
           className="w-24 h-24 rounded-full"
         />
@@ -114,7 +114,7 @@ function UserProfile() {
                 <div className="text-md font-medium">{event.name}</div>
                 <div className="text-sm text-gray-400 flex items-center gap-1">
                   <img
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+                    src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
                     className="w-4 h-4 rounded-full"
                     alt="avatar"
                   />
