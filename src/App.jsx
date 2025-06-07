@@ -7,6 +7,7 @@ import UserProfile from './pages/UserProfil';
 import EventDetailHost from './pages/EventDetailHost';
 import QRScanner from './pages/QRScanner';
 import LoginPage from './pages/LoginPage' 
+import UserScanPage from './pages/UserScanPage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/event/:id" element={<EventDetailGuest />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/event-detail/:id" element={<EventDetailHost />} />
+          <Route path="/event-user-scan/:id" element={<UserScanPage />} />
         </Route>
       </Routes>
     </Router>
