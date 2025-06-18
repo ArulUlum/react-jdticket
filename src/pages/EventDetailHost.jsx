@@ -3,6 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import axios from 'axios';
 import OverviewPage from './OverviewPage';
+import GuestPage from './GuestPage';
+import SalesPage from './SalesPage';
 
 const urlBe = import.meta.env.VITE_URL_CLAW;
 
@@ -79,6 +81,8 @@ function EventDetailHost() {
 
         <div>
           {activeTab === "Overview" && <OverviewPage id={id} event={event}/>}
+          {activeTab === "Guests" && <GuestPage id={id}/>}
+          {activeTab === "Sales Report" && <SalesPage id={id}/>}
         </div>
       </div>
     </div>

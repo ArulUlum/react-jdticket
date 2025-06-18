@@ -148,7 +148,7 @@ function EventDetailGuest() {
   const handleSubmitRegister = async (e) => {
     e.preventDefault();
   
-    if (!formData.name || !formData.email || !formData.phone) {
+    if (!formData.name || !formData.email) {
       alert('Semua field harus diisi!');
       return;
     }
@@ -334,7 +334,7 @@ function EventDetailGuest() {
 
                 <form className="space-y-4" onSubmit={handleSubmitRegister}>
                   <div>
-                    <label className="block text-sm text-white mb-1">Name *</label>
+                    <label className="block text-sm text-white mb-1">Name</label>
                     <input
                       type="text"
                       value={formData.name}
@@ -345,7 +345,7 @@ function EventDetailGuest() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-white mb-1">Email *</label>
+                    <label className="block text-sm text-white mb-1">Email</label>
                     <input
                       type="email"
                       value={formData.email}
@@ -356,14 +356,13 @@ function EventDetailGuest() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-white mb-1">Phone Number *</label>
+                    <label className="block text-sm text-white mb-1">Phone Number</label>
                     <input
                       type="tel"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-3 py-2 rounded bg-[#2a2d3e] text-white"
                       placeholder="08XXXXXXXX"
-                      required
                     />
                   </div>
 
