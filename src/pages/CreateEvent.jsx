@@ -21,7 +21,7 @@ import {
   ImagePlus 
 } from "lucide-react";
 
-const urlBe = import.meta.env.VITE_URL_CLAW;
+const urlBe = import.meta.env.VITE_URL_BE;
 
 function CreateEvent() {
   const now = new Date();

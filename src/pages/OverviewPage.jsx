@@ -15,7 +15,7 @@ import {
 import { format } from 'date-fns';
 import axios from 'axios';
 
-const urlBe = import.meta.env.VITE_URL_CLAW;
+const urlBe = import.meta.env.VITE_URL_BE;
 
 function OverviewPage({ id, event }) {
   const navigate = useNavigate();

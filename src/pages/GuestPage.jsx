@@ -10,7 +10,7 @@ import {
   Download,
 } from "lucide-react";
 
-const urlBe = import.meta.env.VITE_URL_CLAW;
+const urlBe = import.meta.env.VITE_URL_BE;
 
 const GuestPage = ({id}) => {
   const [guests, setGuests] = useState([]);

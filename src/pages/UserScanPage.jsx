@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Search, Crown } from 'lucide-react';
 import { formatDistance, differenceInMinutes, differenceInHours, parseISO } from 'date-fns';
 
-const urlBe = import.meta.env.VITE_URL_CLAW;
+const urlBe = import.meta.env.VITE_URL_BE;
 
 function UserScanPage() {
   const navigate = useNavigate();

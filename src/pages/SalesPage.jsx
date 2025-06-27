@@ -19,7 +19,7 @@ import {
   AreaChart
 } from 'recharts';
 
-const urlBe = import.meta.env.VITE_URL_CLAW;
+const urlBe = import.meta.env.VITE_URL_BE;
 
 const SalesPage = ({id}) => {
   const [type, setType] = useState('total sales');
@@ -47,13 +47,16 @@ const SalesPage = ({id}) => {
     }
   };
 
-  const getDisplayData = () => {
-    if (data?.data_graphic.length === 1) {
-      data.data_graphic.unshift({ label: '', value: 0 })
-    }
+  if (data?.data_graphic.length === 1) {
+    data.data_graphic.unshift({ label: '', value: 0 })
   }
 
-  const displayData = getDisplayData();
+  const showSpesificGraphic = (value) => {
+    if (type === "total sales"){
+      return [`Rp ${value.toLocaleString('id-ID')}`, '']
+    }
+    return [`${value.toLocaleString('id-ID')}`, '']
+  }  
 
   const salesData = [
     {
@@ -193,7 +196,7 @@ const SalesPage = ({id}) => {
                 <CartesianGrid strokeDasharray="3 3" stroke="#333" />
                 <XAxis dataKey="label" stroke="#ccc" tick={{ fontSize: 10 }} />
                 <YAxis stroke="#ccc" tick={{ fontSize: 10 }} tickFormatter={(v) => `${v.toLocaleString('id-ID')}`} />
-                <Tooltip formatter={(value) => [`Rp ${value.toLocaleString('id-ID')}`, '']} labelStyle={{ color: '#fff', fontSize: 12 }} contentStyle={{ backgroundColor: '#1f1f1f', borderColor: '#00FF66', fontSize: 12 }} />
+                <Tooltip formatter={(value) => showSpesificGraphic(value)} labelStyle={{ color: '#fff', fontSize: 12 }} contentStyle={{ backgroundColor: '#1f1f1f', borderColor: '#00FF66', fontSize: 12 }} />
                 <Area type="monotone" dataKey="value" stroke="#00FF66" fillOpacity={1} fill="url(#colorValue)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -209,13 +212,20 @@ const SalesPage = ({id}) => {
             >
               {/* Top row: Label kiri, All Time kanan */}
               <div className="flex justify-between items-center mb-2">
-                <div className="text-sm text-[#A2A2A2]">{item.name}</div>
+                <div className='flex items-center gap-4'>
+                  <div className="text-sm text-[#A2A2A2]">{item.name}</div>
+                  {item.is_approval && (
+                    <span className="text-xs bg-[#3C2F14] text-[#F5C249] px-2 py-0.5 rounded-full ">
+                      Need Approval
+                    </span>
+                  )}
+                </div>
                 <span className="text-xs text-[#A2A2A2]">Tickets</span>
               </div>
 
               <div className="flex justify-between items-center">
                 <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-3">
-                  60/100
+                  {item.sold_ticket.toLocaleString('id-ID')}/{item.max_capacity === -1 ? "∞" : item?.max_capacity.toLocaleString('id-ID')}
                 </div>                
               </div>
             </div>

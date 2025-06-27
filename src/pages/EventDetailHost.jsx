@@ -5,8 +5,9 @@ import axios from 'axios';
 import OverviewPage from './OverviewPage';
 import GuestPage from './GuestPage';
 import SalesPage from './SalesPage';
+import TicketsPage from './TicketsPage';
 
-const urlBe = import.meta.env.VITE_URL_CLAW;
+const urlBe = import.meta.env.VITE_URL_BE;
 
 function EventDetailHost() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ function EventDetailHost() {
   };
 
   useEffect(() => {
-    axios.get(`${urlBe}/events/get-detail/${id}`,
+    axios.get(`${urlBe}/events/overview/${id}`,
       {
         headers: {
             'x-jdticket': localStorage.getItem('token') || '',
@@ -83,6 +84,7 @@ function EventDetailHost() {
           {activeTab === "Overview" && <OverviewPage id={id} event={event}/>}
           {activeTab === "Guests" && <GuestPage id={id}/>}
           {activeTab === "Sales Report" && <SalesPage id={id}/>}
+          {activeTab === "Tickets" && <TicketsPage id={id}/>}
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 
-const urlBe = import.meta.env.VITE_URL_CLAW;
+const urlBe = import.meta.env.VITE_URL_BE;
 
 function Layout() {
   const [user, setUser] = useState(() => {
@@ -36,9 +36,9 @@ function Layout() {
       // token valid
     } catch (err) {
       console.error('Token invalid or expired:', err.response.data.message);
-      alert(err.response.data.message)
+      // alert(err.response.data.message)
       handleLogout();
-      navigate('/login'); // redirect ke home atau login
+      // navigate('/'); // redirect ke home atau login
     }
   };
 
@@ -54,7 +54,7 @@ function Layout() {
       localStorage.removeItem("user");
       setUser(null);
       setIsLoggedIn(false);
-      navigate('/login'); // redirect ke home atau login
+      navigate('/'); // redirect ke home atau login
     } catch (err) {
       console.error('Error:', err);
     }

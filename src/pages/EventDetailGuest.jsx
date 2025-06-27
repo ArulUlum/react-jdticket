@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 import { FaMapPin } from 'react-icons/fa'; 
 import { useNavigate } from 'react-router-dom';
 
-const urlBe = import.meta.env.VITE_URL_CLAW;
+const urlBe = import.meta.env.VITE_URL_BE;
 
 function EventDetailGuest() {
   const { id } = useParams();
@@ -26,7 +26,7 @@ function EventDetailGuest() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`${urlBe}/events/get/${id}`)
+    axios.get(`${urlBe}/events/detail/${id}`)
       .then((res) => {
         const data = res.data.data;
         setEvent(data);

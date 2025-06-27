@@ -3,7 +3,7 @@ import googleIcon from '../assets/Google.svg'
 import axios from 'axios';
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-const urlBe = import.meta.env.VITE_URL_CLAW;
+const urlBe = import.meta.env.VITE_URL_BE;
 
 function GoogleLoginCustom() {
   const navigate = useNavigate();
