@@ -48,8 +48,28 @@ function Dashboard() {
       perView: 4,
       spacing: 15,
     },
+    breakpoints: {
+      "(max-width: 1024px)": {
+        slides: {
+          perView: 3,
+          spacing: 12,
+        },
+      },
+      "(max-width: 768px)": {
+        slides: {
+          perView: 2,
+          spacing: 10,
+        },
+      },
+      "(max-width: 480px)": {
+        slides: {
+          perView: 1.2,
+          spacing: 8,
+        },
+      },
+    },
     created(slider) {
-      const perView = slider.options.slides.perView || 1
+      const perView = typeof slider.options.slides.perView === 'number' ? slider.options.slides.perView : 1
       const totalSlides = slider.track.details.slides.length
       const dots = Math.max(1, Math.ceil(totalSlides - perView + 1))
       setTotalDots(dots)
@@ -79,8 +99,8 @@ function Dashboard() {
   return (
     <div>
       <div className='flex flex-col mb-8'>
-        <h1 className="text-3xl font-['Satoshi-Bold']">Browse Event</h1>
-        <p className="text-gray-400 text-lg mt-2">
+        <h1 className="text-responsive-title">Browse Event</h1>
+        <p className="text-gray-400 text-responsive-medium mt-2">
           Explore popular events near you, browse by category, or check out some of the great community calendars.
         </p>
       </div>
@@ -88,10 +108,10 @@ function Dashboard() {
       {/* Popular Events */}
       <div className="flex justify-between items-center mb-4">
         <div>
-            <h2 className="text-2xl font-['Satoshi-Bold']">Popular Events</h2>
-            <p className="text-gray-400 text-lg">Jakarta</p>
+            <h2 className="text-responsive-sub-title">Popular Events</h2>
+            <p className="text-gray-400 text-responsive-medium">Jakarta</p>
         </div>
-        <button className="text-gray-400 hover:text-white">View All</button>
+        <button className="text-gray-400 text-responsive-medium hover:text-white">View All</button>
       </div>
 
       {/* Event Grid */}
@@ -124,9 +144,9 @@ function Dashboard() {
 
             {/* Konten */}
             <div className="px-4 pb-4">
-              <h3 className="text-white text-lg font-semibold">{event.name}</h3>
-              <p className="text-gray-400 text-sm mt-1">{format(new Date(event.start_date), 'd MMM yyyy')}</p>
-              <p className="text-white text-sm mt-1">
+              <h3 className="text-responsive-item-title">{event.name}</h3>
+              <p className="text-gray-400 text-responsive-caption mt-1">{format(new Date(event.start_date), 'd MMM yyyy')}</p>
+              <p className="text-responsive-item-title mt-1">
                 {!event.price || Number(event.price) === 0
                   ? 'Free'
                   : `Rp ${Number(event.price).toLocaleString()}`}
@@ -142,7 +162,7 @@ function Dashboard() {
                 src={(event.create_by.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event?.create_by.name || "User")}&background=random`)}
                 alt="ImageProfile" 
                 className="w-6 h-6 rounded-full" />
-              <span className="text-white text-sm font-medium">{event.create_by.name}</span>
+              <span className="text-responsive-item-title">{event.create_by.name}</span>
             </div>
           </div>
         ))}
