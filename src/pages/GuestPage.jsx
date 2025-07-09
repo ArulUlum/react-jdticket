@@ -165,7 +165,7 @@ const GuestPage = ({id}) => {
               <div className="flex items-center gap-4">
                 {guest.total_ticket > 1 && (
                   <div className="bg-gray-700 text-white text-xs px-2 py-1 rounded-full font-['Satoshi-Regular',_sans-serif]">
-                    {guest.tickets} Tickets
+                    {guest.total_ticket} Tickets
                   </div>
                 )}
                 {guest.status === "approve" ? (

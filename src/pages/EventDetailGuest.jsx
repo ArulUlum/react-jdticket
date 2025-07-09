@@ -1,8 +1,6 @@
+import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
-import insta from '../assets/insta.svg';
-import copy from '../assets/copy.svg';
 import { format } from 'date-fns';
 import { FaMapPin } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +8,18 @@ import {
   ChevronDown,
   ChevronRight
 } from 'lucide-react';
+import insta from '../assets/insta.svg';
+import copy from '../assets/copy.svg';
+import qris from '../assets/QRIS.svg';
+import gopay from '../assets/Gopay.svg';
+import ovo from '../assets/OVO.svg';
+import dana from '../assets/DANA.svg';
+import shoopePay from '../assets/Shopee-Pay.svg';
+import bca from '../assets/BCA.svg';
+import mandiri from '../assets/Mandiri.svg';
+import bni from '../assets/BNI.svg';
+import bri from '../assets/BRI.svg';
+import creditCard from '../assets/Credit-Card.svg';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
@@ -29,28 +39,28 @@ function EventDetailGuest() {
   const navigate = useNavigate();
 
   const payments = [
-    { group: 'QRIS', items: [{ label: 'QRIS', icon: '/qris.svg', code: 'QRIS' }] },
+    { group: 'QRIS', items: [{ label: 'QRIS', icon: qris, code: 'QRIS' }] },
     {
       group: 'E-Wallet',
       items: [
-        { label: 'Gopay', icon: '/gopay.svg', code: 'GOPAY' },
-        { label: 'OVO', icon: '/ovo.svg', code: 'OVO' },
-        { label: 'Dana', icon: '/dana.svg', code: 'DANA' },
-        { label: 'ShopeePay', icon: '/shopeepay.svg', code: 'SHOPEEPAY' },
+        { label: 'Gopay', icon: gopay, code: 'GOPAY' },
+        { label: 'OVO', icon: ovo, code: 'OVO' },
+        { label: 'Dana', icon: dana, code: 'DANA' },
+        { label: 'ShopeePay', icon: shoopePay, code: 'SHOPEEPAY' },
       ],
     },
     {
       group: 'Virtual Account',
       items: [
-        { label: 'BCA Virtual Account', icon: '/bca.svg', code: 'BCA' },
-        { label: 'Mandiri Virtual Account', icon: '/mandiri.svg', code: 'MANDIRI' },
-        { label: 'BNI Virtual Account', icon: '/bni.svg', code: 'BNI' },
-        { label: 'BRI Virtual Account', icon: '/bri.svg', code: 'BRI' },
+        { label: 'BCA Virtual Account', icon: bca, code: 'BCA' },
+        { label: 'Mandiri Virtual Account', icon: mandiri, code: 'MANDIRI' },
+        { label: 'BNI Virtual Account', icon: bni, code: 'BNI' },
+        { label: 'BRI Virtual Account', icon: bri, code: 'BRI' },
       ],
     },
     {
       group: 'Credit Card',
-      items: [{ label: 'Credit Card', icon: '/creditcard.svg', code: 'CREDIT_CARD' }],
+      items: [{ label: 'Credit Card', icon: creditCard, code: 'CREDIT_CARD' }],
     },
   ];
 
@@ -580,14 +590,14 @@ function EventDetailGuest() {
                       {group.items.map((item) => (
                         <div
                           key={item.label}
-                          className={`flex items-center gap-3 p-3 rounded-lg border w-full cursor-pointer ${
+                          className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${
                             selectedPayment === item.label
                               ? "border-[#13E7BD] bg-[#1c1d1d]"
-                              : "border-gray-600 bg-[#1c1d1d]"
+                              : "border-[#212121] bg-[#1c1d1d]"
                           }`}
                           onClick={() => setSelectedPayment(item.label)}
                         >
-                          <img src={item.icon} alt={item.label} className="w-7 h-7" />
+                          <img src={item.icon} alt={item.label} className="w-9 h-9" />
                           <div className="text-[#a2a2a2] text-responsive-medium flex-1">{item.label}</div>
                           <input
                             type="radio"
@@ -595,7 +605,7 @@ function EventDetailGuest() {
                             value={item.label}
                             checked={selectedPayment === item.label}
                             onChange={() => setSelectedPayment(item.label)}
-                            className="accent-[#13E7BD] w-5 h-5"
+                            className="accent-[#13E7BD] w-5 h-5 cursor-pointer"
                           />
                         </div>
                       ))}
