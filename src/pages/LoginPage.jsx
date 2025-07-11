@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 const urlBe = import.meta.env.VITE_URL_BE;
+const google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -229,7 +230,7 @@ function LoginPage() {
   }
 
   return (
-    <GoogleOAuthProvider clientId="785284739839-i6i68i0ft8ep1bqf9ogdrkg9i38rutcs.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={google_client_id}>
     <div className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute ">
       {step === 1 && (
         <div 

@@ -6,6 +6,7 @@ import OverviewPage from './OverviewPage';
 import GuestPage from './GuestPage';
 import SalesPage from './SalesPage';
 import TicketsPage from './TicketsPage';
+import BlastPage from './BlastPage';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
@@ -56,36 +57,35 @@ function EventDetailHost() {
   if (!event) return <p className="text-red-500">Event not found.</p>;
 
   return (
-    <div className="px-4 pb-20">
-      <div className="max-w-4xl mx-auto">
-        <div className="font-['Satoshi-Bold',_sans-serif] text-white mb-6">
-          {/* Title */}
-          <h1 className="text-3xl font-['Satoshi-Bold',_sans-serif] mb-4">{event.name}</h1>
+    <div className="max-w-4xl mx-auto">
+      <div className="font-['Satoshi-Bold',_sans-serif] text-white mb-6">
+        {/* Title */}
+        <h1 className="text-3xl font-['Satoshi-Bold',_sans-serif] mb-4">{event.name}</h1>
 
-          {/* Tab Navigasi */}
-          <div className="flex gap-4">
-            {tabs.map((tab) => (
-              <div
-                key={tab}
-                onClick={() => handleTabClick(tab)}
-                className={`mr-4 text-lg cursor-pointer ${
-                  activeTab === tab
-                    ? "text-white font-['Satoshi-Bold',_sans-serif] border-b-2 border-[#2F645E]"
-                    : "text-[#A2A2A2] font-['Satoshi-Regular'] hover:text-white"
-                }`}
-              >
-                {tab}
-              </div>
-            ))}
-          </div>
+        {/* Tab Navigasi */}
+        <div className="flex gap-4">
+          {tabs.map((tab) => (
+            <div
+              key={tab}
+              onClick={() => handleTabClick(tab)}
+              className={`mr-4 text-lg cursor-pointer ${
+                activeTab === tab
+                  ? "text-white font-['Satoshi-Bold',_sans-serif] border-b-2 border-[#2F645E]"
+                  : "text-[#A2A2A2] font-['Satoshi-Regular'] hover:text-white"
+              }`}
+            >
+              {tab}
+            </div>
+          ))}
         </div>
+      </div>
 
-        <div>
-          {activeTab === "Overview" && <OverviewPage id={id} event={event}/>}
-          {activeTab === "Guests" && <GuestPage id={id}/>}
-          {activeTab === "Sales Report" && <SalesPage id={id}/>}
-          {activeTab === "Tickets" && <TicketsPage id={id}/>}
-        </div>
+      <div>
+        {activeTab === "Overview" && <OverviewPage id={id} event={event}/>}
+        {activeTab === "Guests" && <GuestPage id={id}/>}
+        {activeTab === "Sales Report" && <SalesPage id={id}/>}
+        {activeTab === "Tickets" && <TicketsPage id={id}/>}
+        {activeTab === "Blast" && <BlastPage id={id}/>}
       </div>
     </div>
   );

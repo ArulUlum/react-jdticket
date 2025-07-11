@@ -551,7 +551,7 @@ const DatePickerBox = ({ value, onChange }) => {
       onChange={onChange}
       dateFormat="EEE, MMM d"
       customInput={<CustomDateInput />}
-      calendarClassName="custom-calendar" // untuk styling dark mode
+      calendarClassName="custom-calendar"
     />
   );
 };

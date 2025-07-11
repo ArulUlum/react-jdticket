@@ -374,7 +374,7 @@ function OverviewPage({ id, event }) {
           {/* Public Button */}
           <button
             onClick={() => handleVisibleClick("public")}
-            className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-sm w-full py-2
+            className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-sm w-full
               ${visibility === "public"
                 ? "border-[#3DAA95] bg-[#1a1a1a] text-white"
                 : "border-transparent bg-[#1a1a1a] text-gray-500"
@@ -387,7 +387,7 @@ function OverviewPage({ id, event }) {
           {/* Private Button */}
           <button
             onClick={() => handleVisibleClick("private")}
-            className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-sm w-full py-2
+            className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-sm w-full
               ${visibility === "private"
                 ? "border-[#3DAA95] bg-[#1a1a1a] text-white"
                 : "border-transparent bg-[#1a1a1a] text-gray-500"
