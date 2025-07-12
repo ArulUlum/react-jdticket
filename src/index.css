@@ -117,6 +117,10 @@ button:focus-visible {
     @apply text-sm sm:text-base md:text-lg font-['Satoshi-Medium',_sans-serif];
   }
 
+  .text-responsive-medium-small {
+    @apply text-xs sm:text-sm font-['Satoshi-Medium',_sans-serif];
+  }
+
   .text-responsive-regular {
     @apply text-sm sm:text-base font-['Satoshi-Regular',_sans-serif];
   }

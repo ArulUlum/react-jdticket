@@ -1,12 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import logo from '../assets/logo.png';
 import axios from 'axios';
-import OverviewPage from './OverviewPage';
-import GuestPage from './GuestPage';
-import SalesPage from './SalesPage';
-import TicketsPage from './TicketsPage';
-import BlastPage from './BlastPage';
+import { lazy, Suspense } from 'react';
+
+function SkeletonLoader() {
+  return (
+    <div className="animate-pulse">
+      <div className="h-8 w-1/2 bg-[#141717] rounded mb-4" />
+      <div className="flex gap-4 mb-6">
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="h-6 w-24 bg-[#141717] rounded" />
+        ))}
+      </div>
+      <div className="h-96 w-full bg-[#141717] rounded" />
+    </div>
+  );
+}
+
+const OverviewPage = lazy(() => import('./OverviewPage'));
+const GuestPage = lazy(() => import('./GuestPage'));
+const SalesPage = lazy(() => import('./SalesPage'));
+const TicketsPage = lazy(() => import('./TicketsPage'));
+const BlastPage = lazy(() => import('./BlastPage'));
+const MorePage = lazy(() => import('./MorePage'));
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
@@ -44,12 +60,8 @@ function EventDetailHost() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-[#060810]">
-        <img
-          src={logo}
-          alt="Loading..."
-          className="w-29 h-32 animate-pulseShrink"
-        />
+      <div className="max-w-4xl mx-auto py-12">
+        <SkeletonLoader />
       </div>
     );
   }
@@ -58,9 +70,9 @@ function EventDetailHost() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="font-['Satoshi-Bold',_sans-serif] text-white mb-6">
+      <div className="text-white mb-6">
         {/* Title */}
-        <h1 className="text-3xl font-['Satoshi-Bold',_sans-serif] mb-4">{event.name}</h1>
+        <h1 className="text-responsive-title mb-4">{event.name}</h1>
 
         {/* Tab Navigasi */}
         <div className="flex gap-4">
@@ -80,13 +92,14 @@ function EventDetailHost() {
         </div>
       </div>
 
-      <div>
+      <Suspense fallback={<SkeletonLoader />}>
         {activeTab === "Overview" && <OverviewPage id={id} event={event}/>}
         {activeTab === "Guests" && <GuestPage id={id}/>}
         {activeTab === "Sales Report" && <SalesPage id={id}/>}
         {activeTab === "Tickets" && <TicketsPage id={id}/>}
         {activeTab === "Blast" && <BlastPage id={id}/>}
-      </div>
+        {activeTab === "More" && <MorePage id={id}/>}
+      </Suspense>
     </div>
   );
 }

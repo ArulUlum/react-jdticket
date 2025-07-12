@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useState } from "react";
 import IconWorld from '../assets/icon-world.svg';
 import Ticket from '../assets/Vector.svg';
@@ -12,41 +12,35 @@ function Header({ user, isLoggedIn, handleLogout }) {
     <div className="w-full fixed top-0 z-50 bg-[rgba(103,103,103,0.10)] backdrop-blur-[8.8px]">
       <div className="px-4 mx-auto h-[53px] flex items-center justify-between">
         {/* Logo */}
-        <div
-          onClick={() => navigate('/')}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && navigate('/')} 
-          className="text-white font-['Lexend-Bold',sans-serif] text-2xl font-bold tracking-tight"
+        <Link 
+          to="/" 
+          className="text-white font-['Lexend-Bold',sans-serif] text-2xl font-bold tracking-tight transition-colors duration-200 hover:text-[#fff] hover:brightness-150"
         >
           kebbu
-        </div>
+        </Link>
 
         {/* Menu Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          <div className="flex items-center gap-2 cursor-pointer">
+          <Link className="flex items-center gap-2 cursor-pointer">
             <img src={Ticket} alt="ticket" className="w-4 h-4" />
             <span className="text-white font-['Satoshi-Medium',sans-serif] text-sm">My Events</span>
-          </div>
-          <div className="flex items-center gap-2 cursor-pointer">
+          </Link>
+          <Link className="flex items-center gap-2 cursor-pointer">
             <img src={IconWorld} alt="world" className="w-4 h-4" />
             <span className="text-white font-['Satoshi-Medium',sans-serif] text-sm">Discover</span>
-          </div>
+          </Link>
         </div>
 
         {/* Right Section */}
         <div className="flex items-center gap-5">
           {isLoggedIn ? (
             <>
-              <div
-                onClick={() => navigate('/create-event')}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && navigate('/create-event')}
-                className="text-white font-['Satoshi-Medium',sans-serif] text-sm cursor-pointer"
+              <Link
+                to="/create-event"
+                className="text-white hover:text-white font-['Satoshi-Medium',sans-serif] text-sm cursor-pointer"
               >
                 Create Event
-              </div>
+              </Link>
 
               <div className="relative">
                 <img
