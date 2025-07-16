@@ -64,6 +64,8 @@ function EventDetailGuest() {
     },
   ];
 
+  const [selectedPaymentGroup, setSelectedPaymentGroup] = useState(payments[0].group);
+
   // Helper: get selected tickets
   const getSelectedTickets = () => event?.list_ticket?.filter(ticket => quantities[ticket.id] > 0) || [];
   // Helper: check if any paid ticket selected
@@ -284,84 +286,88 @@ function EventDetailGuest() {
 
 
   return (
-    <div>
+    <div className='mb-10'>
       <div className="mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
         {/* Left Panel */}
         <div className="md:col-span-1 space-y-4">
+          {/* image */}
           <img
             src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
             alt={event.name}
             className="rounded-xl w-full h-[300px] object-cover"
           />
-          <div className="mt-6">
-            <h3 className="text-responsive-item-title text-[#a2a2a2]">Host</h3>
-            <hr className="border-t border-gray-300 my-2 opacity-20" />
-            <div className='flex flex-row justify-between items-center'>
-              <div className="flex items-center gap-3">
+          {/* host */}
+          <div>
+            <div className="mt-6">
+              <h3 className="text-responsive-item-title text-[#a2a2a2]">Host</h3>
+              <hr className="border-t border-gray-300 my-2 opacity-20" />
+              <div className='flex flex-row justify-between items-center'>
+                <div className="flex items-center gap-3">
+                  <img
+                    src={event.created_by.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.created_by?.name || 'User')}&background=random`}
+                    alt="Host Avatar"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <span className="text-white text-responsive-sub-title">{event.created_by.name}</span>
+                </div>
+
                 <img
-                  src={event.created_by.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.created_by?.name || 'User')}&background=random`}
-                  alt="Host Avatar"
-                  className="w-10 h-10 rounded-full object-cover"
+                  src={insta}
+                  alt="Instagram Icon"
+                  className="w-6 h-6"
                 />
-                <span className="text-white text-responsive-sub-title">{event.created_by.name}</span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-responsive-item-title text-[#a2a2a2]">{event.registered.total} Going</h3>
+              <hr className="border-t border-gray-300 my-2 opacity-20" />
+              <div className="flex items-center space-x-2 mb-1 mt-3">
+                <div className="flex -space-x-3">
+                  {event.registered.list.map((user, index) => (
+                    <img
+                      key={index}
+                      src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full border-2 border-black object-cover"
+                    />
+                  ))}
+                  {event.registered.others > 0 && (
+                    <div className="w-8 h-8 rounded-full bg-gray-700 opacity-80 text-white text-xs flex items-center justify-center border-2 border-black">
+                      +{event.registered.others}
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <img
-                src={insta}
-                alt="Instagram Icon"
-                className="w-6 h-6"
-              />
+              <div className="text-white text-responsive-regular mt-1">
+                {event.registered.list.map(user => user.name).join(", ")}
+                {event.registered.others > 0 && ` and ${event.registered.others} others`}
+              </div>
             </div>
-          </div>
 
-          <div className="mt-6">
-            <h3 className="text-responsive-item-title text-[#a2a2a2]">{event.registered.total} Going</h3>
-            <hr className="border-t border-gray-300 my-2 opacity-20" />
-            <div className="flex items-center space-x-2 mb-1 mt-3">
-              <div className="flex -space-x-3">
-                {event.registered.list.map((user, index) => (
-                  <img
-                    key={index}
-                    src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
-                    alt={user.name}
-                    className="w-8 h-8 rounded-full border-2 border-black object-cover"
-                  />
-                ))}
-                {event.registered.others > 0 && (
-                  <div className="w-8 h-8 rounded-full bg-gray-700 opacity-80 text-white text-xs flex items-center justify-center border-2 border-black">
-                    +{event.registered.others}
+            <div className="mt-6">
+              <h3 className="text-responsive-item-title text-[#a2a2a2]">Share</h3>
+              <hr className="border-t border-gray-300 my-2 opacity-20" />
+              <div className="flex flex-row items-center gap-2">
+                {copied && (
+                  <div className="absolute bg-gray-800 text-white text-responsive-caption px-2 py-1 rounded shadow z-50">
+                    Link copied!
                   </div>
                 )}
+                <img
+                  src={copy}
+                  alt="Copy Icon"
+                  className="w-5 h-5 cursor-pointer"
+                  onClick={handleCopy}
+                />
+                <p className="text-white text-responsive-regular mt-0.5">Copy link</p>
+
               </div>
             </div>
-
-            <div className="text-white text-responsive-regular mt-1">
-              {event.registered.list.map(user => user.name).join(", ")}
-              {event.registered.others > 0 && ` and ${event.registered.others} others`}
-            </div>
+            <h3 className="text-responsive-item-title text-[#a2a2a2]">Contact the Host</h3>
+            <h3 className="text-responsive-item-title text-[#a2a2a2]">Report Event</h3>
           </div>
-
-          <div className="mt-6">
-            <h3 className="text-responsive-item-title text-[#a2a2a2]">Share</h3>
-            <hr className="border-t border-gray-300 my-2 opacity-20" />
-            <div className="flex flex-row items-center gap-2">
-              {copied && (
-                <div className="absolute bg-gray-800 text-white text-responsive-caption px-2 py-1 rounded shadow z-50">
-                  Link copied!
-                </div>
-              )}
-              <img
-                src={copy}
-                alt="Copy Icon"
-                className="w-5 h-5 cursor-pointer"
-                onClick={handleCopy}
-              />
-              <p className="text-white text-responsive-regular mt-0.5">Copy link</p>
-
-            </div>
-          </div>
-          <h3 className="text-responsive-item-title text-[#a2a2a2]">Contact the Host</h3>
-          <h3 className="text-responsive-item-title text-[#a2a2a2]">Report Event</h3>
         </div>
 
         {/* Right Panel */}
@@ -419,17 +425,17 @@ function EventDetailGuest() {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => increaseQty(ticket.id)}
-                    className="w-6 h-6 bg-[#303030] text-white text-sm rounded flex items-center justify-center"
-                  >
-                    +
-                  </button>
-                  <span className="w-6 text-center">{quantities[ticket.id]}</span>
-                  <button
                     onClick={() => decreaseQty(ticket.id)}
                     className="w-6 h-6 bg-[#303030] text-white text-sm rounded flex items-center justify-center"
                   >
                     –
+                  </button>
+                  <span className="w-6 text-center">{quantities[ticket.id]}</span>
+                  <button
+                    onClick={() => increaseQty(ticket.id)}
+                    className="w-6 h-6 bg-[#303030] text-white text-sm rounded flex items-center justify-center"
+                  >
+                    +
                   </button>
                 </div>
               </div>
@@ -583,36 +589,59 @@ function EventDetailGuest() {
               {/* Show payment only if at least one selected ticket is paid */}
               {hasPaidTicket() && (
                 <div className="flex flex-col gap-3 w-full mt-4">
-                  <div className="text-white text-2xl font-bold">Payment</div>
-                  {payments.map((group) => (
-                    <div key={group.group} className="flex flex-col gap-1 w-full">
-                      <div className="text-white text-responsive-medium">{group.group}</div>
-                      {group.items.map((item) => (
+                  <div className="text-white text-responsive-sub-title">Payment</div>
+                  <div className="flex flex-col gap-1 mb-2">
+                    {payments.map((group) => (
+                      <div key={group.group} className="flex flex-col gap-1">
                         <div
-                          key={item.label}
-                          className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${
-                            selectedPayment === item.label
-                              ? "border-[#13E7BD] bg-[#1c1d1d]"
-                              : "border-[#212121] bg-[#1c1d1d]"
+                          className={`text-responsive-caption-bold cursor-pointer py-1 rounded transition-colors duration-150 ${
+                            selectedPaymentGroup === group.group
+                              ? "text-white"
+                              : "text-[#a2a2a2]"
                           }`}
-                          onClick={() => setSelectedPayment(item.label)}
+                          onClick={() => {
+                            if (selectedPaymentGroup !== group.group) {
+                              setSelectedPaymentGroup(group.group);
+                              setSelectedPayment(null); // reset selected payment
+                            }
+                          }}
                         >
-                          <img src={item.icon} alt={item.label} className="w-9 h-9" />
-                          <div className="text-[#a2a2a2] text-responsive-medium flex-1">{item.label}</div>
-                          <input
-                            type="radio"
-                            name="paymentMethod"
-                            value={item.label}
-                            checked={selectedPayment === item.label}
-                            onChange={() => setSelectedPayment(item.label)}
-                            className="accent-[#13E7BD] w-5 h-5 cursor-pointer"
-                          />
+                          {group.group}
                         </div>
-                      ))}
-                    </div>
-                  ))}
+                        {selectedPaymentGroup === group.group && (
+                          <div className="flex flex-col gap-1 w-full">
+                            {group.items.map((item) => (
+                              <div
+                                key={item.label}
+                                className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${
+                                  selectedPayment === item.label
+                                    ? "border-[#13E7BD] bg-[#1c1d1d]"
+                                    : "border-[#212121] bg-[#1c1d1d]"
+                                }`}
+                                onClick={() => setSelectedPayment(item.label)}
+                              >
+                                <img src={item.icon} alt={item.label} className="w-9 h-9" />
+                                <div className="text-[#a2a2a2] text-responsive-medium flex-1">
+                                  {item.label}
+                                </div>
+                                <input
+                                  type="radio"
+                                  name="paymentMethod"
+                                  value={item.label}
+                                  checked={selectedPayment === item.label}
+                                  onChange={() => setSelectedPayment(item.label)}
+                                  className="accent-[#13E7BD] w-5 h-5 cursor-pointer"
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
+
 
               {/* Continue */}
               <button

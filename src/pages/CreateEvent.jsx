@@ -1,5 +1,7 @@
 // Import yang dibutuhkan
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../utils/cropImage';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { format, addMinutes } from 'date-fns';
@@ -59,6 +61,11 @@ function CreateEvent() {
   const [requireApproval, setRequireApproval] = useState(true);
   const [eventImage, setEventImage] = useState("https://wallpapercave.com/wp/wp9297718.jpg");
   const [eventImageFile, setEventImageFile] = useState(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [rawImage, setRawImage] = useState(null);
   const [eventName, setEventName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(0);
@@ -199,39 +206,101 @@ function CreateEvent() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4 pb-10 justify-center items-start">
+    <div className="min-h-screen flex flex-col lg:flex-row gap-4 pb-10 justify-center items-start">
       {/* Left Card */}
-      <div className="bg-bg-card bg-[#141717] rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[350px] p-4 relative">
+      <div className="bg-bg-card bg-[#141717] rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[350px] p-4 relative mx-auto lg:mx-0 flex flex-col items-center">
         <label htmlFor="image-upload" className="relative w-full flex justify-center cursor-pointer">
-          <img
-            className="rounded-[7px] w-full h-[317px] object-cover"
-            src={eventImage}
-            alt="Event Preview"
-          />
-          <label
-            htmlFor="image-upload"
-            className="absolute bottom-[12px] right-[12px] w-[43px] h-[43px] rounded-full border border-white bg-bg-card flex items-center justify-center cursor-pointer group"
-          >
-            <ImagePlus className="w-5 h-5 text-white group-hover:text-green-500 transition-colors duration-200" />
-          </label>
+          <div className="aspect-square w-full bg-[#141717] rounded-[7px] overflow-hidden flex items-center justify-center">
+            <img
+              className="w-full h-full object-cover"
+              src={eventImage}
+              alt="Event Preview"
+              style={{ aspectRatio: '1 / 1' }}
+            />
+            <label
+              htmlFor="image-upload"
+              className="absolute bottom-[12px] right-[12px] w-[43px] h-[43px] rounded-full border border-white hover:border-green-500 bg-[#141717] opacity-70 flex items-center justify-center cursor-pointer group"
+            >
+              <ImagePlus className="w-5 h-5 text-white group-hover:text-green-500" />
+            </label>
+          </div>
           <input
             id="image-upload"
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => {
+            onChange={async (e) => {
               const file = e.target.files[0];
               if (file) {
-                setEventImageFile(file);
                 const reader = new FileReader();
-                reader.onloadend = () => setEventImage(reader.result);
+                reader.onloadend = () => {
+                  const img = new window.Image();
+                  img.src = reader.result;
+                  img.onload = () => {
+                    if (img.width !== img.height) {
+                      setRawImage(reader.result);
+                      setEventImageFile(file); // keep file for later upload
+                      setShowCropper(true);
+                    } else {
+                      setEventImage(reader.result);
+                      setEventImageFile(file);
+                    }
+                  };
+                };
                 reader.readAsDataURL(file);
+                // Reset input value so same file can be selected again
+                e.target.value = null;
               }
             }}
           />
         </label>
+        {/* Cropper Modal */}
+        {showCropper && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setShowCropper(false)}>
+            <div className="bg-[#181818] rounded-xl p-6 shadow-lg w-[90vw] max-w-lg relative" onClick={e => e.stopPropagation()}>
+              <h2 className="text-white text-lg mb-4">Crop Image to 1:1</h2>
+              <div className="relative w-full h-[350px] bg-black">
+                <Cropper
+                  image={rawImage}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={(_, areaPixels) => setCroppedAreaPixels(areaPixels)}
+                />
+              </div>
+              <div className="flex gap-4 mt-4">
+                <input
+                  type="range"
+                  min={1}
+                  max={3}
+                  step={0.01}
+                  value={zoom}
+                  onChange={e => setZoom(Number(e.target.value))}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex justify-end gap-2 mt-6">
+                <button
+                  className="bg-gray-700 text-white px-4 py-2 rounded"
+                  onClick={() => setShowCropper(false)}
+                >Cancel</button>
+                <button
+                  className="bg-[#00594F] text-white px-4 py-2 rounded"
+                  onClick={async () => {
+                    const croppedImg = await getCroppedImg(rawImage, croppedAreaPixels);
+                    setEventImage(croppedImg);
+                    setEventImageFile(null); // You may want to convert croppedImg to file for upload
+                    setShowCropper(false);
+                  }}
+                >Crop & Use</button>
+              </div>
+            </div>
+          </div>
+        )}
 
-        <div className="space-y-4 mt-6">
+        <div className="space-y-4 mt-6 w-full">
           <input
             type="text"
             placeholder="Event Name"
@@ -256,7 +325,7 @@ function CreateEvent() {
       </div>
 
       {/* Right Card */}
-      <div className="bg-bg-card bg-[#141717] rounded-[10px] border border-strokesss border-solid w-full max-w-3xl p-6 space-y-6">
+      <div className="bg-bg-card bg-[#141717] rounded-[10px] border border-strokesss border-solid w-full max-w-3xl p-6 space-y-6 mx-auto lg:mx-0">
         <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-y-4 gap-x-6 items-center">
           {/* Visibility */}
           <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">

@@ -1,12 +1,32 @@
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Menu } from 'lucide-react';
 import IconWorld from '../assets/icon-world.svg';
+import { 
+  CircleUserRound,
+  Wallet, 
+  Settings, 
+  LogOut } from 'lucide-react';
 import Ticket from '../assets/Vector.svg';
 
 function Header({ user, isLoggedIn, handleLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // Close user menu on outside click
+  useEffect(() => {
+    if (!showUserMenu) return;
+    function handleClick(e) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showUserMenu]);
 
   return (
     <div className="w-full fixed top-0 z-50 bg-[rgba(103,103,103,0.10)] backdrop-blur-[8.8px]">
@@ -19,15 +39,15 @@ function Header({ user, isLoggedIn, handleLogout }) {
           kebbu
         </Link>
 
-        {/* Menu Navigation */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link className="flex items-center gap-2 cursor-pointer">
-            <img src={Ticket} alt="ticket" className="w-4 h-4" />
-            <span className="text-white font-['Satoshi-Medium',sans-serif] text-sm">My Events</span>
+        {/* Desktop Menu Navigation */}
+        <div className="flex items-center gap-6">
+          <Link to="/" className="flex items-center gap-2 cursor-pointer">
+            <img src={Ticket} alt="ticket" className="w-4 h-4 hidden md:flex" />
+            <span className="text-white text-sm font-['Satoshi-Medium',_sans-serif]">My Events</span>
           </Link>
-          <Link className="flex items-center gap-2 cursor-pointer">
-            <img src={IconWorld} alt="world" className="w-4 h-4" />
-            <span className="text-white font-['Satoshi-Medium',sans-serif] text-sm">Discover</span>
+          <Link to="/" className="flex items-center gap-2 cursor-pointer">
+            <img src={IconWorld} alt="world" className="w-4 h-4 hidden md:flex" />
+            <span className="text-white text-sm font-['Satoshi-Medium',_sans-serif]">Discover</span>
           </Link>
         </div>
 
@@ -37,7 +57,7 @@ function Header({ user, isLoggedIn, handleLogout }) {
             <>
               <Link
                 to="/create-event"
-                className="text-white hover:text-white font-['Satoshi-Medium',sans-serif] text-sm cursor-pointer"
+                className="text-white hover:text-white text-sm font-['Satoshi-Medium',_sans-serif] cursor-pointer"
               >
                 Create Event
               </Link>
@@ -50,43 +70,60 @@ function Header({ user, isLoggedIn, handleLogout }) {
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 />
                 {showUserMenu && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-xl bg-[#0d1a17] border border-[#2f645e] z-50 shadow-lg">
+                  <div ref={userMenuRef} className="absolute right-0 mt-2 w-60 rounded-xl bg-[#181818] border border-[#232323] z-50 shadow-lg">
                     {/* Profile Info */}
-                    <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2f645e]">
+                    <div className="flex items-center gap-3 px-4 pt-4 pb-2">
                       <img
                         src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=random`}
                         alt="Profile"
-                        className="w-10 h-10 rounded-full"
+                        className="w-9 h-9 rounded-full object-cover"
                       />
                       <div>
-                        <div className="text-white font-semibold">{user.name}</div>
-                        <div className="text-sm text-gray-400">{user.email}</div>
+                        <div className="text-white text-base font-['Satoshi-Medium'] leading-tight">{user.name}</div>
+                        <div className="text-xs font-['Satoshi-Medium'] text-[#a2a2a2]">{user.email}</div>
                       </div>
                     </div>
-
+                    <hr className="border-t border-[#303030] mx-4 my-2" />
                     {/* Menu Items */}
-                    <div className="flex flex-col py-2">
+                    <div className="flex flex-col gap-1 pb-3">
                       <button
-                        className="px-4 py-2 text-left text-sm text-white bg-transparent hover:bg-[#2f645e]/70 transition rounded-md"
+                        className="flex items-center gap-3 px-4 py-1 text-left text-sm font-['Satoshi-Medium'] text-[#a2a2a2] bg-transparent hover:bg-[#232323] transition rounded-md"
                         onClick={() => {
                           setShowUserMenu(false);
                           navigate("/profile");
                         }}
                       >
-                        View Profile
+                        <CircleUserRound className="w-5 h-5 text-[#a2a2a2]" />
+                        My Profile
                       </button>
                       <button
-                        className="px-4 py-2 text-left text-sm text-white bg-transparent hover:bg-[#2f645e]/70 transition rounded-md"
+                        className="flex items-center gap-3 px-4 py-1 text-left text-sm font-['Satoshi-Medium'] text-[#a2a2a2] bg-transparent hover:bg-[#232323] transition rounded-md"
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          navigate("/wallet");
+                        }}
                       >
+                        <Wallet className="w-5 h-5 text-[#a2a2a2]" />
+                        Wallet
+                      </button>
+                      <button
+                        className="flex items-center gap-3 px-4 py-1 text-left text-sm font-['Satoshi-Medium'] text-[#a2a2a2] bg-transparent hover:bg-[#232323] transition rounded-md"
+                        onClick={() => {
+                          setShowUserMenu(false);
+                          navigate("/settings");
+                        }}
+                      >
+                        <Settings className="w-5 h-5 text-[#a2a2a2]" />
                         Settings
                       </button>
                       <button
-                        className="px-4 py-2 text-left text-sm text-red-400 bg-transparent hover:bg-[#2f645e]/30 hover:text-red-300 transition rounded-md"
+                        className="flex items-center gap-3 px-4 py-1 text-left text-sm font-['Satoshi-Medium'] text-[#f94d4d] bg-transparent hover:bg-[#232323] hover:text-red-300 transition rounded-md"
                         onClick={() => {
                           handleLogout();
                           setShowUserMenu(false);
                         }}
                       >
+                        <LogOut className="w-5 h-5 text-[#f94d4d]" />
                         Sign Out
                       </button>
                     </div>

@@ -246,7 +246,7 @@ const TicketsPage = ({ id }) => {
             </div>
 
             <button
-              className="w-full py-2 rounded-lg bg-white text-black font-semibold"
+              className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
               onClick={() => setIsModalOpen(false)}
             >
               Confirm
@@ -292,13 +292,13 @@ const TicketsPage = ({ id }) => {
 
             <div className="flex gap-3">
               <button
-                className="w-1/2 py-2 rounded-lg bg-[#2d2d2d] text-[#A2A2A2] font-semibold"
+                className="w-1/2 py-2 rounded-lg bg-[#2d2d2d] text-[#A2A2A2] font-['Satoshi-Bold',_sans-serif]"
                 onClick={() => setIsCapacityModalOpen(false)}
               >
                 Remove Limit
               </button>
               <button
-                className="w-1/2 py-2 rounded-lg bg-white text-black font-semibold"
+                className="w-1/2 py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
                 onClick={() => setIsCapacityModalOpen(false)}
               >
                 Set Limit
@@ -365,7 +365,7 @@ const TicketsPage = ({ id }) => {
             </div>
 
             <button
-              className="w-full py-2 rounded-lg bg-white text-black font-semibold"
+              className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
               onClick={() => setIsGroupModalOpen(false)}
             >
               Save Settings
@@ -490,7 +490,7 @@ const TicketsPage = ({ id }) => {
             </select>
 
             <button
-              className="w-full py-2 rounded-lg bg-white text-black font-semibold"
+              className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
               onClick={() => {
                 // Kirim data tax jika perlu
                 setIsTaxModalOpen(false);
@@ -651,7 +651,7 @@ const TicketsPage = ({ id }) => {
               )}
               {showDescription && (
                 <div className="mb-4">
-                  <label className="text-sm block mb-1">Description</label>
+                  <label className="text-sm text-white block mb-1">Description</label>
                   <input
                     type="text"
                     value={description}
@@ -670,7 +670,7 @@ const TicketsPage = ({ id }) => {
               )}
               {showTicketLimit && (
                 <div className="mb-4">
-                  <label className="text-sm block mb-1">Ticket Limit</label>
+                  <label className="text-sm text-white block mb-1">Ticket Limit</label>
                   <div className="flex items-center bg-[#1f1f1f] rounded-md px-3 py-2 justify-between">
                     <input
                       type="text"
@@ -705,7 +705,7 @@ const TicketsPage = ({ id }) => {
               )}
               {showSalesDate && (
                 <div className="mb-4">
-                  <label className="text-sm block mb-1">Sales Start and Sales End</label>
+                  <label className="text-sm text-white block mb-1">Sales Start and Sales End</label>
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-xs text-[#A2A2A2]">Start</span>
                     <div className="flex gap-2">
@@ -731,7 +731,7 @@ const TicketsPage = ({ id }) => {
               )}
               {showBundling && (
                 <div className="mb-6">
-                  <label className="text-sm block mb-1">Bundling Ticket</label>
+                  <label className="text-sm text-white block mb-1">Bundling Ticket</label>
                   <div className="flex items-center bg-[#1f1f1f] rounded-md px-3 py-2 justify-between">
                     <span className="text-sm text-white">Qty</span>
                     <input
@@ -826,7 +826,7 @@ const TicketsPage = ({ id }) => {
             </div>
 
             <button
-              className="w-full py-2 rounded-lg bg-white text-black font-semibold"
+              className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
               onClick={() => {
                 // Save ticket logic here
                 resetNewTicketModal();
@@ -936,7 +936,7 @@ const TicketsPage = ({ id }) => {
         </div>
 
         {/* Custom Question Section */}
-        <div>
+        <div className='mb-10'>
           <div className="flex items-center gap-2 mb-3">
             <MessageSquarePlus className='w-5 h-5 text-[#9747FF]' />
             <span className="font-['Satoshi-Bold',_sans-serif] text-white">Custom Question</span>
