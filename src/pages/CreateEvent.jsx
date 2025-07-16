@@ -208,7 +208,7 @@ function CreateEvent() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row gap-4 pb-10 justify-center items-start">
       {/* Left Card */}
-      <div className="bg-bg-card bg-[#141717] rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[350px] p-4 relative mx-auto lg:mx-0 flex flex-col items-center">
+      <div className="bg-[#141717] rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[350px] p-4 relative mx-auto lg:mx-0 flex flex-col items-center">
         <label htmlFor="image-upload" className="relative w-full flex justify-center cursor-pointer">
           <div className="aspect-square w-full bg-[#141717] rounded-[7px] overflow-hidden flex items-center justify-center">
             <img

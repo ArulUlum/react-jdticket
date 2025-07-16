@@ -2,11 +2,10 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { FaMapPin } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from "framer-motion";
 import {
-  ChevronDown,
-  ChevronRight
+  MapPin,
 } from 'lucide-react';
 import insta from '../assets/insta.svg';
 import copy from '../assets/copy.svg';
@@ -34,9 +33,22 @@ function EventDetailGuest() {
   const [showPromoInput, setShowPromoInput] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
   const [selectedPayment, setSelectedPayment] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const modalRef = useRef(null);
   const navigate = useNavigate();
+
+  // Modal Refs
+  const registrationModalRef = useRef(null);
+  const ticketModalRef = useRef(null);
+
+
+  const [registrationModal, setRegistrationModal] = useState(false);
+  const [ticketModal, setTicketModal] = useState(false);
+  // Tambahkan modal lainnya di sini...
+
+  const modals = [
+    { ref: registrationModalRef, isOpen: registrationModal, close: () => setRegistrationModal(false) },
+    { ref: ticketModalRef, isOpen: ticketModal, close: () => setTicketModal(false) },
+    // Tambahkan modal lain: { ref, isOpen, close }
+  ];
 
   const payments = [
     { group: 'QRIS', items: [{ label: 'QRIS', icon: qris, code: 'QRIS' }] },
@@ -80,23 +92,27 @@ function EventDetailGuest() {
   // Fetch event data only when id changes
   useEffect(() => {
     fetchData(id);
-    // eslint-disable-next-line
   }, [id]);
 
-  // Handle modal outside click when modal is open
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showModal && modalRef.current && !modalRef.current.contains(event.target)) {
-        setShowModal(false);
-      }
+      modals.forEach(({ ref, isOpen, close }) => {
+        if (isOpen && ref.current && !ref.current.contains(event.target)) {
+          close();
+        }
+      });
     };
-    if (showModal) {
-      document.addEventListener('mousedown', handleClickOutside);
+
+    // Cek apakah ada modal yang terbuka
+    const anyOpen = modals.some(({ isOpen }) => isOpen);
+    if (anyOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
+
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showModal]);
+  }, [modals.map(m => m.isOpen).join()]);
 
   async function fetchData(eventId) {
     try {
@@ -215,7 +231,7 @@ function EventDetailGuest() {
       return;
     }
     setErrorMessage('');
-    setShowModal(true);
+    setRegistrationModal(true);
     console.log('Lanjut ke registrasi ' + total);
   }
 
@@ -266,7 +282,7 @@ function EventDetailGuest() {
         // Free registration
         response = await axios.post(`${urlBe}/events/regis`, payload);
         alert(response.data.message);
-        setShowModal(false);
+        setRegistrationModal(false);
       } else {
         // Paid registration
         response = await axios.post(`${urlBe}/payment/create-invoice`, payload);
@@ -274,7 +290,7 @@ function EventDetailGuest() {
           window.location.href = response.data.data.invoice_url;
         } else {
           alert(response.data.message || 'Invoice created. Please proceed to payment.');
-          setShowModal(false);
+          setRegistrationModal(false);
         }
       }
     } catch (err) {
@@ -286,18 +302,21 @@ function EventDetailGuest() {
 
 
   return (
-    <div className='mb-10'>
-      <div className="mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+    <div className='mb-16'>
+      <div className="flex flex-col md:flex-row gap-4 pb-2 justify-center items-start">
         {/* Left Panel */}
-        <div className="md:col-span-1 space-y-4">
+        <div className="w-full lg:max-w-[350px] p-4 items-center">
           {/* image */}
-          <img
-            src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
-            alt={event.name}
-            className="rounded-xl w-full h-[300px] object-cover"
-          />
+          <div className='w-full max-w-[350px] mx-auto flex'>
+            <img
+              src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
+              alt={event.name}
+              className="rounded-xl w-full aspect-square object-cover mx-auto"
+              style={{ aspectRatio: '1 / 1' }}
+            />
+          </div>
           {/* host */}
-          <div>
+          <div className='hidden md:block'>
             <div className="mt-6">
               <h3 className="text-responsive-item-title text-[#a2a2a2]">Host</h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
@@ -346,15 +365,10 @@ function EventDetailGuest() {
               </div>
             </div>
 
-            <div className="mt-6">
+            <div className="mt-6 mb-4">
               <h3 className="text-responsive-item-title text-[#a2a2a2]">Share</h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
               <div className="flex flex-row items-center gap-2">
-                {copied && (
-                  <div className="absolute bg-gray-800 text-white text-responsive-caption px-2 py-1 rounded shadow z-50">
-                    Link copied!
-                  </div>
-                )}
                 <img
                   src={copy}
                   alt="Copy Icon"
@@ -362,7 +376,6 @@ function EventDetailGuest() {
                   onClick={handleCopy}
                 />
                 <p className="text-white text-responsive-regular mt-0.5">Copy link</p>
-
               </div>
             </div>
             <h3 className="text-responsive-item-title text-[#a2a2a2]">Contact the Host</h3>
@@ -371,12 +384,9 @@ function EventDetailGuest() {
         </div>
 
         {/* Right Panel */}
-        <div className="md:col-span-2 space-y-8">
-          <div>
-            <h1 className="text-responsive-title mb-1">{event.name}</h1>
-          </div>
-
-          <div className="flex flex-row">
+        <div className="w-full space-y-8">
+          <h1 className="text-responsive-title mb-1">{event.name}</h1>
+          <div className="flex">
             {/* Calendar Icon */}
             <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
               <div className="text-[10px]">{startMonth}</div>
@@ -391,10 +401,10 @@ function EventDetailGuest() {
               </p>
             </div>
           </div>
-          <div className="flex flex-row">
+          <div className="flex">
             {/* Map Pointer Icon */}
             <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
-              <FaMapPin className="text-white text-2xl" />
+              <MapPin className="text-white text-2xl" />
             </div>
 
             <div className="flex flex-col ml-4">
@@ -405,51 +415,12 @@ function EventDetailGuest() {
             </div>
           </div>
 
-          {/* Register Box */}
-          <div className="bg-[#141717] p-6 rounded-lg border border-[#212121]">
-            <h2 className="text-responsive-sub-title text-white mb-2">Registration</h2>
-            <p className="text-responsive-caption text-[#a2a2a2] mb-4">
-              Welcome! To join the event, please register below.
-            </p>
-            {event.list_ticket?.map(ticket => (
-              <div
-                key={ticket.id}
-                className="flex justify-between items-center bg-[#1C1D1D] rounded-lg px-4 py-2 border border-[#212121]"
-              >
-                <div>
-                  <h3 className="text-responsive-medium text-white">{ticket.name}</h3>
-                  <p className="text-responsive-caption text-[#a2a2a2]">
-                    {ticket.price === 0 ? 'Free' : `Rp ${ticket.price.toLocaleString()}`}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => decreaseQty(ticket.id)}
-                    className="w-6 h-6 bg-[#303030] text-white text-sm rounded flex items-center justify-center"
-                  >
-                    –
-                  </button>
-                  <span className="w-6 text-center">{quantities[ticket.id]}</span>
-                  <button
-                    onClick={() => increaseQty(ticket.id)}
-                    className="w-6 h-6 bg-[#303030] text-white text-sm rounded flex items-center justify-center"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-            ))}
-            {errorMessage && (
-              <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
-            )}
-            <button
-              className="bg-[#00594f] text-responsive-item-title text-white w-full py-2 mt-4 rounded hover:bg-[#127f73]"
-              onClick={handleRegister}
-            >
-              Register
-            </button>
-          </div>
+          <button
+            className="hidden md:block bg-[#00594f] text-responsive-item-title text-white w-full py-2 mt-4 rounded hover:bg-[#127f73]"
+            onClick={() => setTicketModal(true)}
+          >
+            Register
+          </button>
 
           {/* About Section */}
           <div>
@@ -473,11 +444,151 @@ function EventDetailGuest() {
               loading="lazy"
             ></iframe>
           </div>
+
+          <div className='block md:hidden'>
+            <div className="mt-6">
+              <h3 className="text-responsive-item-title text-[#a2a2a2]">Host</h3>
+              <hr className="border-t border-gray-300 my-2 opacity-20" />
+              <div className='flex flex-row justify-between items-center'>
+                <div className="flex items-center gap-3">
+                  <img
+                    src={event.created_by.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.created_by?.name || 'User')}&background=random`}
+                    alt="Host Avatar"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <span className="text-white text-responsive-sub-title">{event.created_by.name}</span>
+                </div>
+
+                <img
+                  src={insta}
+                  alt="Instagram Icon"
+                  className="w-6 h-6"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="text-responsive-item-title text-[#a2a2a2]">{event.registered.total} Going</h3>
+              <hr className="border-t border-gray-300 my-2 opacity-20" />
+              <div className="flex items-center space-x-2 mb-1 mt-3">
+                <div className="flex -space-x-3">
+                  {event.registered.list.map((user, index) => (
+                    <img
+                      key={index}
+                      src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full border-2 border-black object-cover"
+                    />
+                  ))}
+                  {event.registered.others > 0 && (
+                    <div className="w-8 h-8 rounded-full bg-gray-700 opacity-80 text-white text-xs flex items-center justify-center border-2 border-black">
+                      +{event.registered.others}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="text-white text-responsive-regular mt-1">
+                {event.registered.list.map(user => user.name).join(", ")}
+                {event.registered.others > 0 && ` and ${event.registered.others} others`}
+              </div>
+            </div>
+
+            <div className="mt-6 mb-4">
+              <h3 className="text-responsive-item-title text-[#a2a2a2]">Share</h3>
+              <hr className="border-t border-gray-300 my-2 opacity-20" />
+              <div className="flex flex-row items-center gap-2">
+                <img
+                  src={copy}
+                  alt="Copy Icon"
+                  className="w-5 h-5 cursor-pointer"
+                  onClick={handleCopy}
+                />
+                <p className="text-white text-responsive-regular mt-0.5">Copy link</p>
+              </div>
+            </div>
+            <h3 className="text-responsive-item-title text-[#a2a2a2]">Contact the Host</h3>
+            <h3 className="text-responsive-item-title text-[#a2a2a2]">Report Event</h3>
+          </div>
         </div>
-        {showModal && (
+
+        <div className='fixed left-0 bottom-5 w-full z-20 flex justify-center items-center md:hidden'>
+          <button
+            className="bg-[#00594f] text-responsive-item-title text-white w-full max-w-md py-2 rounded-lg hover:bg-[#127f73]"
+            onClick={() => setTicketModal(true)}
+          >
+            Register
+          </button>
+        </div>
+
+        <AnimatePresence>
+          {copied && (
+            <motion.div
+              key="copy"
+              initial={{ y: "-100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: 0 }}
+              transition={{ duration: 0.3, ease: "easeIn" }}
+              className="fixed top-5 -translate-x-1/2 bg-green-500 text-white z-50 overflow-y-auto shadow-xl px-4 py-2 rounded"
+            >
+              Copied to clipboard!
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {ticketModal && (
+          <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+            <div 
+              className="bg-[#141717] w-[90%] max-w-md p-6 rounded-lg border border-[#212121]"
+              ref={ticketModalRef}
+            >
+              <h2 className="text-responsive-sub-title text-white mb-2">Registration</h2>
+              {event.list_ticket?.map(ticket => (
+                <div
+                  key={ticket.id}
+                  className="flex justify-between items-center bg-[#1C1D1D] rounded-lg px-4 py-2 border border-[#212121]"
+                >
+                  <div>
+                    <h3 className="text-responsive-medium text-white">{ticket.name}</h3>
+                    <p className="text-responsive-caption text-[#a2a2a2]">
+                      {ticket.price === 0 ? 'Free' : `Rp ${ticket.price.toLocaleString()}`}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => decreaseQty(ticket.id)}
+                      className="w-6 h-6 bg-[#303030] text-white text-sm rounded flex items-center justify-center"
+                    >
+                      –
+                    </button>
+                    <span className="w-6 text-center">{quantities[ticket.id]}</span>
+                    <button
+                      onClick={() => increaseQty(ticket.id)}
+                      className="w-6 h-6 bg-[#303030] text-white text-sm rounded flex items-center justify-center"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {errorMessage && (
+                <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
+              )}
+              <button
+                className="bg-white text-responsive-item-title text-[#141717] w-full py-2 mt-4 rounded hover:bg-[#ffffffe4]"
+                onClick={handleRegister}
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
+
+        {registrationModal && (
           <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
             <div
-              ref={modalRef}
+              ref={registrationModalRef}
               className="bg-[#141717] text-white rounded-xl shadow-lg w-[90%] max-w-md max-h-[90vh] overflow-y-auto p-6"
             >
               {/* Event Info */}
@@ -490,9 +601,9 @@ function EventDetailGuest() {
                     className="w-16 h-16 rounded object-cover"
                   />
                   <div>
-                    <h3 className="text-responsive-item-title">XYZ Festival</h3>
-                    <p className="text-responsive-caption text-[#a2a2a2]">27 Jun at 17.00 WIB</p>
-                    <p className="text-responsive-caption text-[#a2a2a2]">Gambir Expo Kemayoran</p>
+                    <h3 className="text-responsive-item-title">{event.name}</h3>
+                    <p className="text-responsive-caption text-[#a2a2a2]">{startDay} {startMonth} at {formattedStartTime} WIB</p>
+                    <p className="text-responsive-caption text-[#a2a2a2]">{event.location_name}</p>
                   </div>
                 </div>
 
@@ -641,8 +752,6 @@ function EventDetailGuest() {
                   </div>
                 </div>
               )}
-
-
               {/* Continue */}
               <button
                 className="bg-white text-[#1a1c29] font-bold rounded-lg py-3 w-full mt-4"
