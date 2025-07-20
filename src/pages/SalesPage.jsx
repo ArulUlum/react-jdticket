@@ -68,7 +68,7 @@ const SalesPage = ({id}) => {
     },
     {
       label: "Tickets Sold",
-      value: data?.ticket_sold.toLocaleString('id-ID') + "/" + (data?.total_ticket === -1 ? "∞" : data?.total_ticket.toLocaleString('id-ID')),
+      value: data?.ticket_sold.toLocaleString('id-ID') + "/" + (data?.total_ticket === null ? "∞" : data?.total_ticket.toLocaleString('id-ID')),
       trend: "down",
       percent: "18%",
       color: "red",
@@ -225,7 +225,7 @@ const SalesPage = ({id}) => {
 
               <div className="flex justify-between items-center">
                 <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-3">
-                  {item.sold_ticket.toLocaleString('id-ID')}/{item.max_capacity === -1 ? "∞" : item?.max_capacity.toLocaleString('id-ID')}
+                  {item.sold_ticket.toLocaleString('id-ID')}/{item.max_capacity === null ? "∞" : item?.max_capacity.toLocaleString('id-ID')}
                 </div>                
               </div>
             </div>

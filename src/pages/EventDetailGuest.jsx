@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
+  CalendarDays
 } from 'lucide-react';
 import insta from '../assets/insta.svg';
 import copy from '../assets/copy.svg';
@@ -23,7 +24,7 @@ import creditCard from '../assets/Credit-Card.svg';
 const urlBe = import.meta.env.VITE_URL_BE;
 
 function EventDetailGuest() {
-  const { id } = useParams();
+  const { url } = useParams();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isRegistered, setIsRegistered] = useState(false);
@@ -91,8 +92,8 @@ function EventDetailGuest() {
 
   // Fetch event data only when id changes
   useEffect(() => {
-    fetchData(id);
-  }, [id]);
+    fetchData(url);
+  }, [url]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -114,9 +115,9 @@ function EventDetailGuest() {
     };
   }, [modals.map(m => m.isOpen).join()]);
 
-  async function fetchData(eventId) {
+  async function fetchData(url) {
     try {
-      const response = await axios.get(`${urlBe}/events/detail/${eventId}`);
+      const response = await axios.get(`${urlBe}/events/detail/${url}`);
       const data = response.data.data;
       setEvent(data);
       const initialQuantities = {};
@@ -389,8 +390,7 @@ function EventDetailGuest() {
           <div className="flex">
             {/* Calendar Icon */}
             <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
-              <div className="text-[10px]">{startMonth}</div>
-              <div className="text-lg pt-1">{startDay}</div>
+              <CalendarDays className="text-white text-2xl" />
             </div>
             <div className="flex flex-col ml-4">
               <p className="text-responsive-medium text-white">
@@ -416,7 +416,7 @@ function EventDetailGuest() {
           </div>
 
           <button
-            className="hidden md:block bg-[#00594f] text-responsive-item-title text-white w-full py-2 mt-4 rounded hover:bg-[#127f73]"
+            className="hidden md:block text-responsive-item-title text-white w-full py-2 mt-4 rounded bg-gradient-to-r from-[#44A08D] to-[#00594F] hover:from-[#58c1ac] hover:to-[#007467]"
             onClick={() => setTicketModal(true)}
           >
             Register
@@ -507,14 +507,14 @@ function EventDetailGuest() {
                 <p className="text-white text-responsive-regular mt-0.5">Copy link</p>
               </div>
             </div>
-            <h3 className="text-responsive-item-title text-[#a2a2a2]">Contact the Host</h3>
-            <h3 className="text-responsive-item-title text-[#a2a2a2]">Report Event</h3>
+            <h3 className="text-responsive-item-title text-[#a2a2a2] mb-2">Contact the Host</h3>
+            <h3 className="text-responsive-item-title text-[#a2a2a2] mb-2">Report Event</h3>
           </div>
         </div>
 
         <div className='fixed left-0 bottom-5 w-full z-20 flex justify-center items-center md:hidden'>
           <button
-            className="bg-[#00594f] text-responsive-item-title text-white w-full max-w-md py-2 rounded-lg hover:bg-[#127f73]"
+            className="text-responsive-item-title text-white w-full max-w-md py-2 rounded-lg bg-gradient-to-r from-[#44A08D] to-[#00594F] hover:from-[#58c1ac] hover:to-[#007467]"
             onClick={() => setTicketModal(true)}
           >
             Register

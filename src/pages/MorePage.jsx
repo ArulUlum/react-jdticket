@@ -84,14 +84,14 @@ const MorePage = ({ id }) => {
       {/* Duplicate Event Modal */}
       {isDuplicateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div ref={duplicateModalRef} className="bg-[#181818] rounded-[24px] p-8 w-[350px] md:w-[420px] shadow-lg relative border border-[#212121] flex flex-col items-center">
+          <div ref={duplicateModalRef} className="bg-[#141717] rounded-[24px] p-8 w-[350px] md:w-[420px] shadow-lg relative border border-[#212121] flex flex-col items-start">
             <div className="flex items-center justify-center mb-6">
-              <div className="bg-[#212121] rounded-full w-16 h-16 flex items-center justify-center">
+              <div className="bg-[linear-gradient(135deg,_rgba(255,255,255,0.2),_rgba(255,255,255,0))] rounded-full w-16 h-16 flex items-center justify-center">
                 <Copy className="w-8 h-8 text-white" style={{ transform: 'scaleX(-1)' }} />
               </div>
             </div>
             <h2 className="text-white text-2xl font-bold mb-2">Duplicate Event</h2>
-            <p className="text-[#a2a2a2] text-base mb-6 text-center">Create a copy of this event with the same name, location, duration, and settings.</p>
+            <p className="text-[#a2a2a2] text-base mb-6">Create a copy of this event with the same name, location, duration, and settings.</p>
             <div className="w-full mb-6">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-white font-semibold">Event Start and Event End</span>
@@ -100,15 +100,35 @@ const MorePage = ({ id }) => {
                 <div className="flex items-center gap-2">
                   <span className="text-[#a2a2a2] w-16">Start</span>
                   <div className="flex items-center gap-2 flex-1">
-                    <span className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-32">Fri, 13 June</span>
-                    <span className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-16">01.00</span>
+                    <input
+                      type="date"
+                      className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-full"
+                      value={data?.start_date ? data.start_date.split('T')[0] : ''}
+                      onChange={e => setData({ ...data, start_date: e.target.value + (data?.start_time ? 'T' + data.start_time : '') })}
+                    />
+                    <input
+                      type="time"
+                      className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-full"
+                      value={data?.start_time || ''}
+                      onChange={e => setData({ ...data, start_time: e.target.value })}
+                    />
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[#a2a2a2] w-16">End</span>
                   <div className="flex items-center gap-2 flex-1">
-                    <span className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-32">Sun, 15 June</span>
-                    <span className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-16">22.00</span>
+                    <input
+                      type="date"
+                      className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-full"
+                      value={data?.end_date ? data.end_date.split('T')[0] : ''}
+                      onChange={e => setData({ ...data, end_date: e.target.value + (data?.end_time ? 'T' + data.end_time : '') })}
+                    />
+                    <input
+                      type="time"
+                      className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-full"
+                      value={data?.end_time || ''}
+                      onChange={e => setData({ ...data, end_time: e.target.value })}
+                    />
                   </div>
                 </div>
               </div>
@@ -157,7 +177,7 @@ const MorePage = ({ id }) => {
           Cancel this event and prevent any new registrations. Guests will no longer be able to join.
         </p>
         <button
-          className="flex items-center gap-2 bg-[#f94d4d] border border-[#212121] rounded-lg px-4 py-3 text-white font-semibold hover:bg-[#F87171] transition mb-3"
+          className="flex items-center gap-2 bg-[#f94d4d] border border-[#212121] rounded-lg px-4 py-3 text-white font-semibold hover:bg-[#c93333] transition mb-3"
           onClick={() => setIsCancelModalOpen(true)}
         >
           <CircleX className="w-5 h-5 text-white" />
@@ -168,16 +188,16 @@ const MorePage = ({ id }) => {
       {/* Cancel Event Modal */}
       {isCancelModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div ref={cancelModalRef} className="bg-[#181818] rounded-[24px] p-8 w-[350px] md:w-[420px] shadow-lg relative border border-[#212121] flex flex-col items-center">
+          <div ref={cancelModalRef} className="bg-[#181818] rounded-[24px] p-8 w-[350px] md:w-[420px] shadow-lg relative border border-[#212121] flex flex-col items-start">
             <div className="flex items-center justify-center mb-6">
-              <div className="bg-[#f87171] rounded-full w-16 h-16 flex items-center justify-center">
+              <div className="bg-[#f94d4d] rounded-full w-16 h-16 flex items-center justify-center">
                 <CircleX className="w-8 h-8 text-white" />
               </div>
             </div>
             <h2 className="text-white text-2xl font-bold mb-3">Cancel Event</h2>
-            <p className="text-[#f87171] text-base mb-8 text-center">Are you sure you want to cancel this event? This action cannot be undone.</p>
+            <p className="text-[#f94d4d] text-base mb-8">Are you sure you want to cancel this event? This action cannot be undone.</p>
             <button
-              className="bg-[#f87171] rounded-[14px] px-4 py-3 w-full text-white text-lg font-semibold mb-2 hover:bg-[#ef4444] transition"
+              className="bg-[#f94d4d] rounded-[14px] px-4 py-3 w-full text-white text-lg font-semibold mb-2 hover:bg-[#c93333] transition"
               onClick={() => {
                 // TODO: Implement cancel event logic here
                 setIsCancelModalOpen(false);

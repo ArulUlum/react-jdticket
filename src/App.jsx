@@ -19,7 +19,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/create-event" element={<CreateEvent />} />
-          <Route path="/event/:id" element={<EventDetailGuest />} />
+          <Route path="/event/:url" element={<EventDetailGuest />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/event-detail/:id" element={<EventDetailHost />} />
           <Route path="/event-user-scan/:id" element={<UserScanPage />} />

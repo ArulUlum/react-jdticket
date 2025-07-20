@@ -98,7 +98,7 @@ function OverviewPage({ id, event }) {
     },
     {
       label: "Tickets Sold",
-      value: event.ticket_sold + "/" + (event.total_ticket === -1 ? "∞" : event.total_ticket),
+      value: event.ticket_sold + "/" + (event.total_ticket === null ? "∞" : event.total_ticket),
       trend: "down",
       percent: "18%",
       color: "red",

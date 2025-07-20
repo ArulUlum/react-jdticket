@@ -102,7 +102,7 @@ function UserProfile() {
           user.list_event.map((event) => (
             <div 
               key={event.id}
-              onClick={() => navigate(`/event-detail/${event.id}`)} 
+              onClick={() => navigate(`/event-detail/${event.public_id}`)} 
               className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-700"
             >
               <img

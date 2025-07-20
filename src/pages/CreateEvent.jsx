@@ -4,7 +4,7 @@ import Cropper from 'react-easy-crop';
 import getCroppedImg from '../utils/cropImage';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { format, addMinutes } from 'date-fns';
+import { format, addMinutes, getMonth, getYear } from 'date-fns';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -122,7 +122,7 @@ function CreateEvent() {
       start_date: formatDateTime(startDate, startTime),
       end_date: formatDateTime(endDate, endTime),
       location: locationInput,
-      max_capacity: parseInt(capacityMode === "unlimited" ? -1 : capacityMode),
+      max_capacity: capacityMode === "unlimited" ? null : parseInt(capacityMode),
       list_ticket: tickets,
       approval: requireApproval
     };
@@ -137,7 +137,7 @@ function CreateEvent() {
     const tickets = {
       name: eventType === "Free Event" ? "Free" : "Paid",
       price: price,
-      max_capacity: -1,
+      max_capacity: null,
     };
 
     try {
@@ -166,7 +166,7 @@ function CreateEvent() {
         location: locationInput,
         location_name: locationName,
         location_address: locationAddress,
-        max_capacity: parseInt(capacityMode === "unlimited" ? -1 : capacityMode),
+        max_capacity: capacityMode === "unlimited" ? null : parseInt(capacityMode),
         tickets: tickets,
         approval: requireApproval
       };
@@ -180,13 +180,13 @@ function CreateEvent() {
           },
         }
       );
-      const { code, message } = response.data;
+      const { code, message, event_id } = response.data;
       if (code !== '1') {
         console.log(message)
         setSubmitError(message);
       } else {
         alert(message);
-        navigate('/');
+        navigate(`/event-detail/${event_id}`);
       }
     } catch (error) {
       if (error.response) {
@@ -522,7 +522,7 @@ function CreateEvent() {
           {eventType === "Paid Event" && (
             <>
               <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
-                Masukkan Harga
+                Input Price
               </div>
               <div className="relative w-full">
                 <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full">
@@ -614,12 +614,51 @@ const DatePickerBox = ({ value, onChange }) => {
     </div>
   ));
 
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const customDateHeader = ({ date, changeMonth, changeYear }) => (
+    <div className="flex justify-between items-center px-4 py-2 text-white">
+      <select
+        value={getMonth(date)}
+        onChange={({ target: { value } }) => changeMonth(value)}
+        className="bg-[#141717] text-white px-2 py-1 rounded"
+      >
+        {months.map((label, index) => (
+          <option key={label} value={index}>
+            {label}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={getYear(date)}
+        onChange={({ target: { value } }) => changeYear(value)}
+        className="bg-[#141717] text-white px-2 py-1 rounded"
+      >
+        {Array(30)
+          .fill(0)
+          .map((_, i) => {
+            const year = 2000 + i;
+            return (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            );
+          })}
+      </select>      
+    </div>
+  );
+
   return (
     <DatePicker
       selected={value}
       onChange={onChange}
       dateFormat="EEE, MMM d"
       customInput={<CustomDateInput />}
+      // renderCustomHeader={customDateHeader}
       calendarClassName="custom-calendar"
     />
   );
@@ -650,7 +689,7 @@ const TimePickerBox = ({ value, onChange }) => {
       showTimeSelectOnly
       timeIntervals={30}
       timeCaption="Time"
-      dateFormat="hh:mm"
+      dateFormat="HH:mm"
       customInput={<CustomTimeInput />}
     />
   );

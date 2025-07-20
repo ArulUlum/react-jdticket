@@ -22,7 +22,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
-const TicketsPage = ({ id }) => {
+const TicketsPage = ({ id, event }) => {
   const [data, setData] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedQuestionType, setSelectedQuestionType] = useState('Question per User');
@@ -200,7 +200,7 @@ const TicketsPage = ({ id }) => {
             <img src={capacity} alt="Capacity Icon" className="w-10 h-10 object-contain" />
             <div>
               <div className="text-xl font-['Satoshi-Bold',_sans-serif]">Capacity</div>
-              <div className="text-sm text-[#A2A2A2]">100</div>
+              <div className="text-sm text-[#A2A2A2]">{event.max_capacity === null ? '∞' : event.max_capacity}</div>
             </div>
           </div>
         </div>
@@ -411,7 +411,7 @@ const TicketsPage = ({ id }) => {
                   {item.price === 0 ? "FREE" : item.price.toLocaleString('id-ID')}
                 </div>
                 <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-3">
-                  {item.max_capacity === -1 ? "∞" : item.max_capacity.toLocaleString('id-ID')}
+                  {item.max_capacity === null ? "∞" : item.max_capacity.toLocaleString('id-ID')}
                 </div>
               </div>
             </div>

@@ -130,10 +130,10 @@ function Dashboard() {
 
         {error && <p className="text-red-500">{error}</p>}
         {!loading && events.map((event) => (
-          <div
+          <Link
             key={event.id}
-            className="keen-slider__slide bg-[#141717] border border-[#2a2a2a] rounded-2xl cursor-pointer"
-            onClick={() => navigate(`/event/${event.id}`)}
+            to={`/event/${event.url}`}
+            className="keen-slider__slide text-white hover:text-white bg-[#141717] border border-[#2a2a2a] rounded-2xl cursor-pointer"
           >
             {/* Gambar Event */}
             <img
@@ -164,7 +164,7 @@ function Dashboard() {
                 className="w-6 h-6 rounded-full" />
               <span className="text-responsive-item-title">{event.create_by.name}</span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

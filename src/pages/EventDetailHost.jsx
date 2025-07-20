@@ -96,7 +96,7 @@ function EventDetailHost() {
         {activeTab === "Overview" && <OverviewPage id={id} event={event}/>}
         {activeTab === "Guests" && <GuestPage id={id}/>}
         {activeTab === "Sales Report" && <SalesPage id={id}/>}
-        {activeTab === "Tickets" && <TicketsPage id={id}/>}
+        {activeTab === "Tickets" && <TicketsPage id={id} event={event}/>}
         {activeTab === "Blast" && <BlastPage id={id}/>}
         {activeTab === "More" && <MorePage id={id}/>}
       </Suspense>
