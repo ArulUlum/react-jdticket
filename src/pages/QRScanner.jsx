@@ -9,6 +9,7 @@ function QRScanner() {
   const [userData, setUserData] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [scanned, setScanned] = useState(false);
+  document.title = 'QR Scan - Kebbu';
 
   const totalCheckedIn = 2;
   const totalGuest = 40;

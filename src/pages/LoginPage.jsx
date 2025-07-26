@@ -28,6 +28,7 @@ function LoginPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
+    document.title = 'Login - Kebbu';
     if (step === 2 && resendTimer > 0) {
       const timer = setInterval(() => {
         setResendTimer((prev) => prev - 1);

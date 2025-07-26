@@ -33,6 +33,7 @@ const TicketsPage = ({ id, event }) => {
   const [ticketPrice, setTicketPrice] = useState("150000");
   const [selectedTicketId, setSelectedTicketId] = useState(null);
   const [ticketDetail, setTicketDetail] = useState(null);
+  document.title = 'Ticket Detail - Kebbu';
 
   // new ticket
   const [ticketName, setTicketName] = useState("");

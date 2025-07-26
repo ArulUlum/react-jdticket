@@ -32,6 +32,7 @@ function BlastPage({ id }) {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduleDate, setScheduleDate] = useState("");
   const [scheduleTime, setScheduleTime] = useState("");
+  document.title = 'Blast Email - Kebbu';
 
   const handleCloseScheduleModal = () => {
     setScheduleDate("");

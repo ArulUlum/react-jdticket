@@ -10,6 +10,7 @@ function UserProfile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  document.title = 'Profile - Kebbu';
 
   useEffect(() => {
     axios

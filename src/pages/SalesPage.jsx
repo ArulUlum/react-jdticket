@@ -30,6 +30,7 @@ const SalesPage = ({id}) => {
 
   const types = ['total sales', 'tickets sold', 'total visitor'];
   const ranges = ['weekly', 'daily'];
+  document.title = 'Sales Report - Kebbu';
 
   useEffect(() => {
     fetchData(id, type, range);

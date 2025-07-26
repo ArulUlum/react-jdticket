@@ -14,6 +14,7 @@ function UserScanPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [guests, setGuests] = useState([]);
+  document.title = 'User List Scan - Kebbu';
 
   const filteredGuests = guests.filter(guest =>
     guest.name.toLowerCase().includes(search.toLowerCase()) ||

@@ -14,8 +14,10 @@ function Dashboard() {
   const [error, setError] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0)
   const [totalDots, setTotalDots] = useState(0)
+  const location = useLocation();
 
   useEffect(() => {
+    document.title = 'Events - Kebbu';
     fetchEvents();
   }, []);
 

@@ -23,6 +23,7 @@ const GuestPage = ({id}) => {
   const [checkInGuest, setCheckInGuest] = useState(0);
   const [totalGuest, setTotalGuest] = useState(0);
   const [search, setSearch] = useState("");
+  document.title = 'Guest List - Kebbu';
   
   useEffect(() => {
     fetchGuests(id, search);

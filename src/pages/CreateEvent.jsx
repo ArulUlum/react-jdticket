@@ -58,7 +58,7 @@ function CreateEvent() {
   const [customCapacity, setCustomCapacity] = useState("");
   const [eventType, setEventType] = useState("Free Event");
   const [showEventTypeOptions, setShowEventTypeOptions] = useState(false);
-  const [requireApproval, setRequireApproval] = useState(true);
+  const [requireApproval, setRequireApproval] = useState(false);
   const [eventImage, setEventImage] = useState("https://wallpapercave.com/wp/wp9297718.jpg");
   const [eventImageFile, setEventImageFile] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
@@ -68,10 +68,11 @@ function CreateEvent() {
   const [rawImage, setRawImage] = useState(null);
   const [eventName, setEventName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState(null);
   const [locationName, setlocationName] = useState("");
   const [locationAddress, setlocationAddress] = useState("");
   const [tags, setTags] = useState("");
+  document.title = 'Create Event - Kebbu';
 
   const fetchLocationSuggestions = async (input) => {
     try {
@@ -129,8 +130,7 @@ function CreateEvent() {
     console.log(payload)
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     setIsSubmitting(true);
     setSubmitError(null);
 
@@ -203,6 +203,7 @@ function CreateEvent() {
 
   if (submitError) {
     alert(submitError)
+    setSubmitError(null);
   }
 
   return (
@@ -325,7 +326,7 @@ function CreateEvent() {
       </div>
 
       {/* Right Card */}
-      <div className="bg-bg-card bg-[#141717] rounded-[10px] border border-strokesss border-solid w-full max-w-3xl p-6 space-y-6 mx-auto lg:mx-0">
+      <div className="bg-[#141717] rounded-[10px] border border-strokesss border-solid w-full max-w-3xl p-6 space-y-6 mx-auto lg:mx-0">
         <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-y-4 gap-x-6 items-center">
           {/* Visibility */}
           <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
@@ -439,9 +440,7 @@ function CreateEvent() {
           </div>
           {showMaps && (
             <>
-            <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
-            </div>
-            <div>
+            <div className="md:col-span-2">
               <iframe
                 title="event-location"
                 src={`https://www.google.com/maps?q=${encodeURIComponent(locationInput)}&output=embed`}
@@ -584,7 +583,7 @@ function CreateEvent() {
             Save as Draft
           </button>
           <button 
-            onClick={handleSubmit} 
+            onClick={() => handleSubmit()} 
             className="bg-[#00594F] rounded-lg px-6 py-3 text-white font-['Satoshi-Bold'] w-full sm:w-1/2 disabled:opacity-50"
             disabled={isSubmitting}
           >

@@ -15,6 +15,7 @@ const urlBe = import.meta.env.VITE_URL_BE;
 
 const MorePage = ({ id }) => {
   const [data, setData] = useState(null);
+  document.title = 'More - Kebbu';
 
   // Modal Refs
   const cancelModalRef = useRef(null);

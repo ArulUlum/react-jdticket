@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin,
@@ -35,6 +35,7 @@ function EventDetailGuest() {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
   const [selectedPayment, setSelectedPayment] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Modal Refs
   const registrationModalRef = useRef(null);
@@ -95,6 +96,14 @@ function EventDetailGuest() {
     fetchData(url);
   }, [url]);
 
+  // Update document title when event changes
+  useEffect(() => {
+    if (event) {
+      document.title = event.name + ' - Kebbu';
+    }
+  }, [event]);
+  
+  // Handle click outside modals
   useEffect(() => {
     const handleClickOutside = (event) => {
       modals.forEach(({ ref, isOpen, close }) => {
@@ -303,10 +312,10 @@ function EventDetailGuest() {
 
 
   return (
-    <div className='mb-16'>
+    <div className='mb-16 mt-4'>
       <div className="flex flex-col md:flex-row gap-4 pb-2 justify-center items-start">
         {/* Left Panel */}
-        <div className="w-full lg:max-w-[350px] p-4 items-center">
+        <div className="w-full lg:max-w-[350px] px-4 items-center">
           {/* image */}
           <div className='w-full max-w-[350px] mx-auto flex'>
             <img

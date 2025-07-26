@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   UserPlus,
   Send,
@@ -10,7 +10,8 @@ import {
   TrendingUp,
   TrendingDown,
   Eye,
-  EyeOff
+  EyeOff,
+  CalendarDays
 } from "lucide-react";
 import { format } from 'date-fns';
 import axios from 'axios';
@@ -32,6 +33,8 @@ function OverviewPage({ id, event }) {
   const startMonth = format(startDate, 'MMM');     // contoh: "May"
   const formattedStartTime = format(startDate, 'HH:mm');
   const formattedEndTime = format(endDate, 'HH:mm');
+
+  document.title = 'Overview Event - Kebbu';
 
   const handleVisibleClick = (status) => {
     setTargetVisibility(status === "public" ? true : false);
@@ -149,7 +152,7 @@ function OverviewPage({ id, event }) {
         {/* Right: Content */}
         <div className="flex-1">
           <div className="flex justify-between items-start">
-            <h1 className="text-3xl font-['Satoshi-Bold',_sans-serif]  mb-4">{event.name}</h1>
+            <h1 className="text-responsive-title mb-4">{event.name}</h1>
             <button className="flex items-center gap-1 text-sm text-white bg-[#1c1d1d] px-3 py-1 rounded-lg border border-[#212121] hover:bg-[#2a2a2a] transition">
               Edit Event
               <PencilLine className="w-4 h-4" />
@@ -158,9 +161,8 @@ function OverviewPage({ id, event }) {
 
           {/* Date */}
           <div className="flex items-start gap-3 mb-6 mt-2">
-            <div className="w-11 h-11 rounded-lg border border-[#666] flex flex-col items-center justify-center text-xs leading-tight">
-              <div className="text-[#A2A2A2] font-['Satoshi-Regular']">{startMonth}</div>
-              <div className="text-lg font-['Satoshi-Regular']">{startDay}</div>
+            <div className="w-11 h-11 rounded-lg border border-[#666] flex items-center justify-center">
+              <CalendarDays className="text-white w-6 h-6" />
             </div>
             <div>
               <div className="text-base font-['Satoshi-Bold',_sans-serif]">{formattedStartDate}</div>
@@ -171,7 +173,7 @@ function OverviewPage({ id, event }) {
           {/* Location */}
           <div className="flex items-start gap-3 mb-6">
             <div className="w-11 h-11 rounded-lg border border-[#666] flex items-center justify-center">
-              <MapPin className="text-white w-5 h-5" />
+              <MapPin className="text-white w-6 h-6" />
             </div>
             <div>
               <div className="text-base font-['Satoshi-Bold',_sans-serif]">{event.location_name}</div>
@@ -182,13 +184,13 @@ function OverviewPage({ id, event }) {
           </div>
 
           {/* Start Check-In */}
-          <button
-            onClick={() => navigate(`/event-user-scan/${id}`)}
-            className="w-full bg-[#00594f] text-white rounded-lg text-lg font-['Satoshi-Bold',_sans-serif] flex items-center justify-center gap-2 hover:bg-[#35796f] transition"
+          <Link
+            to={`/event-user-scan/${id}`}
+            className="w-full bg-[#00594f] text-white py-3 rounded-lg text-responsive-sub-title flex items-center justify-center gap-2 hover:bg-[#35796f] hover:text-white transition"
           >
             <ScanLine className="w-5 h-5" />
             Start Check-In
-          </button>
+          </Link>
         </div>
       </div>
 
