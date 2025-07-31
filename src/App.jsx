@@ -8,6 +8,8 @@ import EventDetailHost from './pages/EventDetailHost';
 import QRScanner from './pages/QRScanner';
 import LoginPage from './pages/LoginPage' 
 import UserScanPage from './pages/UserScanPage';
+import TermsPage from './pages/TermsPage';
+import PrivacyPage from './pages/PrivacyPage';
 
 function App() {
   return (
@@ -23,6 +25,8 @@ function App() {
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/event-detail/:id" element={<EventDetailHost />} />
           <Route path="/event-user-scan/:id" element={<UserScanPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
         </Route>
       </Routes>
     </Router>

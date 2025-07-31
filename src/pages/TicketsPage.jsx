@@ -105,6 +105,34 @@ const TicketsPage = ({ id, event }) => {
     setIsNewTicketModalOpen(false);
   };
 
+  const createNewTicket = async () => {
+    try {
+      const response = await axios.post(`${urlBe}/ticket/create`, {
+        event_id: data.id,
+        name: ticketName,
+        approval: requireApproval,
+        hide: hideTicket,
+        pricing_type: pricingType,
+        price: pricingType === "Free" ? 0 : parseInt(ticketPrice.replace(/\D/g, ""), 10),
+        description: showDescription ? description : "",
+        max_capacity: showTicketLimit ? parseInt(ticketLimit.replace(/\D/g, ""), 10) : null,
+        start_date: showSalesDate ? `${startDate}T${startTime}:00` : null,
+        end_date: showSalesDate ? `${endDate}T${endTime}:00` : null,
+        bundle_qty: showBundling ? bundleQty : null,
+      }, {
+        headers: {
+          'x-jdticket': localStorage.getItem('token') || '',
+        },
+      });
+      console.log('Ticket created:', response.data);
+      resetNewTicketModal();
+      fetchData(id); // Refresh data after creating new ticket
+    } catch (error) {
+      console.error('Failed to create ticket:', error);
+      alert('❌ Failed to create ticket. Please try again.');
+    }
+  };
+
   const formatPrice = (value) => {
     const number = value.replace(/\D/g, "");
     return Number(number).toLocaleString("id-ID");
@@ -830,7 +858,7 @@ const TicketsPage = ({ id, event }) => {
               className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
               onClick={() => {
                 // Save ticket logic here
-                resetNewTicketModal();
+                createNewTicket();
               }}
             >
               Create Ticket

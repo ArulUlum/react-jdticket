@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { format } from "date-fns";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const urlBe = import.meta.env.VITE_URL_BE;
@@ -101,10 +101,10 @@ function UserProfile() {
 
         {user.list_event && user.list_event.length > 0 ? (
           user.list_event.map((event) => (
-            <div 
+            <Link
               key={event.id}
-              onClick={() => navigate(`/event-detail/${event.public_id}`)} 
-              className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-700"
+              to={`/event-detail/${event.public_id}`}
+              className="flex text-white hover:text-white items-start gap-4 p-4 rounded-lg hover:bg-gray-700"
             >
               <img
                 src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
@@ -126,7 +126,7 @@ function UserProfile() {
                   {event.location}
                 </div>
               </div>
-            </div>
+            </Link>
           ))
         ) : (
           <div className="text-sm text-gray-400 italic">

@@ -152,8 +152,16 @@ button:focus-visible {
     @apply text-xs md:text-sm font-['Satoshi-Bold'];
   }
   
+  .text-responsive-medium-big {
+    @apply text-lg md:text-xl font-['Satoshi-Medium',_sans-serif];
+  }
+
   .text-responsive-medium {
     @apply text-base md:text-lg font-['Satoshi-Medium',_sans-serif];
+  }
+
+  .text-responsive-medium-normal {
+    @apply text-sm md:text-base font-['Satoshi-Medium',_sans-serif];
   }
 
   .text-responsive-medium-small {

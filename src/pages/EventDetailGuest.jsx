@@ -214,7 +214,7 @@ function EventDetailGuest() {
   function handleCopy() {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
-    setTimeout(() => setCopied(false), 500);
+    setTimeout(() => setCopied(false), 1000);
   }
 
   const startDate = new Date(event.start_date);
@@ -242,6 +242,7 @@ function EventDetailGuest() {
     }
     setErrorMessage('');
     setRegistrationModal(true);
+    setTicketModal(false);
     console.log('Lanjut ke registrasi ' + total);
   }
 
@@ -399,7 +400,7 @@ function EventDetailGuest() {
           <div className="flex">
             {/* Calendar Icon */}
             <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
-              <CalendarDays className="text-white text-2xl" />
+              <CalendarDays className="text-white w-7 h-7" />
             </div>
             <div className="flex flex-col ml-4">
               <p className="text-responsive-medium text-white">
@@ -413,7 +414,7 @@ function EventDetailGuest() {
           <div className="flex">
             {/* Map Pointer Icon */}
             <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
-              <MapPin className="text-white text-2xl" />
+              <MapPin className="text-white w-7 h-7" />
             </div>
 
             <div className="flex flex-col ml-4">
@@ -555,7 +556,7 @@ function EventDetailGuest() {
               {event.list_ticket?.map(ticket => (
                 <div
                   key={ticket.id}
-                  className="flex justify-between items-center bg-[#1C1D1D] rounded-lg px-4 py-2 border border-[#212121]"
+                  className="flex mb-2 justify-between items-center bg-[#1C1D1D] rounded-lg px-4 py-2 border border-[#212121]"
                 >
                   <div>
                     <h3 className="text-responsive-medium text-white">{ticket.name}</h3>
@@ -585,7 +586,7 @@ function EventDetailGuest() {
                 <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
               )}
               <button
-                className="bg-white text-responsive-item-title text-[#141717] w-full py-2 mt-4 rounded hover:bg-[#ffffffe4]"
+                className="bg-white text-responsive-item-title text-[#141717] w-full py-2 mt-2 rounded hover:bg-[#ffffffe4]"
                 onClick={handleRegister}
               >
                 Continue
@@ -632,7 +633,7 @@ function EventDetailGuest() {
                         placeholder="Enter promo code"
                         className="flex-1 rounded border border-[#a2a2a2] bg-transparent px-3 py-2 text-responsive-regular focus:outline-none focus:border-cyan-400"
                       />
-                      <button className="bg-white text-black px-4 rounded text-responsive-regular">
+                      <button className="bg-white text-black px-4 rounded text-responsive-medium-normal">
                         Apply
                       </button>
                     </div>

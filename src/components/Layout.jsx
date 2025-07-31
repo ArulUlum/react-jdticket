@@ -1,4 +1,5 @@
 import Header from "./Header";
+import Footer from "./Footer";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from 'axios';
@@ -75,6 +76,7 @@ function Layout() {
         <Header user={user} isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
         <main className="px-6 max-w-5xl mx-auto">
           <Outlet />
+          <Footer />
         </main>
       </div>
     </>
