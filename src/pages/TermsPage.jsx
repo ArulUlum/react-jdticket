@@ -93,7 +93,7 @@ const sections = [
   },
   {
     title: "Hubungi Kami",
-    subtitle: "Untuk pertanyaan atau permintaan bantuan, hubungi kami melalui Email support@kebbu.id atau Whatsapp 08119432148.",
+    subtitle: "Untuk pertanyaan atau permintaan bantuan, hubungi kami melalui Email kebbu.workspace@gmail.com atau Whatsapp 08119432148.",
   },
 ];
 
