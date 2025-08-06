@@ -370,10 +370,10 @@ function CreateEvent() {
             Start
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="border border-strokesss w-full">
+            <div className="w-full">
               <DatePickerBox value={startDate} onChange={setStartDate} />
             </div>
-            <div className="border border-strokesss w-full"> 
+            <div className="w-full"> 
               <TimePickerBox value={startTime} onChange={setStartTime} />
             </div>
           </div>
@@ -383,10 +383,10 @@ function CreateEvent() {
             End
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="border border-strokesss w-full">
+            <div className="w-full">
               <DatePickerBox value={endDate} onChange={setEndDate} />
             </div>
-            <div className="border border-strokesss w-full">
+            <div className="w-full">
               <TimePickerBox value={endTime} onChange={setEndTime} />
             </div>
           </div>
