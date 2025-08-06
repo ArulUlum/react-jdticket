@@ -103,7 +103,7 @@ function Dashboard() {
       <div className='flex flex-col mb-8'>
         <h1 className="text-responsive-title">Browse Event</h1>
         <p className="text-gray-400 text-responsive-medium mt-2">
-          Explore popular events near you, browse by category, or check out some of the great community calendars.
+          Explore popular events near you, browse by category, or check out some of the great community calendars. 
         </p>
       </div>
 
