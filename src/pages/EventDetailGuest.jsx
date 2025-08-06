@@ -316,9 +316,9 @@ function EventDetailGuest() {
     <div className='mb-16 mt-4'>
       <div className="flex flex-col md:flex-row gap-4 pb-2 justify-center items-start">
         {/* Left Panel */}
-        <div className="w-full lg:max-w-[350px] px-4 items-center">
+        <div className="w-full lg:max-w-[300px] pr-4 items-center">
           {/* image */}
-          <div className='w-full max-w-[350px] mx-auto flex'>
+          <div className='w-full max-w-[300px] mx-auto flex'>
             <img
               src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
               alt={event.name}

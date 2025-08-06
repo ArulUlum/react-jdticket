@@ -108,12 +108,12 @@ function Dashboard() {
       </div>
 
       {/* Popular Events */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-end mb-4">
         <div>
             <h2 className="text-responsive-sub-title">Popular Events</h2>
-            <p className="text-gray-400 text-responsive-medium">Jakarta</p>
+            <p className="text-gray-400 text-responsive-medium-big">Jakarta</p>
         </div>
-        <button className="text-gray-400 text-responsive-medium hover:text-white">View All</button>
+        <p className="text-gray-400 text-responsive-medium hover:text-white">View All</p>
       </div>
 
       {/* Event Grid */}
@@ -141,11 +141,11 @@ function Dashboard() {
             <img
               src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
               alt={event.name}
-              className="w-full h-[200px] object-cover rounded-t-2xl p-4"
+              className="w-full p-2 aspect-square object-cover rounded-2xl"
             />
 
             {/* Konten */}
-            <div className="px-4 pb-4">
+            <div className="px-2 pb-2">
               <h3 className="text-responsive-item-title">{event.name}</h3>
               <p className="text-gray-400 text-responsive-caption mt-1">{format(new Date(event.start_date), 'd MMM yyyy')}</p>
               <p className="text-responsive-item-title mt-1">
@@ -156,27 +156,27 @@ function Dashboard() {
             </div>
 
             {/* Garis Pembatas */}
-            <div className="border-t border-[#303030] mx-4"></div>
+            <div className="border-t border-[#303030] mx-2"></div>
 
             {/* Info Komunitas */}
-            <div className="flex items-center gap-2 p-4 pt-3">
+            <div className="flex items-center gap-2 p-2">
               <img 
                 src={(event.create_by.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event?.create_by.name || "User")}&background=random`)}
                 alt="ImageProfile" 
                 className="w-6 h-6 rounded-full" />
-              <span className="text-responsive-item-title">{event.create_by.name}</span>
+              <span className="text-responsive-medium-normal">{event.create_by.name}</span>
             </div>
           </Link>
         ))}
       </div>
 
-      <div className="flex justify-center gap-2 mt-4">
+      <div className="flex justify-center gap-2 my-7">
         {Array.from({ length: totalDots }).map((_, idx) => (
           <button
             key={idx}
             onClick={() => instanceRef.current?.moveToIdx(idx)}
             className={`rounded-full p-0 appearance-none border-none outline-none ${
-              currentSlide === idx ? "bg-white w-6 h-2" : "bg-white/20 w-2 h-2"
+              currentSlide === idx ? "bg-[#a2a2a2] w-8 h-1" : "bg-[#303030] w-2 h-1"
             }`}
             type="button"
           />
@@ -184,7 +184,7 @@ function Dashboard() {
       </div>
       
       {/* Garis Bawah */}
-      <div className="border-t border-[#A2A2A2] m-8"></div>
+      <div className="border-t border-[#303030] my-4"></div>
     </div>
   );
 }

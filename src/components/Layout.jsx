@@ -74,7 +74,7 @@ function Layout() {
         }}
       >
         <Header user={user} isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
-        <main className="px-6 max-w-5xl mx-auto">
+        <main className="max-w-3xl px-6 mx-auto">
           <Outlet />
           <Footer />
         </main>

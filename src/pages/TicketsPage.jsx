@@ -216,7 +216,7 @@ const TicketsPage = ({ id, event }) => {
             <img src={regis} alt="Registration Icon" className="w-10 h-10 object-contain" />
             <div>
               <div className="text-xl font-['Satoshi-Bold',_sans-serif]">Registration</div>
-              <div className="text-sm text-[#A2A2A2]">Open</div>
+              <div className="text-sm text-[#A2A2A2]">{!event.is_register ? 'Closed' : 'Open'}</div>
             </div>
           </div>
         </div>
@@ -229,7 +229,7 @@ const TicketsPage = ({ id, event }) => {
             <img src={capacity} alt="Capacity Icon" className="w-10 h-10 object-contain" />
             <div>
               <div className="text-xl font-['Satoshi-Bold',_sans-serif]">Capacity</div>
-              <div className="text-sm text-[#A2A2A2]">{event.max_capacity === null ? '∞' : event.max_capacity}</div>
+              <div className="text-sm text-[#A2A2A2]">{event.max_capacity === null ? 'Unlimited' : event.max_capacity}</div>
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@ const TicketsPage = ({ id, event }) => {
             <img src={grupRegis} alt="Group Booking Icon" className="w-10 h-10 object-contain" />
             <div>
               <div className="text-xl font-['Satoshi-Bold',_sans-serif]">Group Booking</div>
-              <div className="text-sm text-[#A2A2A2]">On</div>
+              <div className="text-sm text-[#A2A2A2]">{!event.group_register ? 'off' : event.group_register}</div>
             </div>
           </div>
         </div>

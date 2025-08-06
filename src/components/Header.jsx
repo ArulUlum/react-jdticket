@@ -30,11 +30,11 @@ function Header({ user, isLoggedIn, handleLogout }) {
 
   return (
     <div className="w-full fixed top-0 z-50 bg-[rgba(103,103,103,0.10)] backdrop-blur-[8.8px]">
-      <div className="px-4 mx-auto h-[53px] flex items-center justify-between">
+      <div className="px-4 mx-auto h-[45px] flex items-center justify-between">
         {/* Logo */}
         <Link 
           to="/" 
-          className="text-white font-['Lexend-Bold',sans-serif] text-2xl font-bold tracking-tight transition-colors duration-200 hover:text-[#fff] hover:brightness-150"
+          className="text-white font-['Lexend-Bold',sans-serif] text-xl font-bold tracking-tight transition-colors duration-200 hover:text-[#fff] hover:brightness-150"
         >
           kebbu
         </Link>
@@ -42,12 +42,12 @@ function Header({ user, isLoggedIn, handleLogout }) {
         {/* Desktop Menu Navigation */}
         <div className="flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2 cursor-pointer">
-            <img src={Ticket} alt="ticket" className="w-4 h-4 hidden md:flex" />
-            <span className="text-white text-sm font-['Satoshi-Medium',_sans-serif]">My Events</span>
+            <img src={Ticket} alt="ticket" className="w-3 h-3 hidden md:flex" />
+            <span className="text-white text-responsive-medium-normal">My Events</span>
           </Link>
           <Link to="/" className="flex items-center gap-2 cursor-pointer">
-            <img src={IconWorld} alt="world" className="w-4 h-4 hidden md:flex" />
-            <span className="text-white text-sm font-['Satoshi-Medium',_sans-serif]">Discover</span>
+            <img src={IconWorld} alt="world" className="w-3 h-3 hidden md:flex" />
+            <span className="text-white text-responsive-medium-normal">Discover</span>
           </Link>
         </div>
 
@@ -57,7 +57,7 @@ function Header({ user, isLoggedIn, handleLogout }) {
             <>
               <Link
                 to="/create-event"
-                className="text-white hover:text-white text-sm font-['Satoshi-Medium',_sans-serif] cursor-pointer"
+                className="text-white hover:text-white text-responsive-medium-normal cursor-pointer"
               >
                 Create Event
               </Link>

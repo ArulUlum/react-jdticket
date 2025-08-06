@@ -101,7 +101,11 @@ function TermsPage() {
   const [activeIdx, setActiveIdx] = useState(0);
   const contentRefs = useRef([]);
   const sectionIds = sections.map((s) => s.title.replace(/\s+/g, "-").toLowerCase());
-
+  
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
+  
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 120;
@@ -125,10 +129,16 @@ function TermsPage() {
   // Manual scroll with offset
   const handleClick = (idx) => {
     setActiveIdx(idx);
-    const offset = -100; // ganti sesuai tinggi header/navbar, ex: -80, -100
-    const element = contentRefs.current[idx];
-    const y = element.getBoundingClientRect().top + window.pageYOffset + offset;
-    window.scrollTo({ top: y, behavior: "smooth" });
+    if (idx === 0) {
+      // Scroll to very top of page for first section
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    } else {
+      const offset = -100; // ganti sesuai tinggi header/navbar, ex: -80, -100
+      const element = contentRefs.current[idx];
+      const y = element.getBoundingClientRect().top + window.pageYOffset + offset;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
   };
 
   return (
