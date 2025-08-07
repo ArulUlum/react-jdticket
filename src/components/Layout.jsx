@@ -1,6 +1,6 @@
 import Header from "./Header";
 import Footer from "./Footer";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 
@@ -13,6 +13,8 @@ function Layout() {
   });
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token"));
+  const location = useLocation();
+  const withoutMaxWidth = location.pathname === "/about";
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -74,7 +76,7 @@ function Layout() {
         }}
       >
         <Header user={user} isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
-        <main className="max-w-3xl px-6 mx-auto">
+        <main className={`${withoutMaxWidth ? "w-full px-0" : "max-w-3xl px-6 mx-auto"}`}>
           <Outlet />
           <Footer />
         </main>

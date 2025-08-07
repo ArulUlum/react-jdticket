@@ -307,20 +307,20 @@ function CreateEvent() {
             placeholder="Event Name"
             value={eventName}
             onChange={(e) => setEventName(e.target.value)}
-            className="w-full bg-[#0f0f0f] border border-white rounded-lg p-3 text-[#515151] text-responsive-medium outline-none"
+            className="w-full bg-[#0f0f0f] border border-white rounded-lg p-3 text-white text-responsive-medium outline-none"
           />
           <textarea
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-[#0f0f0f] border border-white rounded-lg p-3 text-[#515151] text-responsive-medium outline-none"
+            className="w-full bg-[#0f0f0f] border border-white rounded-lg p-3 text-white text-responsive-medium outline-none"
           />
           <input
             type="text"
             placeholder="Add tags..."
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            className="w-full bg-[#0f0f0f] border border-strokesss rounded-lg p-4 text-[#515151] text-responsive-medium outline-none"
+            className="w-full bg-[#0f0f0f] border border-strokesss rounded-lg p-4 text-white text-responsive-medium outline-none"
           />
         </div>
       </div>

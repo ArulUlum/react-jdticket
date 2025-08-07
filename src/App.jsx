@@ -10,6 +10,7 @@ import LoginPage from './pages/LoginPage'
 import UserScanPage from './pages/UserScanPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
+import AboutUs from './pages/AboutUs';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
 
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/about" element={<AboutUs />} />
           <Route path="/create-event" element={<CreateEvent />} />
           <Route path="/event/:url" element={<EventDetailGuest />} />
           <Route path="/profile" element={<UserProfile />} />

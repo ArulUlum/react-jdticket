@@ -7,7 +7,7 @@ import {
 
 function Footer() {
   return (
-    <footer className="w-full pt-5 pb-2 flex items-center justify-between text-gray-300 text-xs">
+    <footer className="max-w-3xl px-6 mx-auto w-full pt-5 pb-2 flex items-center justify-between text-gray-300 text-xs">
       {/* Left: Logo & Links */}
       <div className="flex items-center gap-8">
         <Link 
