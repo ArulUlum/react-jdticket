@@ -102,7 +102,7 @@ function Dashboard() {
     <div>
       <div className='flex flex-col mb-8'>
         <h1 className="text-responsive-title">Browse Event</h1>
-        <p className="text-gray-400 text-responsive-medium mt-2">
+        <p className="text-[#a2a2a2] text-responsive-medium mt-2">
           Explore popular events near you, browse by category, or check out some of the great community calendars. 
         </p>
       </div>
@@ -111,9 +111,9 @@ function Dashboard() {
       <div className="flex justify-between items-end mb-4">
         <div>
             <h2 className="text-responsive-sub-title">Popular Events</h2>
-            <p className="text-gray-400 text-responsive-medium-big">Jakarta</p>
+            <p className="text-[#a2a2a2] text-responsive-medium-big">Jakarta</p>
         </div>
-        <p className="text-gray-400 text-responsive-medium hover:text-white">View All</p>
+        <p className="text-[#a2a2a2] text-responsive-medium hover:text-white">View All</p>
       </div>
 
       {/* Event Grid */}
@@ -147,7 +147,7 @@ function Dashboard() {
             {/* Konten */}
             <div className="px-2 pb-2">
               <h3 className="text-responsive-item-title">{event.name}</h3>
-              <p className="text-gray-400 text-responsive-caption mt-1">{format(new Date(event.start_date), 'd MMM yyyy')}</p>
+              <p className="text-[#a2a2a2] text-responsive-caption mt-1">{format(new Date(event.start_date), 'd MMM yyyy')}</p>
               <p className="text-responsive-item-title mt-1">
                 {!event.price || Number(event.price) === 0
                   ? 'Free'

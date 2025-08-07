@@ -209,7 +209,7 @@ function CreateEvent() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row gap-4 pb-10 justify-center items-start">
       {/* Left Card */}
-      <div className="bg-[#141717] rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[350px] p-4 relative mx-auto lg:mx-0 flex flex-col items-center">
+      <div className="bg-[#141717] rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[300px] p-4 relative mx-auto lg:mx-0 flex flex-col items-center">
         <label htmlFor="image-upload" className="relative w-full flex justify-center cursor-pointer">
           <div className="aspect-square w-full bg-[#141717] rounded-[7px] overflow-hidden flex items-center justify-center">
             <img
@@ -307,29 +307,29 @@ function CreateEvent() {
             placeholder="Event Name"
             value={eventName}
             onChange={(e) => setEventName(e.target.value)}
-            className="w-full bg-[#0f0f0f] border border-putih-parah rounded-lg p-4 text-grey-in-white font-['Satoshi-Medium'] text-base outline-none"
+            className="w-full bg-[#0f0f0f] border border-white rounded-lg p-3 text-[#515151] text-responsive-medium outline-none"
           />
           <textarea
             placeholder="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-[#0f0f0f] border border-putih-parah rounded-lg p-4 text-grey-in-white font-['Satoshi-Medium'] text-base outline-none resize-none h-16"
+            className="w-full bg-[#0f0f0f] border border-white rounded-lg p-3 text-[#515151] text-responsive-medium outline-none"
           />
           <input
             type="text"
             placeholder="Add tags..."
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            className="w-full bg-[#0f0f0f] border border-strokesss rounded-lg p-4 text-grey-in-white font-['Satoshi-Medium'] text-base outline-none"
+            className="w-full bg-[#0f0f0f] border border-strokesss rounded-lg p-4 text-[#515151] text-responsive-medium outline-none"
           />
         </div>
       </div>
 
       {/* Right Card */}
-      <div className="bg-[#141717] rounded-[10px] border border-strokesss border-solid w-full max-w-3xl p-6 space-y-6 mx-auto lg:mx-0">
-        <div className="grid grid-cols-1 md:grid-cols-[160px_1fr] gap-y-4 gap-x-6 items-center">
+      <div className="bg-[#141717] rounded-[10px] border border-strokesss border-solid w-full p-6 mx-auto lg:mx-0">
+        <div className="grid gap-2 items-center">
           {/* Visibility */}
-          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+          <div className="text-white text-responsive-medium leading-[18px]">
             Visibility
           </div>
           <div className="relative w-full">
@@ -343,7 +343,7 @@ function CreateEvent() {
                 ) : (
                   <EyeOff className="w-5 h-5 text-white" />
                 )}
-                <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">{visibility}</span>
+                <span className="text-white text-responsive-medium leading-[18px]">{visibility}</span>
               </div>
               <span className="text-white text-sm">▼</span>
             </div>
@@ -366,7 +366,7 @@ function CreateEvent() {
           </div>
 
           {/* Start Date */}
-          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+          <div className="text-white text-responsive-medium leading-[18px]">
             Start
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -379,7 +379,7 @@ function CreateEvent() {
           </div>
 
           {/* End Date */}
-          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+          <div className="text-white text-responsive-medium leading-[18px]">
             End
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -392,7 +392,7 @@ function CreateEvent() {
           </div>
 
           {/* Location */}
-          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+          <div className="text-white text-responsive-medium leading-[18px]">
             Location
           </div>
           <div className="relative w-full">
@@ -452,14 +452,14 @@ function CreateEvent() {
           )}
           
           {/* Capacity */}
-          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+          <div className="text-white text-responsive-medium leading-[18px]">
             Capacity
           </div>
           {capacityMode === "unlimited" ? (
             <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4">
               <div className="flex items-center gap-2.5">
                 <Users className="w-5 h-5 text-white" />
-                <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">Unlimited</span>
+                <span className="text-white text-responsive-medium leading-[18px]">Unlimited</span>
               </div>
               <Edit className="w-4 h-4 text-white cursor-pointer" onClick={() => setCapacityMode("custom")} />
             </div>
@@ -481,7 +481,7 @@ function CreateEvent() {
           )}
 
           {/* Event Type */}
-          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+          <div className="text-white text-responsive-medium leading-[18px]">
             Event Type
           </div>
           <div className="relative w-full">
@@ -491,7 +491,7 @@ function CreateEvent() {
             >
               <div className="flex items-center gap-2.5">
                 <CreditCard className="w-5 h-5 text-white" />
-                <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+                <span className="text-white text-responsive-medium leading-[18px]">
                   {eventType}
                 </span>
               </div>
@@ -520,13 +520,13 @@ function CreateEvent() {
           </div>
           {eventType === "Paid Event" && (
             <>
-              <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+              <div className="text-white text-responsive-medium leading-[18px]">
                 Input Price
               </div>
               <div className="relative w-full">
                 <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full">
                   <div className="flex items-center gap-2.5 w-full">
-                    <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+                    <div className="text-white text-responsive-medium leading-[18px]">
                       Rp
                     </div>
                     <input
@@ -543,7 +543,7 @@ function CreateEvent() {
           )}
 
           {/* Approval */}
-          <div className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">
+          <div className="text-white text-responsive-medium leading-[18px]">
             Approval
           </div>
           <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full">
@@ -551,12 +551,12 @@ function CreateEvent() {
               {requireApproval ? (
                 <>
                   <Lock className="w-5 h-5 text-white" />
-                  <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">Require Approval</span>
+                  <span className="text-white text-responsive-medium leading-[18px]">Require Approval</span>
                 </>
               ) : (
                 <>
                   <Unlock className="w-5 h-5 text-white" />
-                  <span className="text-white font-['Satoshi-Medium'] text-base leading-[18px]">No Need Approval</span>
+                  <span className="text-white text-responsive-medium leading-[18px]">No Need Approval</span>
                 </>
               )}
             </div>
@@ -601,7 +601,7 @@ const DatePickerBox = ({ value, onChange }) => {
     <div
       onClick={onClick}
       ref={ref}
-      className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg px-4 py-2 cursor-pointer w-full"
+      className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 cursor-pointer w-full"
     >
       <div className="flex items-center gap-2.5 w-full">
         <Calendar className="w-5 h-5 text-white" />
@@ -668,7 +668,7 @@ const TimePickerBox = ({ value, onChange }) => {
     <div
       onClick={onClick}
       ref={ref}
-      className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg px-4 py-2 cursor-pointer w-full"
+      className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 cursor-pointer w-full"
     >
       <div className="flex items-center gap-2.5 w-full">
         <Clock className="w-5 h-5 text-white" />
