@@ -68,7 +68,7 @@ function CreateEvent() {
   const [rawImage, setRawImage] = useState(null);
   const [eventName, setEventName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(null);
+  const [price, setPrice] = useState(0);
   const [locationName, setlocationName] = useState("");
   const [locationAddress, setlocationAddress] = useState("");
   const [tags, setTags] = useState("");
@@ -440,7 +440,7 @@ function CreateEvent() {
           </div>
           {showMaps && (
             <>
-            <div className="md:col-span-2">
+            <div className='my-1'>
               <iframe
                 title="event-location"
                 src={`https://www.google.com/maps?q=${encodeURIComponent(locationInput)}&output=embed`}
