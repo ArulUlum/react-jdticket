@@ -83,20 +83,18 @@ function Dashboard() {
   })
 
   useEffect(() => {
-    if (!loading && instanceRef.current) {
-      instanceRef.current.update()
+    if (instanceRef.current) {
+      instanceRef.current.update();
+      // Recalculate dots after update
+      const slider = instanceRef.current;
+      const perView = typeof slider.options.slides.perView === 'number' ? slider.options.slides.perView : 1;
+      const totalSlides = slider.track?.details?.slides?.length || 0;
+      if (totalSlides > 0) {
+        const dotCount = Math.max(1, Math.ceil(totalSlides - perView + 1));
+        setTotalDots(dotCount);
+      }
     }
-
-    const slider = instanceRef.current
-    const perView = typeof slider.options.slides.perView === 'number' ? slider.options.slides.perView : 1
-    const totalSlides = slider.track?.details?.slides?.length || 0
-
-    if (totalSlides > 0) {
-      const dotCount = Math.max(1, Math.ceil(totalSlides - perView + 1))
-      setTotalDots(dotCount)
-    }
-
-  }, [events, loading, instanceRef.current])
+  }, [events]);
   
   return (
     <div>
@@ -117,7 +115,7 @@ function Dashboard() {
       </div>
 
       {/* Event Grid */}
-      <div ref={sliderRef} className="keen-slider">
+      <div ref={sliderRef} className="keen-slider" key={events.length}>
         {loading && [...Array(4)].map((_, i) => (
           <div
             key={i}
