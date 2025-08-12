@@ -1,16 +1,17 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout'
-import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import CreateEvent from './pages/CreateEvent';
-import EventDetailGuest from './pages/EventDetailGuest';
+import EventPage from './pages/EventPage';
 import UserProfile from './pages/UserProfil';
-import EventDetailHost from './pages/EventDetailHost';
+import Dashboard from './pages/Dashboard';
 import QRScanner from './pages/QRScanner';
 import LoginPage from './pages/LoginPage' 
 import UserScanPage from './pages/UserScanPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import AboutUs from './pages/AboutUs';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -20,12 +21,13 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
 
         <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/create-event" element={<CreateEvent />} />
-          <Route path="/event/:url" element={<EventDetailGuest />} />
+          <Route path="/event/:url" element={<EventPage />} />
           <Route path="/profile" element={<UserProfile />} />
-          <Route path="/event-detail/:id" element={<EventDetailHost />} />
+          <Route path="/dashboard/:id" element={<Dashboard />} />
           <Route path="/event-user-scan/:id" element={<UserScanPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />

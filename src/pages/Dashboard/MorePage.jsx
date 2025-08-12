@@ -1,0 +1,211 @@
+import { useEffect, useRef, useState } from 'react';
+import axios from 'axios';
+import {
+  Link,
+  Copy,
+  CircleX
+} from 'lucide-react';
+
+const urlBe = import.meta.env.VITE_URL_BE;
+
+const MorePage = ({ id }) => {
+  const [data, setData] = useState(null);
+  document.title = 'More - Kebbu';
+
+  // Modal Refs
+  const cancelModalRef = useRef(null);
+  const duplicateModalRef = useRef(null);
+  // Tambahkan modal lainnya di sini...
+
+  // Modal States
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
+  // Tambahkan modal lainnya di sini...
+
+  const modals = [
+    { ref: cancelModalRef, isOpen: isCancelModalOpen, close: () => setIsCancelModalOpen(false) },
+    { ref: duplicateModalRef, isOpen: isDuplicateModalOpen, close: () => setIsDuplicateModalOpen(false) }
+    // Tambahkan modal lain: { ref, isOpen, close }
+  ];
+
+  useEffect(() => {
+    fetchData(id);
+
+    const handleClickOutside = (event) => {
+      modals.forEach(({ ref, isOpen, close }) => {
+        if (isOpen && ref.current && !ref.current.contains(event.target)) {
+          close();
+        }
+      });
+    };
+
+    // Cek apakah ada modal yang terbuka
+    const anyOpen = modals.some(({ isOpen }) => isOpen);
+    if (anyOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+
+  }, [id, modals.map(m => m.isOpen).join()]);
+
+  const fetchData = async (id) => {
+    try {
+      const response = await axios.get(`${urlBe}/events/ticket-overview/${id}`, {
+        headers: { 'x-jdticket': localStorage.getItem('token') || '', },
+      });
+      setData(response.data.data);
+    } catch (err) {
+      console.error('Failed to fetch sales report:', err);
+    }
+  };
+
+  return (
+    <div>
+      {/* Duplicate Event Section */}
+      <div className='mt-4'>
+        <h2 className="text-responsive-sub-title text-white mb-3">Duplicate Event</h2>
+        <p className="text-white mb-3 text-responsive-regular"> 
+          Duplicate this event with the same details — excluding guest list and past messages.
+        </p>
+        <button
+          className="flex items-center text-responsive-item-title gap-2 bg-white border border-[#212121] rounded-lg px-4 py-3 text-[#141717] mb-3"
+          onClick={() => setIsDuplicateModalOpen(true)}
+        >
+          <Copy className="w-5 h-5 text-[#141717]" style={{ transform: 'scaleX(-1)' }} />
+          Duplicate Event
+        </button>
+      {/* Duplicate Event Modal */}
+      {isDuplicateModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div ref={duplicateModalRef} className="bg-[#141717] rounded-[24px] p-8 w-[350px] md:w-[420px] shadow-lg relative border border-[#212121] flex flex-col items-start">
+            <div className="flex items-center justify-center mb-6">
+              <div className="bg-[linear-gradient(135deg,_rgba(255,255,255,0.2),_rgba(255,255,255,0))] rounded-full w-16 h-16 flex items-center justify-center">
+                <Copy className="w-8 h-8 text-white" style={{ transform: 'scaleX(-1)' }} />
+              </div>
+            </div>
+            <h2 className="text-white text-2xl font-bold mb-2">Duplicate Event</h2>
+            <p className="text-[#a2a2a2] text-base mb-6">Create a copy of this event with the same name, location, duration, and settings.</p>
+            <div className="w-full mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-white font-semibold">Event Start and Event End</span>
+              </div>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#a2a2a2] w-16">Start</span>
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      type="date"
+                      className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-full"
+                      value={data?.start_date ? data.start_date.split('T')[0] : ''}
+                      onChange={e => setData({ ...data, start_date: e.target.value + (data?.start_time ? 'T' + data.start_time : '') })}
+                    />
+                    <input
+                      type="time"
+                      className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-full"
+                      value={data?.start_time || ''}
+                      onChange={e => setData({ ...data, start_time: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[#a2a2a2] w-16">End</span>
+                  <div className="flex items-center gap-2 flex-1">
+                    <input
+                      type="date"
+                      className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-full"
+                      value={data?.end_date ? data.end_date.split('T')[0] : ''}
+                      onChange={e => setData({ ...data, end_date: e.target.value + (data?.end_time ? 'T' + data.end_time : '') })}
+                    />
+                    <input
+                      type="time"
+                      className="bg-[#212121] text-white rounded-lg px-3 py-2 text-sm w-full"
+                      value={data?.end_time || ''}
+                      onChange={e => setData({ ...data, end_time: e.target.value })}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button
+              className="bg-white rounded-[14px] px-4 py-3 w-full text-[#141717] text-lg font-semibold mb-2 hover:bg-[#e5e5e5] transition"
+              onClick={() => {
+                // TODO: Implement duplicate event logic here
+                setIsDuplicateModalOpen(false);
+              }}
+            >
+              Duplicate
+            </button>
+          </div>
+        </div>
+      )}
+      </div>
+
+      {/* Divider */}
+      <hr className="my-9 border-[#333]" />
+
+      {/* Customize Event URL Section */}
+      <div className='mt-4'>
+        <h2 className="text-responsive-sub-title text-white mb-3">Customize Event URL</h2>
+        <p className="text-white mb-3 text-responsive-regular"> 
+          Edit the link to your event page. Make it short, clear, and easy to remember.
+        </p>
+        <div className="flex items-center text-responsive-medium-small bg-[#181818] border border-[#333] rounded-lg px-4 py-3 w-fit mb-3">
+          <Link className="w-5 h-5 text-[#a2a2a2] mr-4" />
+          <span className="text-[#a2a2a2] ">kebbu.id/event/</span>
+          <input
+            type="text"
+            value={data?.custom_url || "XYZFestival"}
+            className="bg-transparent text-white font-semibold outline-none ml-2 w-32"
+          />
+        </div>
+      </div>
+
+      {/* Divider */}
+      <hr className="my-9 border-[#333]" />
+
+      {/* Cancel Event Section */}
+      <div className='mt-4 mb-20'>
+        <h2 className="text-responsive-sub-title text-white mb-3">Cancel Event</h2>
+        <p className="text-white mb-3 text-responsive-regular"> 
+          Cancel this event and prevent any new registrations. Guests will no longer be able to join.
+        </p>
+        <button
+          className="flex items-center gap-2 bg-[#f94d4d] border border-[#212121] rounded-lg px-4 py-3 text-white font-semibold hover:bg-[#c93333] transition mb-3"
+          onClick={() => setIsCancelModalOpen(true)}
+        >
+          <CircleX className="w-5 h-5 text-white" />
+          Cancel Event
+        </button>
+      </div>
+
+      {/* Cancel Event Modal */}
+      {isCancelModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div ref={cancelModalRef} className="bg-[#181818] rounded-[24px] p-8 w-[350px] md:w-[420px] shadow-lg relative border border-[#212121] flex flex-col items-start">
+            <div className="flex items-center justify-center mb-6">
+              <div className="bg-[#f94d4d] rounded-full w-16 h-16 flex items-center justify-center">
+                <CircleX className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <h2 className="text-white text-2xl font-bold mb-3">Cancel Event</h2>
+            <p className="text-[#f94d4d] text-base mb-8">Are you sure you want to cancel this event? This action cannot be undone.</p>
+            <button
+              className="bg-[#f94d4d] rounded-[14px] px-4 py-3 w-full text-white text-lg font-semibold mb-2 hover:bg-[#c93333] transition"
+              onClick={() => {
+                // TODO: Implement cancel event logic here
+                setIsCancelModalOpen(false);
+              }}
+            >
+              Cancel Event
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default MorePage;

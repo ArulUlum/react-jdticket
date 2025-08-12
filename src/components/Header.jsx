@@ -86,36 +86,30 @@ function Header({ user, isLoggedIn, handleLogout }) {
                     <hr className="border-t border-[#303030] mx-4 my-2" />
                     {/* Menu Items */}
                     <div className="flex flex-col gap-1 pb-3">
-                      <button
+                      <Link
+                        to="/profile"
                         className="flex items-center gap-3 px-4 py-1 text-left text-sm font-['Satoshi-Medium'] text-[#a2a2a2] bg-transparent hover:bg-[#232323] transition rounded-md"
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          navigate("/profile");
-                        }}
+                        onClick={() => setShowUserMenu(false)}
                       >
                         <CircleUserRound className="w-5 h-5 text-[#a2a2a2]" />
                         My Profile
-                      </button>
-                      <button
+                      </Link>
+                      <Link
+                        to="/wallet"
                         className="flex items-center gap-3 px-4 py-1 text-left text-sm font-['Satoshi-Medium'] text-[#a2a2a2] bg-transparent hover:bg-[#232323] transition rounded-md"
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          navigate("/wallet");
-                        }}
+                        onClick={() => setShowUserMenu(false)}
                       >
                         <Wallet className="w-5 h-5 text-[#a2a2a2]" />
                         Wallet
-                      </button>
-                      <button
+                      </Link>
+                      <Link
+                        to="/settings"
                         className="flex items-center gap-3 px-4 py-1 text-left text-sm font-['Satoshi-Medium'] text-[#a2a2a2] bg-transparent hover:bg-[#232323] transition rounded-md"
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          navigate("/settings");
-                        }}
+                        onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="w-5 h-5 text-[#a2a2a2]" />
                         Settings
-                      </button>
+                      </Link>
                       <button
                         className="flex items-center gap-3 px-4 py-1 text-left text-sm font-['Satoshi-Medium'] text-[#f94d4d] bg-transparent hover:bg-[#232323] hover:text-red-300 transition rounded-md"
                         onClick={() => {
@@ -132,15 +126,15 @@ function Header({ user, isLoggedIn, handleLogout }) {
               </div>
             </>
           ) : (
-            <button
+            <Link
+              to="/login"
               className="rounded-[20px] px-4 py-1 flex items-center justify-center text-white text-sm font-['Satoshi-Medium',sans-serif]"
               style={{
                 background: "linear-gradient(90deg, rgba(68,160,141,1) 0%, rgba(0,89,79,1) 100%)"
               }}
-              onClick={() => navigate("/login")}
             >
               Sign in
-            </button>
+            </Link>
           )}
         </div>
       </div>
