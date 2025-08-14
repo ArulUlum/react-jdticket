@@ -22,6 +22,7 @@ const GuestPage = lazy(() => import('./Dashboard/GuestPage'));
 const SalesPage = lazy(() => import('./Dashboard/SalesPage'));
 const TicketsPage = lazy(() => import('./Dashboard/TicketsPage'));
 const BlastPage = lazy(() => import('./Dashboard/BlastPage'));
+const InsightPage = lazy(() => import('./Dashboard/InsightPage'));
 const MorePage = lazy(() => import('./Dashboard/MorePage'));
 
 const urlBe = import.meta.env.VITE_URL_BE;
@@ -98,6 +99,7 @@ function Dashboard() {
         {activeTab === "Sales Report" && <SalesPage id={id}/>}
         {activeTab === "Tickets" && <TicketsPage id={id} event={event}/>}
         {activeTab === "Blast" && <BlastPage id={id}/>}
+        {activeTab === "Insight" && <InsightPage id={id}/>}
         {activeTab === "More" && <MorePage id={id}/>}
       </Suspense>
     </div>

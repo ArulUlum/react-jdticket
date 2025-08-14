@@ -12,6 +12,8 @@ import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';
 import AboutUs from './pages/AboutUs';
 import Settings from './pages/Settings';
+import WalletPage from './pages/WalletPage';
+import MyEventPage from './pages/MyEventPage';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/wallet" element={<WalletPage />} />
+          <Route path="/my-event" element={<MyEventPage />} />
           <Route path="/create-event" element={<CreateEvent />} />
           <Route path="/event/:url" element={<EventPage />} />
           <Route path="/profile" element={<UserProfile />} />

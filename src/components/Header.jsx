@@ -41,7 +41,7 @@ function Header({ user, isLoggedIn, handleLogout }) {
 
         {/* Desktop Menu Navigation */}
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-2 cursor-pointer">
+          <Link to="/my-event" className="flex items-center gap-2 cursor-pointer">
             <img src={Ticket} alt="ticket" className="w-3 h-3 hidden md:flex" />
             <span className="text-white text-responsive-medium-normal">My Events</span>
           </Link>

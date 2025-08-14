@@ -77,7 +77,7 @@ const GuestPage = ({id}) => {
   };
 
   return (
-    <div className="font-['Satoshi-Regular',_sans-serif]">
+    <div className="font-['Satoshi-Regular',_sans-serif] min-h-screen">
       {/* Stats Header */}
       <div className="flex justify-between items-start mb-5">
         {/* Left Section */}
