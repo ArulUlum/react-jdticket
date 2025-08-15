@@ -51,6 +51,16 @@ const TicketsPage = ({ id, event }) => {
   const [startTime, setStartTime] = useState("01:00");
   const [endDate, setEndDate] = useState("2025-06-15");
   const [endTime, setEndTime] = useState("22:00");
+  const [textQuestion, setTextQuestion] = useState("");
+  const [textRequired, setTextRequired] = useState(true);
+  const [optionsQuestion, setOptionsQuestion] = useState("");
+  const [optionsRequired, setOptionsRequired] = useState(true);
+  const [optionInput, setOptionInput] = useState("");
+  const [optionsList, setOptionsList] = useState([]);
+  const [checkboxQuestion, setCheckboxQuestion] = useState("");
+  const [checkboxRequired, setCheckboxRequired] = useState(true);
+  const [checkboxInput, setCheckboxInput] = useState("");
+  const [checkboxList, setCheckboxList] = useState([]);
 
   // Modal Refs
   const registrationModalRef = useRef(null);
@@ -59,6 +69,9 @@ const TicketsPage = ({ id, event }) => {
   const taxModalRef = useRef(null);
   const newTicketModalRef = useRef(null);
   const ticketDetailRef = useRef(null);
+  const AddTextRef = useRef(null);
+  const AddOptionsRef = useRef(null);
+  const AddCheckboxRef = useRef(null);
   // Tambahkan modal lainnya di sini...
 
   // Modal States
@@ -68,6 +81,9 @@ const TicketsPage = ({ id, event }) => {
   const [isTaxModalOpen, setIsTaxModalOpen] = useState(false);
   const [isNewTicketModalOpen, setIsNewTicketModalOpen] = useState(false);
   const [isTicketDetailOpen, setIsTicketDetailOpen] = useState(false);
+  const [showAddTextModal, setShowAddTextModal] = useState(false);
+  const [showAddOptionsModal, setShowAddOptionsModal] = useState(false);
+  const [showAddCheckboxModal, setShowAddCheckboxModal] = useState(false);
   // Tambahkan modal lainnya di sini...
 
   const modals = [
@@ -76,7 +92,10 @@ const TicketsPage = ({ id, event }) => {
     { ref: groupModalRef, isOpen: isGroupModalOpen, close: () => setIsGroupModalOpen(false) },
     { ref: taxModalRef, isOpen: isTaxModalOpen, close: () => setIsTaxModalOpen(false) },
     { ref: newTicketModalRef, isOpen: isNewTicketModalOpen, close: () => resetNewTicketModal() },
-    { ref: ticketDetailRef, isOpen: isTicketDetailOpen, close: () => closeTicketDetail() }
+    { ref: ticketDetailRef, isOpen: isTicketDetailOpen, close: () => closeTicketDetail() },
+    { ref: AddTextRef, isOpen: showAddTextModal, close: () => setShowAddTextModal(false) },
+    { ref: AddOptionsRef, isOpen: showAddOptionsModal, close: () => setShowAddOptionsModal(false) },
+    { ref: AddCheckboxRef, isOpen: showAddCheckboxModal, close: () => setShowAddCheckboxModal(false) },
     // Tambahkan modal lain: { ref, isOpen, close }
   ];
 
@@ -543,7 +562,7 @@ const TicketsPage = ({ id, event }) => {
               className="bg-[#141717] text-white w-full sm:w-[430px] max-h-[90vh] rounded-xl overflow-y-auto shadow-xl"
             >
               <div className="flex items-center gap-2 text-lg font-['Satoshi-Bold',_sans-serif] px-8 pt-4">
-                <ChevronsRight className='w-5 h-5 cursor-pointer text-[#a2a2a2]' onClick={closeTicketDetail}/>
+                <ChevronsRight className='w-5 h-5 cursor-pointer text-[#a2a2a2]' onClick={closeTicketDetail} />
                 <span>Ticket Information</span>
               </div>
               <hr className="my-2 border-[#333]" />
@@ -576,7 +595,7 @@ const TicketsPage = ({ id, event }) => {
 
                 {/* Ticket Limit */}
                 <div className="flex items-center text-md font-['Satoshi-Medium',_sans-serif] gap-2">
-                  <ArrowUpToLine className='w-4 h-4'/>
+                  <ArrowUpToLine className='w-4 h-4' />
                   <label>Ticket Limit:</label>
                   <span>{ticketDetail.max_capacity ? "Unlimited" : ticketDetail.max_capacity}</span>
                 </div>
@@ -974,7 +993,7 @@ const TicketsPage = ({ id, event }) => {
           <div className="flex items-center justify-between gap-3">
             <div
               className="border border-dashed border-[#3F3F3F] w-full text-white px-4 py-2 rounded-md flex items-center gap-2 cursor-pointer hover:border-[#AAAAAA]"
-              onClick={() => console.log(`Add custom question: ${q.label}`)}
+              onClick={() => setShowAddTextModal(true)}
             >
               <span className="italic text-[#A2A2A2] text-base" style={{ fontFamily: 'Times New Roman' }}>
                 T
@@ -984,7 +1003,7 @@ const TicketsPage = ({ id, event }) => {
             </div>
             <div
               className="border border-dashed border-[#3F3F3F] w-full text-white px-4 py-2 rounded-md flex items-center gap-2 cursor-pointer hover:border-[#AAAAAA]"
-              onClick={() => console.log(`Add custom question: ${q.label}`)}
+              onClick={() => setShowAddOptionsModal(true)}
             >
               <CircleDot className='w-3 h-3 text-[#A2A2A2]' />
               <span>Options</span>
@@ -992,7 +1011,7 @@ const TicketsPage = ({ id, event }) => {
             </div>
             <div
               className="border border-dashed border-[#3F3F3F] w-full text-white px-4 py-2 rounded-md flex items-center gap-2 cursor-pointer hover:border-[#AAAAAA]"
-              onClick={() => console.log(`Add custom question: ${q.label}`)}
+              onClick={() => setShowAddCheckboxModal(true)}
             >
               <CheckSquare2 className='w-3 h-3 text-[#A2A2A2]' />
               <span>Checkbox</span>
@@ -1006,6 +1025,214 @@ const TicketsPage = ({ id, event }) => {
               <span>Website</span>
               <span className="ml-auto">+</span>
             </div>
+            {/* Add Text Question Modal */}
+            {showAddTextModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+                <div ref={AddTextRef} className="bg-[#181818] text-white p-8 rounded-2xl w-[370px] shadow-lg relative font-['Satoshi-Regular',_sans-serif]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-[#232323] rounded-full flex items-center justify-center">
+                      <span className="text-3xl italic text-white" style={{ fontFamily: 'Times New Roman' }}>T</span>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-['Satoshi-Bold',_sans-serif]">Add Text</h2>
+                      <p className="text-[#A2A2A2] text-sm">Ask for a free-form response.</p>
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-white text-sm mb-1">Question</label>
+                    <input
+                      type="text"
+                      value={textQuestion}
+                      onChange={e => setTextQuestion(e.target.value)}
+                      className="w-full bg-[#141717] text-white px-3 py-2 rounded-md outline-none text-base"
+                      placeholder="Enter your question"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-white text-sm">Required</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={textRequired}
+                        onChange={() => setTextRequired(v => !v)}
+                      />
+                      <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
+                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
+                    </label>
+                  </div>
+                  <button
+                    className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif] text-lg"
+                    onClick={() => {
+                      // Add logic to save the question
+                      setShowAddTextModal(false);
+                      setTextQuestion("");
+                      setTextRequired(true);
+                    }}
+                  >
+                    Add Question
+                  </button>
+                </div>
+              </div>
+            )}
+            {showAddOptionsModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+                <div ref={AddOptionsRef} className="bg-[#181818] text-white p-8 rounded-2xl w-[420px] shadow-lg relative font-['Satoshi-Regular',_sans-serif]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-[#232323] rounded-full flex items-center justify-center">
+                      <CircleDot className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-['Satoshi-Bold',_sans-serif]">Add Options</h2>
+                      <p className="text-[#A2A2A2] text-sm">Let guests choose one option from the list below.</p>
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-white text-sm mb-1">Question</label>
+                    <input
+                      type="text"
+                      value={optionsQuestion}
+                      onChange={e => setOptionsQuestion(e.target.value)}
+                      className="w-full bg-[#141717] text-white px-3 py-2 rounded-md outline-none text-base"
+                      placeholder="Enter your question"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-white text-sm mb-1">Options</label>
+                    <input
+                      type="text"
+                      value={optionInput}
+                      onChange={e => setOptionInput(e.target.value)}
+                      onKeyDown={e => {
+                        if ((e.key === 'Enter' || e.key === 'Tab') && optionInput.trim()) {
+                          e.preventDefault();
+                          if (!optionsList.includes(optionInput.trim())) {
+                            setOptionsList([...optionsList, optionInput.trim()]);
+                          }
+                          setOptionInput("");
+                        }
+                      }}
+                      className="w-full bg-[#141717] text-white px-3 py-2 rounded-md outline-none text-base mb-1"
+                      placeholder="Add Options"
+                    />
+                    <div className="text-xs text-[#A2A2A2] mb-2">Press Enter or Tab key to add a new option</div>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {optionsList.map((opt, idx) => (
+                        <span key={idx} className="bg-[#232323] px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                          {opt}
+                          <span className="ml-1 cursor-pointer text-[#A2A2A2]" onClick={() => setOptionsList(optionsList.filter((o, i) => i !== idx))}>&times;</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-white text-sm">Required</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={optionsRequired}
+                        onChange={() => setOptionsRequired(v => !v)}
+                      />
+                      <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
+                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
+                    </label>
+                  </div>
+                  <button
+                    className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif] text-lg"
+                    onClick={() => {
+                      // Add logic to save the question
+                      setShowAddOptionsModal(false);
+                      setOptionsQuestion("");
+                      setOptionsRequired(true);
+                      setOptionInput("");
+                      setOptionsList([]);
+                    }}
+                  >
+                    Add Question
+                  </button>
+                </div>
+              </div>
+            )}
+            {showAddCheckboxModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+                <div ref={AddCheckboxRef} className="bg-[#181818] text-white p-8 rounded-2xl w-[420px] shadow-lg relative font-['Satoshi-Regular',_sans-serif]">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-[#232323] rounded-full flex items-center justify-center">
+                      <CheckSquare2 className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-['Satoshi-Bold',_sans-serif]">Add Checkbox</h2>
+                      <p className="text-[#A2A2A2] text-sm">Let guests choose one or more options from the list below.</p>
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="block text-white text-sm mb-1">Question</label>
+                    <input
+                      type="text"
+                      value={checkboxQuestion}
+                      onChange={e => setCheckboxQuestion(e.target.value)}
+                      className="w-full bg-[#141717] text-white px-3 py-2 rounded-md outline-none text-base"
+                      placeholder="Enter your question"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-white text-sm mb-1">Options</label>
+                    <input
+                      type="text"
+                      value={checkboxInput}
+                      onChange={e => setCheckboxInput(e.target.value)}
+                      onKeyDown={e => {
+                        if ((e.key === 'Enter' || e.key === 'Tab') && checkboxInput.trim()) {
+                          e.preventDefault();
+                          if (!checkboxList.includes(checkboxInput.trim())) {
+                            setCheckboxList([...checkboxList, checkboxInput.trim()]);
+                          }
+                          setCheckboxInput("");
+                        }
+                      }}
+                      className="w-full bg-[#141717] text-white px-3 py-2 rounded-md outline-none text-base mb-1"
+                      placeholder="Add Options"
+                    />
+                    <div className="text-xs text-[#A2A2A2] mb-2">Press Enter or Tab key to add a new option</div>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {checkboxList.map((opt, idx) => (
+                        <span key={idx} className="bg-[#232323] px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                          {opt}
+                          <span className="ml-1 cursor-pointer text-[#A2A2A2]" onClick={() => setCheckboxList(checkboxList.filter((o, i) => i !== idx))}>&times;</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mb-6">
+                    <span className="text-white text-sm">Required</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={checkboxRequired}
+                        onChange={() => setCheckboxRequired(v => !v)}
+                      />
+                      <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
+                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
+                    </label>
+                  </div>
+                  <button
+                    className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif] text-lg"
+                    onClick={() => {
+                      // Add logic to save the question
+                      setShowAddCheckboxModal(false);
+                      setCheckboxQuestion("");
+                      setCheckboxRequired(true);
+                      setCheckboxInput("");
+                      setCheckboxList([]);
+                    }}
+                  >
+                    Add Question
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
