@@ -24,6 +24,15 @@ function Layout() {
       setUser(userData);
       checkTokenValidity(); // <- panggil cek token
     }
+    // Listen for profile update event
+    const handleProfileUpdate = () => {
+      const updatedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      setUser(updatedUser);
+    };
+    window.addEventListener('userProfileUpdated', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('userProfileUpdated', handleProfileUpdate);
+    };
   }, []);
 
   const checkTokenValidity = async () => {
