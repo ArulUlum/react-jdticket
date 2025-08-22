@@ -28,6 +28,17 @@ const urlBe = import.meta.env.VITE_URL_BE;
 function CreateEvent() {
   const now = new Date();
   const roundedNow = new Date(Math.ceil(now.getTime() / (30 * 60000)) * 30 * 60000);
+  // Helper to convert dataURL to File
+  function dataURLtoFile(dataurl, filename) {
+    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1];
+    var bstr = atob(arr[1]);
+    var n = bstr.length;
+    var u8arr = new Uint8Array(n);
+    for (var i = 0; i < n; i++) {
+      u8arr[i] = bstr.charCodeAt(i);
+    }
+    return new File([u8arr], filename, { type: mime });
+  }
 
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -186,7 +197,7 @@ function CreateEvent() {
         setSubmitError(message);
       } else {
         alert(message);
-        navigate(`/event-detail/${event_id}`);
+        navigate(`/dashboard/${event_id}`);
       }
     } catch (error) {
       if (error.response) {
@@ -292,7 +303,7 @@ function CreateEvent() {
                   onClick={async () => {
                     const croppedImg = await getCroppedImg(rawImage, croppedAreaPixels);
                     setEventImage(croppedImg);
-                    setEventImageFile(null); // You may want to convert croppedImg to file for upload
+                    setEventImageFile(dataURLtoFile(croppedImg, 'event-image.png'));
                     setShowCropper(false);
                   }}
                 >Crop & Use</button>

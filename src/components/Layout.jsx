@@ -3,6 +3,7 @@ import Footer from "./Footer";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from 'axios';
+import SEO from "../components/SEO";
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
@@ -75,6 +76,13 @@ function Layout() {
 
   return (
     <>
+      <SEO
+        title="Kebbu — Event & Ticketing Platform"
+        description="Kebbu membantu bikin event, jual tiket, dan bangun komunitas dengan mudah."
+        canonical="https://kebbu.id"
+        robots="index,follow"
+        openGraph={{ image: "https://res.cloudinary.com/dtbaug0gp/image/upload/v1755609573/kebbu_MINI_LOGO_mj1pf9.png" }}
+      />
       <div
         className="relative overflow-hidden pt-20"
         style={{

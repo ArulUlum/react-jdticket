@@ -97,7 +97,7 @@ function Home() {
   }, [events]);
   
   return (
-    <div>
+    <>
       <div className='flex flex-col mb-8'>
         <h1 className="text-responsive-title">Browse Event</h1>
         <p className="text-[#a2a2a2] text-responsive-medium mt-2">
@@ -183,7 +183,7 @@ function Home() {
       
       {/* Garis Bawah */}
       <div className="border-t border-[#303030] my-4"></div>
-    </div>
+    </>
   );
 }
 

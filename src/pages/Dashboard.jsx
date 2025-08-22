@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { lazy, Suspense } from 'react';
 
@@ -33,6 +33,8 @@ function Dashboard() {
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("Overview");
+  const { state } = useLocation();
+  console.log(state?.name); // dapetin event.name
 
   const tabs = ["Overview", "Guests", "Sales Report", "Tickets", "Blast", "Insight", "More"];
   const handleTabClick = (tab) => {
@@ -70,7 +72,7 @@ function Dashboard() {
   if (!event) return <p className="text-red-500">Event not found.</p>;
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <>
       <div className="text-white mb-6">
         {/* Title */}
         <h1 className="text-responsive-title mb-4">{event.name}</h1>
@@ -102,7 +104,7 @@ function Dashboard() {
         {activeTab === "Insight" && <InsightPage id={id}/>}
         {activeTab === "More" && <MorePage id={id}/>}
       </Suspense>
-    </div>
+    </>
   );
 }
 

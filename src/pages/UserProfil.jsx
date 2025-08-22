@@ -223,6 +223,7 @@ function UserProfile() {
               <Link
                 key={event.id}
                 to={event.type === "Attending" ? `/event/${event.public_id}` : `/dashboard/${event.public_id}`}
+                state={{ name: event.name }}
                 className="flex items-start gap-4 p-3 rounded-2xl hover:bg-gray-800 transition group border border-gray-800"
               >
                 <img
