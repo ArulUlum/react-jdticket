@@ -1,215 +1,192 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import axios from "axios";
 import { Link } from "react-router-dom";
 
-function MyEventPage() {
-  const [tab, setTab] = useState("upcoming");
-  // Example data for upcoming events
-  const upcomingEvents = [
-    {
-      id: 1,
-      date: "24 July Thursday",
-      time: "14.00 WIB",
-      title: "XYZ Music Festival",
-      location: "Jakarta Gambir Expo",
-      guests: 6,
-      image: "https://wallpapercave.com/wp/wp9297718.jpg",
-    },
-    {
-      id: 2,
-      date: "24 July Thursday",
-      time: "14.00 WIB",
-      title: "XYZ Music Festival",
-      location: "Jakarta Gambir Expo",
-      guests: 6,
-      image: "https://wallpapercave.com/wp/wp9297718.jpg",
-    },
-    {
-      id: 3,
-      date: "24 July Thursday",
-      time: "14.00 WIB",
-      title: "XYZ Music Festival",
-      location: "Jakarta Gambir Expo",
-      guests: 6,
-      image: "https://wallpapercave.com/wp/wp9297718.jpg",
-    },
-  ];
-  const hasUpcoming = upcomingEvents.length > 0;
-  // Example data for past events
-  const pastEvents = [
-    {
-      id: 1,
-      date: "24 July Thursday",
-      time: "14.00 WIB",
-      title: "XYZ Music Festival",
-      location: "Jakarta Gambir Expo",
-      guests: 6,
-      image: "https://wallpapercave.com/wp/wp9297718.jpg",
-      status: "Going",
-    },
-    {
-      id: 2,
-      date: "24 July Thursday",
-      time: "14.00 WIB",
-      title: "XYZ Music Festival",
-      location: "Jakarta Gambir Expo",
-      guests: 6,
-      image: "https://wallpapercave.com/wp/wp9297718.jpg",
-      status: "Hosting",
-    },
-    {
-      id: 3,
-      date: "24 July Thursday",
-      time: "14.00 WIB",
-      title: "XYZ Music Festival",
-      location: "Jakarta Gambir Expo",
-      guests: 6,
-      image: "https://wallpapercave.com/wp/wp9297718.jpg",
-      status: "Not Going",
-    },
-  ];
-  const hasPast = pastEvents.length > 0;
+const urlBe = import.meta.env.VITE_URL_BE;
 
+function fmtDate(d) {
+  const date = new Date(d);
+  if (isNaN(date)) return null;
+  const day = new Intl.DateTimeFormat("en-GB", { day: "2-digit" }).format(date);
+  const month = new Intl.DateTimeFormat("en-GB", { month: "long" }).format(date);
+  const weekday = new Intl.DateTimeFormat("en-GB", { weekday: "long" }).format(date);
+  return { key: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`, day, month, weekday };
+}
+function fmtTime(d) {
+  const date = new Date(d);
+  if (isNaN(date)) return null;
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mm = String(date.getMinutes()).padStart(2, "0");
+  return `${hh}.${mm} WIB`;
+}
+function groupByDay(list) {
+  const map = new Map();
+  list.forEach(e => {
+    const f = fmtDate(e.start_date) || { key: e.start_date, day: e.start_date, month: "", weekday: "" };
+    if (!map.has(f.key)) map.set(f.key, { label: f, items: [] });
+    map.get(f.key).items.push(e);
+  });
+  return Array.from(map.values());
+}
+
+function EventCard({ event }) {
+  const time = fmtTime(event.start_date) ?? (event.start_date?.split(" ")[1] || "");
+  const location = event.location_name || event.location || "";
+  const guests = event.total_registered ?? event.guests ?? 0;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start pt-12">
+    <Link
+      to={`/event/${event.url}`}
+      className="block bg-[#151515]/90 hover:bg-[#181818] transition rounded-2xl border border-white/5 shadow-sm hover:shadow-lg"
+    >
+      <div className="flex items-center gap-5 p-5">
+        <div className="flex-1 min-w-0">
+          <div className="text-xs text-white/60 tracking-wide">{time}</div>
+          <div className="mt-1 text-[22px] leading-7 font-semibold text-white truncate">
+            {event.name}
+          </div>
+          <div className="mt-2 flex items-center gap-3 text-sm text-white/60">
+            <span className="inline-flex items-center gap-1">
+              <span role="img" aria-label="loc">📍</span>{location}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span role="img" aria-label="guests">👥</span>{guests} guests
+            </span>
+          </div>
+        </div>
+        <img
+          src={event.image || "https://wallpapercave.com/wp/wp9297718.jpg"}
+          alt={event.name}
+          className="w-36 h-28 rounded-xl object-cover shrink-0"
+        />
+      </div>
+    </Link>
+  );
+}
+
+function DayBlock({ day }) {
+  const { day: d, month, weekday } = day.label;
+  return (
+    <div className="flex items-start gap-8">
+      {/* Left date label */}
+      <div className="min-w-[220px] text-white">
+        <div className="text-3xl font-semibold leading-tight">{d} <span className="font-normal">{month}</span></div>
+        <div className="mt-1 text-lg text-white/70">{weekday}</div>
+      </div>
+
+      {/* Right list of cards */}
+      <div className="flex-1 flex flex-col gap-6">
+        {day.items.map((e) => (
+          <EventCard key={e.id} event={e} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function MyEventPage() {
+  const [tab, setTab] = useState("upcoming");
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [pastEvents, setPastEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await axios.get(`${urlBe}/events/my-events`, {
+          headers: { "x-jdticket": localStorage.getItem("token") || "" },
+        });
+        if (res.data && res.data.code === "1" && res.data.data) {
+          setUpcomingEvents(res.data.data.upcoming || []);
+          setPastEvents(res.data.data.past || []);
+        } else {
+          setError(res.data?.message || "Failed to fetch events");
+        }
+      } catch (err) {
+        setError(err?.response?.data?.message || err.message || "Failed to fetch events");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+  const hasUpcoming = upcomingEvents.length > 0;
+  const hasPast = pastEvents.length > 0;
+
+  const groupedUpcoming = useMemo(() => groupByDay(upcomingEvents), [upcomingEvents]);
+  const groupedPast = useMemo(() => groupByDay(pastEvents), [pastEvents]);
+
+  const groups = tab === "upcoming" ? groupedUpcoming : groupedPast;
+  const hasData = tab === "upcoming" ? hasUpcoming : hasPast;
+
+  return (
+    <div className="min-h-screen pt-10">
       {/* Tabs */}
-      <div className="flex gap-8 mb-12">
+      <div className="flex gap-8 justify-center">
         <button
-          className={`text-lg font-medium pb-1 border-b-2 transition-all ${tab === "upcoming" ? "text-white border-[#6fffc6]" : "text-[#a2a2a2] border-transparent"}`}
+          className={`text-xl font-semibold pb-2 border-b-2 transition-all ${
+            tab === "upcoming" ? "text-white border-[#6fffc6]" : "text-white/60 border-transparent"
+          }`}
           onClick={() => setTab("upcoming")}
         >
           Upcoming
         </button>
         <button
-          className={`text-lg font-medium pb-1 border-b-2 transition-all ${tab === "past" ? "text-white border-[#6fffc6]" : "text-[#a2a2a2] border-transparent"}`}
+          className={`text-xl font-semibold pb-2 border-b-2 transition-all ${
+            tab === "past" ? "text-white border-[#6fffc6]" : "text-white/60 border-transparent"
+          }`}
           onClick={() => setTab("past")}
         >
           Past
         </button>
       </div>
 
-      {/* Timeline for Past Events */}
-      {tab === "past" && hasPast && (
-        <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl mx-auto mt-8">
-          {/* Timeline */}
-          <div className="flex flex-col items-center pt-8 min-w-[120px]">
-            {pastEvents.map((event, idx) => (
-              <div key={event.id} className="flex flex-col items-center">
-                <div className={`w-3 h-3 rounded-full bg-[#a2a2a2] ${idx === 0 ? '' : 'mt-8'}`}></div>
-                {idx < pastEvents.length - 1 && (
-                  <div className="w-px h-16 bg-gradient-to-b from-[#a2a2a2] to-transparent border-dashed border-l-2 border-[#a2a2a2] opacity-60"></div>
-                )}
-              </div>
-            ))}
-          </div>
-          {/* Events List */}
-          <div className="flex-1 flex flex-col gap-8">
-            {pastEvents.map((event, idx) => (
-              <div key={event.id} className="flex items-center gap-8">
-                <div className="min-w-[160px] text-white text-lg font-bold text-right">
-                  <span className="block text-2xl font-bold leading-tight">{event.date.split(' ')[0]} <span className="font-normal text-lg">{event.date.split(' ').slice(1).join(' ')}</span></span>
+      {/* States */}
+      {loading && <div className="text-white/80 text-center mt-10">Loading events...</div>}
+      {error && <div className="text-red-400 text-center mt-10">{error}</div>}
+
+      {/* Timeline + list */}
+      {!loading && !error && hasData && (
+        <div className="max-w-6xl mx-auto mt-10 px-4">
+          <div className="relative">
+            {/* Timeline line */}
+            <div className="absolute left-6 top-0 bottom-0">
+              {/* vertical dashed */}
+              <div className="w-px h-full border-l-2 border-dashed border-white/20 translate-x-3" />
+            </div>
+
+            <div className="flex flex-col gap-12 pl-12">
+              {groups.map((g, i) => (
+                <div key={g.label.key} className="relative">
+                  {/* Dot per group */}
+                  <div className="absolute -left-1 top-2 w-3 h-3 rounded-full bg-white/70 shadow" />
+                  <DayBlock day={g} />
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center bg-[#232323] rounded-2xl p-4 gap-4 shadow-md">
-                    <div className="flex-1">
-                      {/* Status badge */}
-                      {event.status && (
-                        <span className={`inline-block mb-2 px-3 py-1 rounded-full text-xs font-semibold mr-2 ${
-                          event.status === 'Going' ? 'bg-green-800 text-green-100' :
-                          event.status === 'Hosting' ? 'bg-blue-900 text-blue-200' :
-                          event.status === 'Not Going' ? 'bg-red-900 text-red-200' :
-                          'bg-[#a2a2a2] text-white'
-                        }`}>
-                          {event.status}
-                        </span>
-                      )}
-                      <div className="text-[#a2a2a2] text-xs mb-1">{event.time}</div>
-                      <div className="text-white text-lg font-bold mb-1">{event.title}</div>
-                      <div className="flex items-center gap-2 text-[#a2a2a2] text-sm mb-1">
-                        <span role="img" aria-label="location">📍</span> {event.location}
-                      </div>
-                      <div className="flex items-center gap-2 text-[#a2a2a2] text-sm">
-                        <span role="img" aria-label="guests">👥</span> {event.guests} guests
-                      </div>
-                    </div>
-                    <img src={event.image} alt={event.title} className="w-24 h-20 object-cover rounded-xl" />
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Timeline for Upcoming Events */}
-      {tab === "upcoming" && hasUpcoming && (
-        <div className="flex flex-col md:flex-row gap-8 w-full max-w-5xl mx-auto mt-8">
-          {/* Timeline */}
-          <div className="flex flex-col items-center pt-8 min-w-[120px]">
-            {upcomingEvents.map((event, idx) => (
-              <div key={event.id} className="flex flex-col items-center">
-                <div className={`w-3 h-3 rounded-full bg-[#a2a2a2] ${idx === 0 ? '' : 'mt-8'}`}></div>
-                {idx < upcomingEvents.length - 1 && (
-                  <div className="w-px h-16 bg-gradient-to-b from-[#a2a2a2] to-transparent border-dashed border-l-2 border-[#a2a2a2] opacity-60"></div>
-                )}
-              </div>
-            ))}
-          </div>
-          {/* Events List */}
-          <div className="flex-1 flex flex-col gap-8">
-            {upcomingEvents.map((event, idx) => (
-              <div key={event.id} className="flex items-center gap-8">
-                <div className="min-w-[160px] text-white text-lg font-bold text-right">
-                  <span className="block text-2xl font-bold leading-tight">{event.date.split(' ')[0]} <span className="font-normal text-lg">{event.date.split(' ').slice(1).join(' ')}</span></span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center bg-[#232323] rounded-2xl p-4 gap-4 shadow-md">
-                    <div className="flex-1">
-                      <div className="text-[#a2a2a2] text-xs mb-1">{event.time}</div>
-                      <div className="text-white text-lg font-bold mb-1">{event.title}</div>
-                      <div className="flex items-center gap-2 text-[#a2a2a2] text-sm mb-1">
-                        <span role="img" aria-label="location">📍</span> {event.location}
-                      </div>
-                      <div className="flex items-center gap-2 text-[#a2a2a2] text-sm">
-                        <span role="img" aria-label="guests">👥</span> {event.guests} guests
-                      </div>
-                    </div>
-                    <img src={event.image} alt={event.title} className="w-24 h-20 object-cover rounded-xl" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {/* Empty State */}
-      {((!hasUpcoming && tab === "upcoming") || (!hasPast && tab === "past")) && (
-        <div className="flex flex-col items-center justify-center mt-8">
-          {/* Calendar Icon (SVG) */}
-          <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="30" y="50" width="120" height="90" rx="20" fill="#D9D9D9" />
-            <rect x="30" y="50" width="120" height="40" rx="10" fill="#232323" />
-            <rect x="60" y="80" width="60" height="60" rx="12" fill="#A3A3A3" />
-            <polygon points="90,110 98,130 80,120 100,120 82,130" fill="#232323" />
-            <circle cx="60" cy="50" r="10" fill="#232323" />
-            <circle cx="120" cy="50" r="10" fill="#232323" />
-          </svg>
-          <div className="text-white text-2xl font-bold mt-8 mb-2">
+      {/* Empty state */}
+      {!loading && !error && !hasData && (
+        <div className="flex flex-col items-center justify-center mt-12">
+          <div className="text-white text-2xl font-bold">
             {tab === "upcoming" ? "No Upcoming Events" : "No Past Events"}
           </div>
-          <div className="text-[#a2a2a2] mb-6">
-            Ready to create something awesome?
-          </div>
+          <div className="text-white/60 mt-2 mb-6">Ready to create something awesome?</div>
           <Link
             to="/create-event"
-            className="bg-[#181818] text-white rounded-lg px-6 py-3 font-medium flex items-center gap-2 border border-[#232323] hover:bg-[#232323] transition"
+            className="bg-[#181818] text-white rounded-lg px-6 py-3 font-medium border border-white/10 hover:bg-[#202020] transition"
           >
-            <span className="text-xl font-bold">+</span> Create Event
+            + Create Event
           </Link>
         </div>
       )}
     </div>
   );
 }
-
-export default MyEventPage;
