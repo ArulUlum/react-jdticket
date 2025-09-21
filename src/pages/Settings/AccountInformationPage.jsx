@@ -122,7 +122,7 @@ function AccountInformation() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen mb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 w-full">
         {/* Left form */}
         <section>

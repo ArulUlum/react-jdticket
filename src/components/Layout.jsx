@@ -93,10 +93,10 @@ function Layout() {
         }}
       >
         <Header user={user} isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
-        <main className={`${withoutMaxWidth ? "w-full px-0" : "max-w-3xl px-6 mx-auto"}`}>
+        <main className={`min-h-screen ${withoutMaxWidth ? "w-full px-0" : "max-w-3xl px-6 mx-auto"}`}>
           <Outlet />
-          <Footer />
         </main>
+        <Footer />
       </div>
     </>
   );

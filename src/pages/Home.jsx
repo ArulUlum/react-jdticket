@@ -183,6 +183,13 @@ function Home() {
       
       {/* Garis Bawah */}
       <div className="border-t border-[#303030] my-4"></div>
+
+      <div className='flex flex-col my-8'>
+        <h1 className="text-responsive-title">Browse by Category</h1>
+        <p className="text-[#a2a2a2] text-responsive-medium mt-2">
+          Explore events based on category you choose. 
+        </p>
+      </div>
     </>
   );
 }

@@ -103,10 +103,6 @@ function TermsPage() {
   const sectionIds = sections.map((s) => s.title.replace(/\s+/g, "-").toLowerCase());
   
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }, []);
-  
-  useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 120;
       let foundIdx = 0;

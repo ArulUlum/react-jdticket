@@ -67,11 +67,11 @@ function EventCard({ event }) {
 function DayBlock({ day }) {
   const { day: d, month, weekday } = day.label;
   return (
-    <div className="flex items-start gap-8">
+    <div className="flex items-center gap-8">
       {/* Left date label */}
-      <div className="min-w-[220px] text-white">
-        <div className="text-3xl font-semibold leading-tight">{d} <span className="font-normal">{month}</span></div>
-        <div className="mt-1 text-lg text-white/70">{weekday}</div>
+      <div className="flex gap-2 min-w-[220px] text-white items-center">
+        <div className="text-responsive-sub-title leading-tight">{d} <span className="font-normal">{month}</span></div>
+        <div className="text-responsive-sub-title text-[#a2a2a2]">{weekday}</div>
       </div>
 
       {/* Right list of cards */}
@@ -85,11 +85,32 @@ function DayBlock({ day }) {
 }
 
 export default function MyEventPage() {
-  const [tab, setTab] = useState("upcoming");
+  const [activeTab, setActiveTab] = useState("Upcoming");
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const tabs = ["Upcoming", "Past"];
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    console.log("Klik tab:", tab);
+  };
+
+  let token = localStorage.getItem("token");
+  if (!token) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <div className="text-white text-2xl font-bold mb-4">Please login first</div>
+        <Link
+          to="/login"
+          className="bg-[#181818] text-white rounded-lg px-6 py-3 font-medium border border-white/10 hover:bg-[#202020] transition"
+        >
+          Go to Login
+        </Link>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -120,29 +141,26 @@ export default function MyEventPage() {
   const groupedUpcoming = useMemo(() => groupByDay(upcomingEvents), [upcomingEvents]);
   const groupedPast = useMemo(() => groupByDay(pastEvents), [pastEvents]);
 
-  const groups = tab === "upcoming" ? groupedUpcoming : groupedPast;
-  const hasData = tab === "upcoming" ? hasUpcoming : hasPast;
+  const groups = activeTab === "Upcoming" ? groupedUpcoming : groupedPast;
+  const hasData = activeTab === "Upcoming" ? hasUpcoming : hasPast;
 
   return (
-    <div className="min-h-screen pt-10">
+    <div className="min-h-screen mb-12">
       {/* Tabs */}
-      <div className="flex gap-8 justify-center">
-        <button
-          className={`text-xl font-semibold pb-2 border-b-2 transition-all ${
-            tab === "upcoming" ? "text-white border-[#6fffc6]" : "text-white/60 border-transparent"
-          }`}
-          onClick={() => setTab("upcoming")}
-        >
-          Upcoming
-        </button>
-        <button
-          className={`text-xl font-semibold pb-2 border-b-2 transition-all ${
-            tab === "past" ? "text-white border-[#6fffc6]" : "text-white/60 border-transparent"
-          }`}
-          onClick={() => setTab("past")}
-        >
-          Past
-        </button>
+      <div className="flex gap-4 items-center justify-center">
+        {/* Tab Buttons */}
+        {tabs.map((tab) => (
+          <div
+            key={tab}
+            onClick={() => handleTabClick(tab)}
+            className={`mr-4 text-lg cursor-pointer ${activeTab === tab
+                ? "text-white font-['Satoshi-Bold',_sans-serif] border-b-2 border-[#2F645E]"
+                : "text-[#A2A2A2] font-['Satoshi-Regular'] hover:text-white"
+              }`}
+          >
+            {tab}
+          </div>
+        ))}
       </div>
 
       {/* States */}
@@ -156,14 +174,14 @@ export default function MyEventPage() {
             {/* Timeline line */}
             <div className="absolute left-6 top-0 bottom-0">
               {/* vertical dashed */}
-              <div className="w-px h-full border-l-2 border-dashed border-white/20 translate-x-3" />
+              <div className="w-px h-full border-l-2 border-dashed border-[#a2a2a2] translate-x-3" />
             </div>
 
-            <div className="flex flex-col gap-12 pl-12">
+            <div className="flex flex-col gap-8 pl-12">
               {groups.map((g, i) => (
                 <div key={g.label.key} className="relative">
                   {/* Dot per group */}
-                  <div className="absolute -left-1 top-2 w-3 h-3 rounded-full bg-white/70 shadow" />
+                  <div className="absolute -left-4 w-3 h-3 rounded-full bg-[#a2a2a2] shadow" />
                   <DayBlock day={g} />
                 </div>
               ))}

@@ -700,6 +700,7 @@ const TimePickerBox = ({ value, onChange }) => {
       timeIntervals={30}
       timeCaption="Time"
       dateFormat="HH:mm"
+      timeFormat="HH:mm"
       customInput={<CustomTimeInput />}
     />
   );

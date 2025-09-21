@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout'
+import ScrollToTop from "./components/ScrollToTop";
 import Home from './pages/Home';
 import CreateEvent from './pages/CreateEvent';
 import EventPage from './pages/EventPage';
@@ -18,8 +19,9 @@ import MyEventPage from './pages/MyEventPage';
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
-        <Route path="/scan" element={<QRScanner />} />
+        <Route path="/scan/:id" element={<QRScanner />} />
         <Route path="/login" element={<LoginPage />} />
 
         <Route element={<Layout />}>

@@ -52,29 +52,55 @@ function EventPage() {
     // Tambahkan modal lain: { ref, isOpen, close }
   ];
 
+  // const payments = [
+  //   { group: 'QRIS', items: [{ label: 'QRIS', icon: qris, code: 'QRIS' }] },
+  //   {
+  //     group: 'E-Wallet',
+  //     items: [
+  //       { label: 'Gopay', icon: gopay, code: 'GOPAY' },
+  //       { label: 'OVO', icon: ovo, code: 'OVO' },
+  //       { label: 'Dana', icon: dana, code: 'DANA' },
+  //       { label: 'ShopeePay', icon: shoopePay, code: 'SHOPEEPAY' },
+  //     ],
+  //   },
+  //   {
+  //     group: 'Virtual Account',
+  //     items: [
+  //       { label: 'BCA Virtual Account', icon: bca, code: 'BCA' },
+  //       { label: 'Mandiri Virtual Account', icon: mandiri, code: 'MANDIRI' },
+  //       { label: 'BNI Virtual Account', icon: bni, code: 'BNI' },
+  //       { label: 'BRI Virtual Account', icon: bri, code: 'BRI' },
+  //     ],
+  //   },
+  //   {
+  //     group: 'Credit Card',
+  //     items: [{ label: 'Credit Card', icon: creditCard, code: 'CREDIT_CARD' }],
+  //   },
+  // ];
+
   const payments = [
-    { group: 'QRIS', items: [{ label: 'QRIS', icon: qris, code: 'QRIS' }] },
+    { group: 'QRIS', items: [{ label: 'QRIS', icon: qris, code: 'other_qris' }] },
     {
       group: 'E-Wallet',
       items: [
-        { label: 'Gopay', icon: gopay, code: 'GOPAY' },
-        { label: 'OVO', icon: ovo, code: 'OVO' },
-        { label: 'Dana', icon: dana, code: 'DANA' },
-        { label: 'ShopeePay', icon: shoopePay, code: 'SHOPEEPAY' },
+        { label: 'Gopay', icon: gopay, code: 'gopay' },
+        { label: 'OVO', icon: ovo, code: 'other_qris' },
+        { label: 'Dana', icon: dana, code: 'other_qris' },
+        { label: 'ShopeePay', icon: shoopePay, code: 'shopeepay' },
       ],
     },
     {
       group: 'Virtual Account',
       items: [
-        { label: 'BCA Virtual Account', icon: bca, code: 'BCA' },
-        { label: 'Mandiri Virtual Account', icon: mandiri, code: 'MANDIRI' },
-        { label: 'BNI Virtual Account', icon: bni, code: 'BNI' },
-        { label: 'BRI Virtual Account', icon: bri, code: 'BRI' },
+        { label: 'BCA Virtual Account', icon: bca, code: 'bca_va' },
+        { label: 'Mandiri Virtual Account', icon: mandiri, code: 'other_va' },
+        { label: 'BNI Virtual Account', icon: bni, code: 'bni_va' },
+        { label: 'BRI Virtual Account', icon: bri, code: 'bri_va' },
       ],
     },
     {
       group: 'Credit Card',
-      items: [{ label: 'Credit Card', icon: creditCard, code: 'CREDIT_CARD' }],
+      items: [{ label: 'Credit Card', icon: creditCard, code: 'credit_card' }],
     },
   ];
 
@@ -296,10 +322,14 @@ function EventPage() {
         setRegistrationModal(false);
       } else {
         // Paid registration
-        response = await axios.post(`${urlBe}/payment/create-invoice`, payload);
-        if (response.data && response.data.data.invoice_url) {
-          window.location.href = response.data.data.invoice_url;
+        // response = await axios.post(`${urlBe}/payment/create-invoice`, payload);
+        response = await axios.post(`${urlBe}/payment/create-invoice-midtrans`, payload);
+        // if (response.data && response.data.data.invoice_url) {
+        if (response.data && response.data.data.redirect_url) {
+          // window.location.href = response.data.data.invoice_url;
+          window.location.href = response.data.data.redirect_url;
         } else {
+          console.error('Invalid response:', response.data);
           alert(response.data.message || 'Invoice created. Please proceed to payment.');
           setRegistrationModal(false);
         }
@@ -764,10 +794,11 @@ function EventPage() {
               )}
               {/* Continue */}
               <button
-                className="bg-white text-[#1a1c29] font-bold rounded-lg py-3 w-full mt-4"
+                className="bg-white text-[#1a1c29] font-bold rounded-lg py-3 w-full mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
                 onClick={handleSubmitRegister}
+                disabled={isRegistered}
               >
-                Continue
+                {isRegistered ? "Continue..." : "Continue"}
               </button>
             </div>
           </div>
