@@ -48,10 +48,14 @@ function Layout() {
       });
       // token valid
     } catch (err) {
-      console.error('Token invalid or expired:', err.response.data.message);
-      // alert(err.response.data.message)
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        "Unknown error";
+
+      console.error("Token invalid or request failed:", msg, err);
       handleLogout();
-      // navigate('/'); // redirect ke home atau login
     }
   };
 

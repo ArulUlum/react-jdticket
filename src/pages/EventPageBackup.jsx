@@ -34,6 +34,29 @@ function EventPage() {
   const [showPromoInput, setShowPromoInput] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
   const [selectedPayment, setSelectedPayment] = useState('');
+  const [paymentModal, setPaymentModal] = useState(false);
+  const [paymentPayload, setPaymentPayload] = useState(null);
+
+  // helper: invoice id for local modal (temporary)
+  const [localInvoiceId] = useState(() => `INV${Date.now()}`);
+
+  async function downloadQrImage(qrUrl, filename = 'qrcode.png') {
+    try {
+      const res = await fetch(qrUrl);
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download QR image', err);
+      alert('Unable to download QR code.');
+    }
+  }
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -52,34 +75,8 @@ function EventPage() {
     // Tambahkan modal lain: { ref, isOpen, close }
   ];
 
-  // const payments = [
-  //   { group: 'QRIS', items: [{ label: 'QRIS', icon: qris, code: 'QRIS' }] },
-  //   {
-  //     group: 'E-Wallet',
-  //     items: [
-  //       { label: 'Gopay', icon: gopay, code: 'GOPAY' },
-  //       { label: 'OVO', icon: ovo, code: 'OVO' },
-  //       { label: 'Dana', icon: dana, code: 'DANA' },
-  //       { label: 'ShopeePay', icon: shoopePay, code: 'SHOPEEPAY' },
-  //     ],
-  //   },
-  //   {
-  //     group: 'Virtual Account',
-  //     items: [
-  //       { label: 'BCA Virtual Account', icon: bca, code: 'BCA' },
-  //       { label: 'Mandiri Virtual Account', icon: mandiri, code: 'MANDIRI' },
-  //       { label: 'BNI Virtual Account', icon: bni, code: 'BNI' },
-  //       { label: 'BRI Virtual Account', icon: bri, code: 'BRI' },
-  //     ],
-  //   },
-  //   {
-  //     group: 'Credit Card',
-  //     items: [{ label: 'Credit Card', icon: creditCard, code: 'CREDIT_CARD' }],
-  //   },
-  // ];
-
   const payments = [
-    { group: 'QRIS', items: [{ label: 'QRIS', icon: qris, code: 'other_qris' }] },
+    { group: 'QRIS', items: [{ label: 'QRIS', icon: qris, code: 'qris' }] },
     {
       group: 'E-Wallet',
       items: [
@@ -323,16 +320,20 @@ function EventPage() {
       } else {
         // Paid registration
         // response = await axios.post(`${urlBe}/payment/create-invoice`, payload);
-        response = await axios.post(`${urlBe}/payment/create-invoice-midtrans`, payload);
+        // response = await axios.post(`${urlBe}/payment/create-invoice-midtrans`, payload);
         // if (response.data && response.data.data.invoice_url) {
-        if (response.data && response.data.data.redirect_url) {
+        // if (response.data && response.data.data.redirect_url) {
           // window.location.href = response.data.data.invoice_url;
-          window.location.href = response.data.data.redirect_url;
-        } else {
-          console.error('Invalid response:', response.data);
-          alert(response.data.message || 'Invoice created. Please proceed to payment.');
-          setRegistrationModal(false);
-        }
+        //   window.location.href = response.data.data.redirect_url;
+        // } else {
+        //   console.error('Invalid response:', response.data);
+        //   alert(response.data.message || 'Invoice created. Please proceed to payment.');
+        //   setRegistrationModal(false);
+        // }
+        setRegistrationModal(false);
+        // Open payment modal instead of navigating to a different page
+        setPaymentPayload(payload);
+        setPaymentModal(true);
       }
     } catch (err) {
       console.error(err);
@@ -621,6 +622,68 @@ function EventPage() {
               >
                 Continue
               </button>
+            </div>
+          </div>
+        )}
+        {paymentModal && paymentPayload && (
+          <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+            <div className="bg-[#141717] text-white rounded-xl shadow-lg w-[90%] max-w-md max-h-[90vh] overflow-y-auto p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-responsive-sub-title text-white">Payment Method</h2>
+                  <div className="text-[#a2a2a2]">QRIS</div>
+                </div>
+                <button className="text-[#a2a2a2]" onClick={() => setPaymentModal(false)}>✕</button>
+              </div>
+
+              <div className="border border-[#a2a2a2] rounded-xl p-4 w-full mx-auto text-white mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-[#a2a2a2]">Invoice Number</div>
+                  <div className="text-white">{localInvoiceId}</div>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <div className="text-[#a2a2a2]">Payment Status</div>
+                  <div className="bg-red-600 text-white text-xs py-1 px-3 rounded">UNPAID</div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="text-[#a2a2a2]">Transaction Status</div>
+                  <div className="bg-yellow-700 text-white text-xs py-1 px-3 rounded">PENDING</div>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center gap-4">
+                {/* QR Image */}
+                {(() => {
+                  const qrData = encodeURIComponent(JSON.stringify({
+                    invoice: localInvoiceId,
+                    event: paymentPayload.event_id,
+                    total: paymentPayload.total,
+                    tickets: paymentPayload.tickets
+                  }));
+                  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}`;
+                  return (
+                    <>
+                      <img src={qrUrl} alt="QR Code" className="w-64 h-64 bg-white p-2 rounded" />
+                      <div className="text-white text-lg">{paymentPayload.total === 0 ? 'FREE' : `Rp ${paymentPayload.total.toLocaleString()}`}</div>
+                      <button
+                        className="bg-gradient-to-r from-[#44A08D] to-[#00594F] text-white px-6 py-2 rounded"
+                        onClick={() => downloadQrImage(qrUrl, `${localInvoiceId}.png`)}
+                      >
+                        Download QR Code
+                      </button>
+                    </>
+                  );
+                })()}
+              </div>
+
+              <div className="mt-6 text-[#a2a2a2] text-sm">
+                <div className="font-semibold text-white mb-2">How to pay with QRIS</div>
+                <ol className="list-decimal list-inside space-y-1">
+                  <li>Open Mobile Banking application, then press QRIS</li>
+                  <li>After Scanning, please review the payment amount</li>
+                  <li>Confirm Payment</li>
+                </ol>
+              </div>
             </div>
           </div>
         )}
