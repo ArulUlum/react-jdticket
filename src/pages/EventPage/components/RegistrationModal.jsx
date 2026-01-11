@@ -55,27 +55,29 @@ export default function RegistrationModal({
           </div>
 
           {/* Promo Code */}
-          <div className="mb-4">
-            <div
-              onClick={() => setShowPromoInput(!showPromoInput)}
-              className="text-[#13E7BD] text-responsive-caption cursor-pointer w-1/3"
-            >
-              Add Promo Code
-            </div>
-
-            {showPromoInput && (
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter promo code"
-                  className="flex-1 rounded border border-[#a2a2a2] bg-transparent px-3 py-2 text-responsive-regular focus:outline-none focus:border-cyan-400"
-                />
-                <button type="button" className="bg-white text-black px-4 rounded text-responsive-medium-normal">
-                  Apply
-                </button>
+          {isPaid && (
+            <div className="mb-4">
+              <div
+                onClick={() => setShowPromoInput(!showPromoInput)}
+                className="text-[#13E7BD] text-responsive-caption cursor-pointer w-1/3"
+              >
+                Add Promo Code
               </div>
-            )}
-          </div>
+
+              {showPromoInput && (
+                <div className="mt-3 flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter promo code"
+                    className="flex-1 rounded border border-[#a2a2a2] bg-transparent px-3 py-2 text-responsive-regular focus:outline-none focus:border-cyan-400"
+                  />
+                  <button type="button" className="bg-white text-black px-4 rounded text-responsive-medium-normal">
+                    Apply
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Harga */}
           <div className="space-y-1 text-responsive-caption text-[#a2a2a2]">
@@ -174,9 +176,8 @@ export default function RegistrationModal({
                 {payments.map((group) => (
                   <div key={group.group} className="flex flex-col gap-1">
                     <div
-                      className={`text-responsive-caption-bold cursor-pointer py-1 rounded transition-colors duration-150 ${
-                        selectedPaymentGroup === group.group ? 'text-white' : 'text-[#a2a2a2]'
-                      }`}
+                      className={`text-responsive-caption-bold cursor-pointer py-1 rounded transition-colors duration-150 ${selectedPaymentGroup === group.group ? 'text-white' : 'text-[#a2a2a2]'
+                        }`}
                       onClick={() => {
                         if (selectedPaymentGroup !== group.group) {
                           setSelectedPaymentGroup(group.group);
@@ -192,11 +193,10 @@ export default function RegistrationModal({
                         {group.items.map((item) => (
                           <div
                             key={item.label}
-                            className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${
-                              selectedPayment === item.label
+                            className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${selectedPayment === item.label
                                 ? 'border-[#13E7BD] bg-[#1c1d1d]'
                                 : 'border-[#212121] bg-[#1c1d1d]'
-                            }`}
+                              }`}
                             onClick={() => setSelectedPayment(item.label)}
                           >
                             <img src={item.icon} alt={item.label} className="w-9 h-9" />

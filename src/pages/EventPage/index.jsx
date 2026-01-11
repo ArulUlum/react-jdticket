@@ -245,27 +245,32 @@ export default function EventPage() {
         <div className="w-full space-y-8">
           <h1 className="text-responsive-title mb-1">{event.name}</h1>
 
-          <div className="flex">
-            <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
-              <CalendarDays className="text-white w-7 h-7" />
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 shrink-0 rounded-md border border-white flex items-center justify-center">
+              <CalendarDays className="w-7 h-7 text-white" />
             </div>
-            <div className="flex flex-col ml-4">
-              <p className="text-responsive-medium text-white">{formattedStartDate}</p>
-              <p className="text-responsive-caption text-[#a2a2a2] mt-1">
+            <div className="min-w-0">
+              <p className="m-0 text-white text-base leading-tight">{formattedStartDate}</p>
+              <p className="m-0 mt-1 text-[#a2a2a2] text-sm leading-tight">
                 {formattedStartTime} - {formattedEndTime} WIB
               </p>
             </div>
           </div>
 
-          <div className="flex">
-            <div className="w-12 h-12 rounded-md flex flex-col items-center justify-center text-white font-bold text-xs leading-none border border-white">
-              <MapPin className="text-white w-7 h-7" />
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 shrink-0 rounded-md border border-white flex items-center justify-center">
+              <MapPin className="w-7 h-7 text-white" />
             </div>
-            <div className="flex flex-col ml-4">
-              <p className="text-responsive-medium text-white">{event.location_name}</p>
-              <p className="text-responsive-caption text-[#a2a2a2]">{event.location_address}</p>
+            <div className="min-w-0">
+              <p className="m-0 text-white text-base leading-tight truncate">
+                {event.location_name ? event.location_name : event.location}
+              </p>
+              <p className="m-0 text-[#a2a2a2] text-sm leading-tight break-words">
+                {event.location_address}
+              </p>
             </div>
           </div>
+
 
           <button
             className="hidden md:block text-responsive-item-title text-white w-full py-2 mt-4 rounded bg-gradient-to-r from-[#44A08D] to-[#00594F] hover:from-[#58c1ac] hover:to-[#007467]"
