@@ -84,6 +84,8 @@ const TicketsPage = ({ id, event }) => {
   const [showAddTextModal, setShowAddTextModal] = useState(false);
   const [showAddOptionsModal, setShowAddOptionsModal] = useState(false);
   const [showAddCheckboxModal, setShowAddCheckboxModal] = useState(false);
+  const [capacityValue, setCapacityValue] = useState("");
+  const [acceptRegistration, setAcceptRegistration] = useState(true);
   // Tambahkan modal lainnya di sini...
 
   const modals = [
@@ -148,7 +150,7 @@ const TicketsPage = ({ id, event }) => {
       fetchData(id); // Refresh data after creating new ticket
     } catch (error) {
       console.error('Failed to create ticket:', error);
-      alert('❌ Failed to create ticket. Please try again.');
+      alert(error?.response?.data?.message || '❌ Failed to create ticket. Please try again.');
     }
   };
 
@@ -210,6 +212,120 @@ const TicketsPage = ({ id, event }) => {
     setTimeout(() => setTicketDetail(null), 300); // tunggu animasi selesai sebelum hapus data
   };
 
+  const handleCapacityModalOpen = () => {
+    // Initialize capacity value from event when modal opens
+    if (data?.max_capacity === null || data?.max_capacity === undefined) {
+      setCapacityValue("");
+    } else {
+      setCapacityValue(data.max_capacity.toString());
+    }
+    setIsCapacityModalOpen(true);
+  };
+
+  const handleCapacityDecrease = () => {
+    const num = parseInt(capacityValue) || 0;
+    if (num > 1) {
+      setCapacityValue((num - 1).toString());
+    } else if (num === 1) {
+      // If it's 1, clicking - should set to empty (unlimited)
+      setCapacityValue("");
+    }
+  };
+
+  const handleCapacityIncrease = () => {
+    const num = parseInt(capacityValue) || 0;
+    // If empty (unlimited), start from 1, otherwise increment
+    setCapacityValue((num + 1).toString());
+  };
+
+  const handleCapacityInputChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ""); // Only allow numbers
+    setCapacityValue(value);
+  };
+
+  const handleRemoveLimit = async () => {
+    try {
+      const res = await axios.put(`${urlBe}/events/update/${id}`, 
+        { max_capacity: null },
+        {
+          headers: {
+            'x-jdticket': localStorage.getItem('token') || '',
+          }
+        }
+      );
+      if (res.data.code === "1") {
+        setCapacityValue("");
+        setIsCapacityModalOpen(false);
+        fetchData(id); // Refresh data
+        window.location.reload(); // Reload to update event prop
+      } else {
+        alert(res.data.message || "Gagal update. Silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error('Failed to update capacity:', error);
+      alert(error?.response?.data?.message || "Gagal update capacity. Silakan coba lagi.");
+    }
+  };
+
+  const handleSetLimit = async () => {
+    try {
+      // Convert empty string or 0 to null (unlimited)
+      const capacity = capacityValue.trim() === "" || parseInt(capacityValue) === 0 
+        ? null 
+        : parseInt(capacityValue);
+      
+      const res = await axios.put(`${urlBe}/events/update/${id}`, 
+        { max_capacity: capacity },
+        {
+          headers: {
+            'x-jdticket': localStorage.getItem('token') || '',
+          }
+        }
+      );
+      if (res.data.code === "1") {
+        setIsCapacityModalOpen(false);
+        fetchData(id); // Refresh data
+        window.location.reload(); // Reload to update event prop
+      } else {
+        alert(res.data.message || "Gagal update. Silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error('Failed to update capacity:', error);
+      alert(error?.response?.data?.message || "Gagal update capacity. Silakan coba lagi.");
+    }
+  };
+
+  const handleRegistrationModalOpen = () => {
+    // Initialize acceptRegistration from event when modal opens
+    // Check both is_register and accept_register fields for compatibility
+    const isOpen = data?.is_register ? true : false;
+    setAcceptRegistration(isOpen);
+    setIsRegistrationModalOpen(true);
+  };
+
+  const handleConfirmRegistration = async () => {
+    try {
+      const res = await axios.put(`${urlBe}/events/update/${id}`, 
+        { accept_register: acceptRegistration },
+        {
+          headers: {
+            'x-jdticket': localStorage.getItem('token') || '',
+          }
+        }
+      );
+      if (res.data.code === "1") {
+        setIsRegistrationModalOpen(false);
+        fetchData(id); // Refresh data
+        window.location.reload(); // Reload to update event prop
+      } else {
+        alert(res.data.message || "Gagal update. Silakan coba lagi.");
+      }
+    } catch (error) {
+      console.error('Failed to update registration:', error);
+      alert(error?.response?.data?.message || "Gagal update registration. Silakan coba lagi.");
+    }
+  };
+
   const formatDate = (isoString) => {
     const date = new Date(isoString).toLocaleDateString("en-GB", {
       weekday: 'short',
@@ -229,26 +345,26 @@ const TicketsPage = ({ id, event }) => {
       <div className="flex gap-3 justify-between items-center">
         <div
           className="bg-[#141717] rounded-xl px-4 py-4 w-full flex-1 cursor-pointer hover:bg-[#1d1f1f] transition"
-          onClick={() => setIsRegistrationModalOpen(true)}
+          onClick={handleRegistrationModalOpen}
         >
           <div className="flex items-center gap-4">
             <img src={regis} alt="Registration Icon" className="w-10 h-10 object-contain" />
             <div>
               <div className="text-xl font-['Satoshi-Bold',_sans-serif]">Registration</div>
-              <div className="text-sm text-[#A2A2A2]">{!event.is_register ? 'Closed' : 'Open'}</div>
+              <div className="text-sm text-[#A2A2A2]">{data?.is_register === true ? 'Open' : 'Closed'}</div>
             </div>
           </div>
         </div>
 
         <div
           className="bg-[#141717] rounded-xl px-4 py-4 w-full flex-1 cursor-pointer hover:bg-[#1d1f1f] transition"
-          onClick={() => setIsCapacityModalOpen(true)}
+          onClick={handleCapacityModalOpen}
         >
           <div className="flex items-center gap-4">
             <img src={capacity} alt="Capacity Icon" className="w-10 h-10 object-contain" />
             <div>
               <div className="text-xl font-['Satoshi-Bold',_sans-serif]">Capacity</div>
-              <div className="text-sm text-[#A2A2A2]">{event.max_capacity === null ? 'Unlimited' : event.max_capacity}</div>
+              <div className="text-sm text-[#A2A2A2]">{data?.max_capacity === null ? 'Unlimited' : data?.max_capacity}</div>
             </div>
           </div>
         </div>
@@ -287,15 +403,24 @@ const TicketsPage = ({ id, event }) => {
             <div className="flex items-center justify-between mb-6">
               <span className="text-white text-sm">Accept Registration</span>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" value="" className="sr-only peer" defaultChecked />
-                <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
-                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer" 
+                  checked={acceptRegistration}
+                  onChange={(e) => setAcceptRegistration(e.target.checked)}
+                />
+                <div className={`w-11 h-6 rounded-full transition ${
+                  acceptRegistration ? 'bg-green-500' : 'bg-gray-600'
+                }`}></div>
+                <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition ${
+                  acceptRegistration ? 'translate-x-5' : 'translate-x-0'
+                }`}></div>
               </label>
             </div>
 
             <button
-              className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
-              onClick={() => setIsModalOpen(false)}
+              className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif] hover:bg-gray-200"
+              onClick={handleConfirmRegistration}
             >
               Confirm
             </button>
@@ -319,13 +444,24 @@ const TicketsPage = ({ id, event }) => {
             <div className="flex items-center bg-[#1f1f1f] rounded-md px-3 py-2 mb-4 justify-between">
               <input
                 type="text"
+                value={capacityValue}
+                onChange={handleCapacityInputChange}
                 className="bg-transparent text-white text-sm outline-none flex-1 font-['Satoshi-Medium',_sans-serif]"
                 placeholder="Unlimited"
-                disabled
               />
               <div className="flex gap-2">
-                <button className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg">+</button>
-                <button className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg">−</button>
+                <button 
+                  onClick={handleCapacityDecrease}
+                  className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg hover:bg-[#3d3d3d]"
+                >
+                  −
+                </button>
+                <button 
+                  onClick={handleCapacityIncrease}
+                  className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg hover:bg-[#3d3d3d]"
+                >
+                  +
+                </button>
               </div>
             </div>
 
@@ -340,14 +476,14 @@ const TicketsPage = ({ id, event }) => {
 
             <div className="flex gap-3">
               <button
-                className="w-1/2 py-2 rounded-lg bg-[#2d2d2d] text-[#A2A2A2] font-['Satoshi-Bold',_sans-serif]"
-                onClick={() => setIsCapacityModalOpen(false)}
+                className="w-1/2 py-2 rounded-lg bg-[#2d2d2d] text-[#A2A2A2] font-['Satoshi-Bold',_sans-serif] hover:bg-[#3d3d3d]"
+                onClick={handleRemoveLimit}
               >
                 Remove Limit
               </button>
               <button
-                className="w-1/2 py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
-                onClick={() => setIsCapacityModalOpen(false)}
+                className="w-1/2 py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif] hover:bg-gray-200"
+                onClick={handleSetLimit}
               >
                 Set Limit
               </button>

@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { NavLink, useLocation, useParams, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
-import { lazy, Suspense } from 'react';
 
 function SkeletonLoader() {
   return (
@@ -27,39 +26,70 @@ const MorePage = lazy(() => import('./Dashboard/MorePage'));
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
+const TAB_CONFIG = [
+  { key: "Overview", label: "Overview", component: OverviewPage },
+  { key: "Guests", label: "Guests", component: GuestPage },
+  { key: "Sales Report", label: "Sales Report", component: SalesPage },
+  { key: "Tickets", label: "Tickets", component: TicketsPage },
+  { key: "Blast", label: "Blast", component: BlastPage },
+  { key: "Insight", label: "Insight", component: InsightPage },
+  { key: "More", label: "More", component: MorePage },
+];
+
 function Dashboard() {
-  const navigate = useNavigate();
   const { id } = useParams();
+  const { state } = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("Overview");
-  const { state } = useLocation();
-  console.log(state?.name); // dapetin event.name
+  const [error, setError] = useState(null);
 
-  const tabs = ["Overview", "Guests", "Sales Report", "Tickets", "Blast", "Insight", "More"];
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    console.log("Klik tab:", tab);
-  };
+  const tabs = useMemo(() => TAB_CONFIG, []);
+  const activeTab = useMemo(() => {
+    const fromUrl = searchParams.get("tab");
+    const isValid = tabs.some((t) => t.key === fromUrl);
+    return isValid ? fromUrl : tabs[0].key;
+  }, [searchParams, tabs]);
 
   useEffect(() => {
-    axios.get(`${urlBe}/events/overview/${id}`,
-      {
-        headers: {
-            'x-jdticket': localStorage.getItem('token') || '',
-          },
-      }
-    )
-      .then((res) => {
-        const data = res.data.data;
-        setEvent(data);
-      })
-      .catch((res) => {
-        console.log(res.data.message)
+    if (!searchParams.get("tab")) {
+      setSearchParams({ tab: tabs[0].key }, { replace: true });
+    }
+  }, [searchParams, setSearchParams, tabs]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchEvent() {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await axios.get(`${urlBe}/events/overview/${id}`, {
+          headers: { "x-jdticket": localStorage.getItem("token") || "" },
+        });
+        if (!mounted) return;
+        setEvent(res.data.data);
+      } catch (err) {
+        if (!mounted) return;
+        const message = err?.response?.data?.message || "Failed to load event";
+        console.error(message);
+        setError(message);
         setEvent(null);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    fetchEvent();
+    return () => {
+      mounted = false;
+    };
   }, [id]);
+
+  const activeConfig = tabs.find((t) => t.key === activeTab);
+  const ActivePage = activeConfig?.component;
+  const tabProps = { id, event };
 
   if (loading) {
     return (
@@ -69,40 +99,46 @@ function Dashboard() {
     );
   }
 
-  if (!event) return <p className="text-red-500">Event not found.</p>;
+  if (error || !event) {
+    return (
+      <div className="text-red-500">
+        {error || "Event not found."}
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="text-white mb-6">
-        {/* Title */}
-        <h1 className="text-responsive-title mb-4">{event.name}</h1>
+        <h1 className="text-responsive-title mb-4">
+          {state?.name || event.name}
+        </h1>
 
-        {/* Tab Navigasi */}
         <div className="flex gap-4">
-          {tabs.map((tab) => (
-            <div
-              key={tab}
-              onClick={() => handleTabClick(tab)}
-              className={`mr-4 text-lg cursor-pointer ${
-                activeTab === tab
-                  ? "text-white font-['Satoshi-Bold',_sans-serif] border-b-2 border-[#2F645E]"
-                  : "text-[#A2A2A2] font-['Satoshi-Regular'] hover:text-white"
-              }`}
-            >
-              {tab}
-            </div>
-          ))}
+          {tabs.map((tab) => {
+            const search = `?tab=${encodeURIComponent(tab.key)}`;
+            return (
+              <NavLink
+                key={tab.key}
+                to={{ search }}
+                replace
+                className={() =>
+                  `mr-4 inline-block text-lg cursor-pointer no-underline border-b-2 border-transparent pb-1 ${
+                    activeTab === tab.key
+                      ? "text-white font-['Satoshi-Bold',_sans-serif] border-[#2F645E] hover:text-white"
+                      : "text-[#A2A2A2] font-['Satoshi-Regular'] hover:text-white"
+                  }`
+                }
+              >
+                {tab.label}
+              </NavLink>
+            );
+          })}
         </div>
       </div>
 
       <Suspense fallback={<SkeletonLoader />}>
-        {activeTab === "Overview" && <OverviewPage id={id} event={event}/>}
-        {activeTab === "Guests" && <GuestPage id={id}/>}
-        {activeTab === "Sales Report" && <SalesPage id={id}/>}
-        {activeTab === "Tickets" && <TicketsPage id={id} event={event}/>}
-        {activeTab === "Blast" && <BlastPage id={id}/>}
-        {activeTab === "Insight" && <InsightPage id={id}/>}
-        {activeTab === "More" && <MorePage id={id}/>}
+        {ActivePage ? <ActivePage {...tabProps} /> : null}
       </Suspense>
     </>
   );
