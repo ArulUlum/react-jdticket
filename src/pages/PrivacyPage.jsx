@@ -50,7 +50,7 @@ const sections = [
     subtitle2: "Namun, kami dapat membagikan informasi kepada:",
     content2: [
       "Penyelenggara acara (untuk keperluan daftar hadir, validasi tiket, atau pengelolaan peserta)",
-      "Mitra pembayaran seperti Xendit untuk proses transaksi",
+      "Mitra pembayaran seperti Cring untuk proses transaksi",
       "Penyedia layanan IT, server, atau analitik yang membantu operasional kami",
       "Pihak berwenang jika diwajibkan oleh hukum (misalnya dalam proses hukum atau permintaan resmi pemerintah)",
     ],

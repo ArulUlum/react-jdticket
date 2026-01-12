@@ -72,6 +72,7 @@ const TicketsPage = ({ id, event }) => {
   const AddTextRef = useRef(null);
   const AddOptionsRef = useRef(null);
   const AddCheckboxRef = useRef(null);
+  const promoModalRef = useRef(null);
   // Tambahkan modal lainnya di sini...
 
   // Modal States
@@ -84,6 +85,14 @@ const TicketsPage = ({ id, event }) => {
   const [showAddTextModal, setShowAddTextModal] = useState(false);
   const [showAddOptionsModal, setShowAddOptionsModal] = useState(false);
   const [showAddCheckboxModal, setShowAddCheckboxModal] = useState(false);
+  const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
+  const [promoCode, setPromoCode] = useState("");
+  const [limitedUsesEnabled, setLimitedUsesEnabled] = useState(true);
+  const [totalUses, setTotalUses] = useState(2);
+  const [appliesTo, setAppliesTo] = useState("All Ticket");
+  const [appliesTicket, setAppliesTicket] = useState("");
+  const [promoType, setPromoType] = useState("amount");
+  const [promoAmount, setPromoAmount] = useState("");
   const [capacityValue, setCapacityValue] = useState("");
   const [acceptRegistration, setAcceptRegistration] = useState(true);
   // Tambahkan modal lainnya di sini...
@@ -98,6 +107,7 @@ const TicketsPage = ({ id, event }) => {
     { ref: AddTextRef, isOpen: showAddTextModal, close: () => setShowAddTextModal(false) },
     { ref: AddOptionsRef, isOpen: showAddOptionsModal, close: () => setShowAddOptionsModal(false) },
     { ref: AddCheckboxRef, isOpen: showAddCheckboxModal, close: () => setShowAddCheckboxModal(false) },
+    { ref: promoModalRef, isOpen: isPromoModalOpen, close: () => setIsPromoModalOpen(false) },
     // Tambahkan modal lain: { ref, isOpen, close }
   ];
 
@@ -151,6 +161,40 @@ const TicketsPage = ({ id, event }) => {
     } catch (error) {
       console.error('Failed to create ticket:', error);
       alert(error?.response?.data?.message || '❌ Failed to create ticket. Please try again.');
+    }
+  };
+
+  const createPromo = async () => {
+    try {
+      const type = promoType === 'amount' ? 'Amount' : 'Percent';
+      const price = promoAmount ? parseInt(promoAmount.replace(/\D/g, ''), 10) : 0;
+      const apply_all = appliesTo === 'All Ticket';
+      const payload = {
+        code: promoCode,
+        price: price,
+        type: type,
+        event_id: id || (event && event.id),
+        apply_all: apply_all,
+        max_capacity: limitedUsesEnabled ? totalUses : null,
+      };
+
+      if (!apply_all) {
+        // includes the specific ticket id
+        payload.tickets = [Number(appliesTo)];
+      }
+
+      const res = await axios.post(`${urlBe}/ticket/add-promo`, payload, {
+        headers: { 'x-jdticket': localStorage.getItem('token') || '' },
+      });
+
+      console.log('Promo created', res.data);
+      // Close modal and refresh
+      setIsPromoModalOpen(false);
+      fetchData(id);
+      alert('✅ Promo created successfully');
+    } catch (error) {
+      console.error('Failed to create promo:', error);
+      alert(error?.response?.data?.message || '❌ Failed to create promo.');
     }
   };
 
@@ -1044,13 +1088,138 @@ const TicketsPage = ({ id, event }) => {
             </div>
           </div>
           <button
-            onClick={() => console.log("Add Promo clicked")}
+            onClick={() => setIsPromoModalOpen(true)}
             className="text-sm bg-[#1C1D1D] text-white px-3 py-1 mr-2 rounded-md hover:bg-[#3A3A3A] transition flex items-center gap-1"
           >
             Add Promo <span className="text-lg">+</span>
           </button>
         </div>
       </div>
+
+      {isPromoModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div ref={promoModalRef} className="bg-[#141717] text-white p-6 rounded-xl w-[380px] shadow-lg font-['Satoshi-Regular',_sans-serif]">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
+                <img src={promo} alt="Promo Icon" className="w-5 h-5" />
+              </div>
+              <h2 className="text-xl font-['Satoshi-Bold',_sans-serif]">Promo Code</h2>
+            </div>
+
+            <p className="text-sm text-[#A2A2A2] mb-4">
+              Create a promo code that can be applied to your tickets.
+            </p>
+
+            <label className="text-sm block mb-1">Create Code</label>
+            <div className="mb-4">
+              <input
+                type="text"
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value)}
+                placeholder="Enter Your Code"
+                className="w-full bg-transparent border border-[#2fbab1] text-[#2fbab1] text-center px-3 py-2 rounded-md mb-2 outline-none"
+              />
+            </div>
+
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-white text-sm">Limited Uses</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={limitedUsesEnabled}
+                  onChange={() => setLimitedUsesEnabled(v => !v)}
+                />
+                <div className={`w-11 h-6 rounded-full transition ${limitedUsesEnabled ? 'bg-green-500' : 'bg-gray-600'}`}></div>
+                <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition ${limitedUsesEnabled ? 'translate-x-5' : 'translate-x-0'}`}></div>
+              </label>
+            </div>
+
+            {limitedUsesEnabled && (
+              <div className="flex items-center bg-[#1f1f1f] rounded-md px-3 py-2 mb-4 justify-between">
+                <span className="text-sm text-white">Total Uses</span>
+                <div className="flex items-center gap-2">
+                  <div className="bg-[#222] text-white px-3 py-1 rounded-md">{totalUses}</div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setTotalUses(prev => Math.max(prev - 1, 1))}
+                      className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
+                    >
+                      −
+                    </button>
+                    <button
+                      onClick={() => setTotalUses(prev => prev + 1)}
+                      className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <label className="text-sm block mb-1">Applies To</label>
+            <select
+              className="w-full bg-[#1f1f1f] text-white text-sm px-3 py-2 rounded-md mb-4 outline-none"
+              value={appliesTo}
+              onChange={(e) => setAppliesTo(e.target.value)}
+            >
+              <option value="All Ticket">All Ticket</option>
+              {data?.list_ticket?.map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+
+            <label className="text-sm block mb-1">Type</label>
+            <select
+              className="w-full bg-[#1f1f1f] text-white text-sm px-3 py-2 rounded-md mb-4 outline-none"
+              value={promoType}
+              onChange={(e) => setPromoType(e.target.value)}
+            >
+              <option value="amount">Rp Amount Off</option>
+              <option value="percent">% Percent Off</option>
+            </select>
+
+            {promoType === 'amount' ? (
+              <div className="mb-4">
+                <label className="text-sm block mb-1">Amount Off</label>
+                <input
+                  type="text"
+                  value={promoAmount ? formatPrice(promoAmount) : ''}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, '');
+                    setPromoAmount(raw);
+                  }}
+                  placeholder="Rp 10.000"
+                  className="w-full bg-[#1f1f1f] text-white text-sm px-3 py-2 rounded-md mb-2 outline-none"
+                />
+              </div>
+            ) : (
+              <div className="mb-4">
+                <label className="text-sm block mb-1">Percent Off</label>
+                <input
+                  type="text"
+                  value={promoAmount}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, '');
+                    const clamped = Math.max(0, Math.min(100, Number(raw || 0)));
+                    setPromoAmount(String(clamped));
+                  }}
+                  placeholder="10"
+                  className="w-full bg-[#1f1f1f] text-white text-sm px-3 py-2 rounded-md mb-2 outline-none"
+                />
+              </div>
+            )}
+
+            <button
+              className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
+              onClick={createPromo}
+            >
+              Create Promo
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Divider */}
       <hr className="my-8 border-[#333]" />

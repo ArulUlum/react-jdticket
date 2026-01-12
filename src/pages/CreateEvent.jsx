@@ -20,7 +20,7 @@ import {
   X,
   Users,
   Video,
-  ImagePlus 
+  ImagePlus
 } from "lucide-react";
 
 const urlBe = import.meta.env.VITE_URL_BE;
@@ -94,7 +94,7 @@ function CreateEvent() {
           components: "country:ID"
         },
         headers: {
-          "x-requested-with" : "XMLHttpRequest"
+          "x-requested-with": "XMLHttpRequest"
         }
       });
       setLocationSuggestions(response.data.predictions);
@@ -124,6 +124,13 @@ function CreateEvent() {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
+  const formatPrice = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+    const number = String(value).replace(/\D/g, "");
+    if (number === "") return "";
+    return Number(number).toLocaleString('id-ID');
+  };
+
 
   const handleSaveDraft = async (e) => {
     e.preventDefault();
@@ -134,7 +141,7 @@ function CreateEvent() {
       start_date: formatDateTime(startDate, startTime),
       end_date: formatDateTime(endDate, endTime),
       location: locationInput,
-      max_capacity: capacityMode === "unlimited" ? null : parseInt(capacityMode),
+      max_capacity: capacityMode === "unlimited" ? null : parseInt(customCapacity || 0, 10),
       list_ticket: tickets,
       approval: requireApproval
     };
@@ -147,7 +154,7 @@ function CreateEvent() {
 
     const tickets = {
       name: eventType === "Free Event" ? "Free" : "Paid",
-      price: price,
+      price: parseInt(String(price || 0).replace(/\D/g, ''), 10) || 0,
       max_capacity: null,
     };
 
@@ -164,7 +171,7 @@ function CreateEvent() {
           },
         });
 
-        imgUrl = saveImgRes.data.img_url; 
+        imgUrl = saveImgRes.data.img_url;
       }
 
       const payload = {
@@ -177,11 +184,11 @@ function CreateEvent() {
         location: locationInput,
         location_name: locationName,
         location_address: locationAddress,
-        max_capacity: capacityMode === "unlimited" ? null : parseInt(capacityMode),
+        max_capacity: capacityMode === "unlimited" ? null : parseInt(customCapacity || 0, 10),
         tickets: tickets,
         approval: requireApproval
       };
-      
+
       const response = await axios.post(
         `${urlBe}/events/create`,
         payload,
@@ -384,7 +391,7 @@ function CreateEvent() {
             <div className="w-full">
               <DatePickerBox value={startDate} onChange={setStartDate} />
             </div>
-            <div className="w-full"> 
+            <div className="w-full">
               <TimePickerBox value={startTime} onChange={setStartTime} />
             </div>
           </div>
@@ -420,11 +427,12 @@ function CreateEvent() {
                 placeholder="Enter location or virtual link"
                 className="bg-transparent outline-none text-white w-full font-['Satoshi-Medium']"
               />
-              <X 
-                className="w-5 h-5 text-white cursor-pointer" 
+              <X
+                className="w-5 h-5 text-white cursor-pointer"
                 onClick={() => {
                   setLocationInput("")
-                  setShowMaps(false);}
+                  setShowMaps(false);
+                }
                 }
               />
             </div>
@@ -451,25 +459,28 @@ function CreateEvent() {
           </div>
           {showMaps && (
             <>
-            <div className='my-1'>
-              <iframe
-                title="event-location"
-                src={`https://www.google.com/maps?q=${encodeURIComponent(locationInput)}&output=embed`}
-                className="w-full h-60 rounded-lg border border-gray-700"
-                loading="lazy"
-              ></iframe>
-            </div>
+              <div className='my-1'>
+                <iframe
+                  title="event-location"
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(locationInput)}&output=embed`}
+                  className="w-full h-60 rounded-lg border border-gray-700"
+                  loading="lazy"
+                ></iframe>
+              </div>
             </>
           )}
-          
+
           {/* Capacity */}
           <div className="text-white text-responsive-medium leading-[18px]">
             Capacity
           </div>
           {capacityMode === "unlimited" ? (
             <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4">
-              <div className="flex items-center gap-2.5">
-                <Users className="w-5 h-5 text-white" />
+              <div
+                className="flex items-center gap-2.5"
+                onClick={() => setCapacityMode("custom")}
+              >
+                <Users className="w-5 h-5 shrink-0 text-white" />
                 <span className="text-white text-responsive-medium leading-[18px]">Unlimited</span>
               </div>
               <Edit className="w-4 h-4 text-white cursor-pointer" onClick={() => setCapacityMode("custom")} />
@@ -477,12 +488,12 @@ function CreateEvent() {
           ) : (
             <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4">
               <div className="flex items-center gap-2.5 w-full">
-                <Users className="w-5 h-5 text-white" />
+                <Users className="w-5 h-5 shrink-0 text-white" />
                 <input
-                  type="number"
+                  type="text"
                   min={1}
-                  value={customCapacity}
-                  onChange={(e) => setCustomCapacity(e.target.value)}
+                  value={customCapacity ? formatPrice(customCapacity) : ''}
+                  onChange={(e) => setCustomCapacity(e.target.value.replace(/\D/g, ''))}
                   placeholder="Enter capacity"
                   className="bg-transparent text-white outline-none w-full font-['Satoshi-Medium']"
                 />
@@ -541,11 +552,11 @@ function CreateEvent() {
                       Rp
                     </div>
                     <input
-                      type="number"
+                      type="text"
                       className="bg-transparent text-white outline-none w-full font-['Satoshi-Medium']"
                       placeholder="Contoh: 50000"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
+                      value={formatPrice(price)}
+                      onChange={(e) => setPrice(e.target.value.replace(/\D/g, ''))}
                     />
                   </div>
                 </div>
@@ -573,14 +584,12 @@ function CreateEvent() {
             </div>
             <div
               onClick={() => setRequireApproval(!requireApproval)}
-              className={`w-10 h-5 rounded-full flex items-center cursor-pointer px-1 ${
-                requireApproval ? "bg-[#31D34F]" : "bg-gray-400"
-              }`}
+              className={`w-10 h-5 rounded-full flex items-center cursor-pointer px-1 ${requireApproval ? "bg-[#31D34F]" : "bg-gray-400"
+                }`}
             >
               <div
-                className={`w-3 h-3 rounded-full bg-white transition-transform duration-300 ${
-                  requireApproval ? "translate-x-5" : "translate-x-0"
-                }`}
+                className={`w-3 h-3 rounded-full bg-white transition-transform duration-300 ${requireApproval ? "translate-x-5" : "translate-x-0"
+                  }`}
               />
             </div>
           </div>
@@ -588,13 +597,13 @@ function CreateEvent() {
 
         <div className="flex flex-col sm:flex-row gap-4 pt-6">
           <button
-            onClick={handleSaveDraft} 
+            onClick={handleSaveDraft}
             className="bg-[#303030] rounded-lg px-6 py-3 text-white font-['Satoshi-Bold'] w-full sm:w-1/2"
           >
             Save as Draft
           </button>
-          <button 
-            onClick={() => handleSubmit()} 
+          <button
+            onClick={() => handleSubmit()}
             className="bg-[#00594F] rounded-lg px-6 py-3 text-white font-['Satoshi-Bold'] w-full sm:w-1/2 disabled:opacity-50"
             disabled={isSubmitting}
           >
@@ -658,7 +667,7 @@ const DatePickerBox = ({ value, onChange }) => {
               </option>
             );
           })}
-      </select>      
+      </select>
     </div>
   );
 
