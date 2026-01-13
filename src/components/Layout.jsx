@@ -55,7 +55,7 @@ function Layout() {
         "Unknown error";
 
       console.error("Token invalid or request failed:", msg, err);
-      handleLogout();
+      refreshToken();
     }
   };
 
@@ -76,6 +76,24 @@ function Layout() {
       console.error('Error:', err);
     }
     
+  };
+
+  const refreshToken = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${urlBe}/user/refresh-token`, {
+        headers: {
+          'x-jdticket': token
+        }
+      });
+      const newToken = response.data?.token;
+      if (newToken) {
+        localStorage.setItem('token', newToken);
+      }
+    } catch (err) {
+      console.error('Error refreshing token:', err);
+      handleLogout();
+    }
   };
 
   return (
