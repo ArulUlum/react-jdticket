@@ -18,6 +18,10 @@ export default function RegistrationModal({
   setSelectedPayment,
   isSubmitting,
   onSubmit,
+  onApplyPromo,
+  isApplyingPromo,
+  promoError,
+  promoMessage,
 }) {
   const ref = useRef(null);
   useClickOutside(ref, isOpen, onClose);
@@ -25,7 +29,16 @@ export default function RegistrationModal({
   if (!isOpen || !event) return null;
 
   const { startDay, startMonth, formattedStartTime } = headerInfo;
-  const { selectedTickets, isPaid, platformFee, taxFee, paymentFee, totalPrice, quantities } = pricingInfo;
+  const { selectedTickets, isPaid, platformFee, taxFee, paymentFee, totalPrice, quantities, discountAmount } = pricingInfo;
+
+  const handleApplyPromoClick = () => {
+    if (!formData.promoCode) return;
+    onApplyPromo?.({
+      code: formData.promoCode,
+      eventId: event.id,
+      ticketIds: selectedTickets.map((t) => t.id),
+    });
+  };
 
   return (
     <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
@@ -65,16 +78,35 @@ export default function RegistrationModal({
               </div>
 
               {showPromoInput && (
-                <div className="mt-3 flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Enter promo code"
-                    className="flex-1 rounded border border-[#a2a2a2] bg-transparent px-3 py-2 text-responsive-regular focus:outline-none focus:border-cyan-400"
-                  />
-                  <button type="button" className="bg-white text-black px-4 rounded text-responsive-medium-normal">
-                    Apply
-                  </button>
-                </div>
+                <>
+                  <div className="mt-3 flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Enter promo code"
+                      value={formData.promoCode || ''}
+                      onChange={(e) => setFormData({ ...formData, promoCode: e.target.value })}
+                      className="flex-1 rounded border border-[#a2a2a2] bg-transparent px-3 py-2 text-responsive-regular focus:outline-none focus:border-cyan-400"
+                    />
+                    <button
+                      type="button"
+                      className="bg-white text-black px-4 rounded text-responsive-medium-normal disabled:opacity-60 disabled:cursor-not-allowed"
+                      onClick={handleApplyPromoClick}
+                      disabled={isApplyingPromo}
+                    >
+                      {isApplyingPromo ? 'Applying...' : 'Apply'}
+                    </button>
+                  </div>
+                  {promoError && (
+                    <p className="text-red-400 text-xs mt-1">
+                      {promoError}
+                    </p>
+                  )}
+                  {promoMessage && !promoError && (
+                    <p className="text-[#13E7BD] text-xs mt-1">
+                      {promoMessage}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           )}
@@ -106,6 +138,12 @@ export default function RegistrationModal({
                   <div className="flex justify-between">
                     <span>Payment Fee</span>
                     <span>Rp {paymentFee.toLocaleString()}</span>
+                  </div>
+                )}
+                {Number(discountAmount) > 0 && (
+                  <div className="flex justify-between text-[#13E7BD]">
+                    <span>Promo Discount</span>
+                    <span>- Rp {discountAmount.toLocaleString()}</span>
                   </div>
                 )}
               </>
@@ -194,8 +232,8 @@ export default function RegistrationModal({
                           <div
                             key={item.label}
                             className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${selectedPayment === item.label
-                                ? 'border-[#13E7BD] bg-[#1c1d1d]'
-                                : 'border-[#212121] bg-[#1c1d1d]'
+                              ? 'border-[#13E7BD] bg-[#1c1d1d]'
+                              : 'border-[#212121] bg-[#1c1d1d]'
                               }`}
                             onClick={() => setSelectedPayment(item.label)}
                           >

@@ -87,7 +87,7 @@ const TicketsPage = ({ id, event }) => {
   const [showAddCheckboxModal, setShowAddCheckboxModal] = useState(false);
   const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
   const [promoCode, setPromoCode] = useState("");
-  const [limitedUsesEnabled, setLimitedUsesEnabled] = useState(true);
+  const [limitedUsesEnabled, setLimitedUsesEnabled] = useState(false);
   const [totalUses, setTotalUses] = useState(2);
   const [appliesTo, setAppliesTo] = useState("All Ticket");
   const [appliesTicket, setAppliesTicket] = useState("");
@@ -166,14 +166,14 @@ const TicketsPage = ({ id, event }) => {
 
   const createPromo = async () => {
     try {
-      const type = promoType === 'amount' ? 'Amount' : 'Percent';
+      const type = promoType === 'amount' ? 'Amount' : 'Percentage';
       const price = promoAmount ? parseInt(promoAmount.replace(/\D/g, ''), 10) : 0;
       const apply_all = appliesTo === 'All Ticket';
       const payload = {
         code: promoCode,
         price: price,
         type: type,
-        event_id: id || (event && event.id),
+        event_id: data.id,
         apply_all: apply_all,
         max_capacity: limitedUsesEnabled ? totalUses : null,
       };
@@ -289,7 +289,7 @@ const TicketsPage = ({ id, event }) => {
 
   const handleRemoveLimit = async () => {
     try {
-      const res = await axios.put(`${urlBe}/events/update/${id}`, 
+      const res = await axios.put(`${urlBe}/events/update/${id}`,
         { max_capacity: null },
         {
           headers: {
@@ -314,11 +314,11 @@ const TicketsPage = ({ id, event }) => {
   const handleSetLimit = async () => {
     try {
       // Convert empty string or 0 to null (unlimited)
-      const capacity = capacityValue.trim() === "" || parseInt(capacityValue) === 0 
-        ? null 
+      const capacity = capacityValue.trim() === "" || parseInt(capacityValue) === 0
+        ? null
         : parseInt(capacityValue);
-      
-      const res = await axios.put(`${urlBe}/events/update/${id}`, 
+
+      const res = await axios.put(`${urlBe}/events/update/${id}`,
         { max_capacity: capacity },
         {
           headers: {
@@ -349,7 +349,7 @@ const TicketsPage = ({ id, event }) => {
 
   const handleConfirmRegistration = async () => {
     try {
-      const res = await axios.put(`${urlBe}/events/update/${id}`, 
+      const res = await axios.put(`${urlBe}/events/update/${id}`,
         { accept_register: acceptRegistration },
         {
           headers: {
@@ -447,18 +447,16 @@ const TicketsPage = ({ id, event }) => {
             <div className="flex items-center justify-between mb-6">
               <span className="text-white text-sm">Accept Registration</span>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="sr-only peer" 
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
                   checked={acceptRegistration}
                   onChange={(e) => setAcceptRegistration(e.target.checked)}
                 />
-                <div className={`w-11 h-6 rounded-full transition ${
-                  acceptRegistration ? 'bg-green-500' : 'bg-gray-600'
-                }`}></div>
-                <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition ${
-                  acceptRegistration ? 'translate-x-5' : 'translate-x-0'
-                }`}></div>
+                <div className={`w-11 h-6 rounded-full transition ${acceptRegistration ? 'bg-green-500' : 'bg-gray-600'
+                  }`}></div>
+                <div className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition ${acceptRegistration ? 'translate-x-5' : 'translate-x-0'
+                  }`}></div>
               </label>
             </div>
 
@@ -494,13 +492,13 @@ const TicketsPage = ({ id, event }) => {
                 placeholder="Unlimited"
               />
               <div className="flex gap-2">
-                <button 
+                <button
                   onClick={handleCapacityDecrease}
                   className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg hover:bg-[#3d3d3d]"
                 >
                   −
                 </button>
-                <button 
+                <button
                   onClick={handleCapacityIncrease}
                   className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg hover:bg-[#3d3d3d]"
                 >
@@ -1072,28 +1070,109 @@ const TicketsPage = ({ id, event }) => {
       {/* Promo Code Section */}
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-lg font-['Satoshi-Bold',_sans-serif] text-white">Promo Code</h2>
-        </div>
-        <p className="text-[#A2A2A2] mb-4">Create coupons that can be applied to this event.</p>
+          <h2 className="text-lg font-['Satoshi-Bold',_sans-serif] text-white">
+            Promo Code
+          </h2>
 
-        <div className="bg-[#141717] border border-[#212121] rounded-xl flex justify-between items-center p-2 font-['Satoshi-Medium',_sans-serif]">
-          <div className="flex items-center gap-1">
-            {/* Icon Placeholder (you can replace with real icon) */}
-            <img src={promo} alt="Promo" className="w-14 h-14 object-contain" />
-            <div>
-              <div className="text-white font-['Satoshi-Bold',_sans-serif]">No Promo Codes</div>
-              <div className="text-sm text-[#A2A2A2]">
-                You can create promo codes to offer discounts to your guests
-              </div>
+          {/* tombol add di header biar rapih */}
+          {data?.list_promo && data.list_promo.length > 0 && (
+            <button
+              onClick={() => setIsPromoModalOpen(true)}
+              className="text-xs bg-[#1C1D1D] text-white px-3 py-1 rounded-md hover:bg-[#3A3A3A] transition"
+            >
+              + Add New Promo
+            </button>
+          )}
+        </div>
+
+        <p className="text-[#A2A2A2] mb-4">
+          Create coupons that can be applied to this event.
+        </p>
+
+        {data?.list_promo && data.list_promo.length > 0 ? (
+          <div className="bg-[#141717] border border-[#212121] rounded-xl overflow-hidden font-['Satoshi-Medium',_sans-serif]">
+            {/* HEADER TABLE */}
+            <div className="grid grid-cols-[2fr,2fr,2fr,2fr,1.5fr] px-4 py-3 text-xs uppercase tracking-wide text-[#7C7C7C]">
+              <div>Code</div>
+              <div>Discount</div>
+              <div>Applies To</div>
+              <div>Used</div>
+              <div className="text-right">Status</div>
+            </div>
+
+            {/* ROWS */}
+            <div className="divide-y divide-[#212121]">
+              {data.list_promo.map((promo, idx) => {
+                const discountLabel =
+                  promo.type === "Amount"
+                    ? `Rp ${promo.price.toLocaleString("id-ID")}`
+                    : `${promo.price}%`;
+
+                const appliesToLabel = promo.apply_all ? "All Ticket" : "Selected Ticket";
+
+                const usedCount = promo.used_promo; // sesuaikan dengan field di BE
+                const maxCapacity = promo.max_capacity ?? "∞"; // sesuaikan dengan field di BE
+
+                const isActive = promo.is_active; // sesuaikan dengan field boolean status
+
+                return (
+                  <div
+                    key={idx}
+                    className="grid grid-cols-[2fr,2fr,2fr,2fr,1.5fr] px-4 py-3 text-sm items-center hover:bg-[#1b1d1d] transition cursor-pointer"
+                  >
+                    {/* CODE */}
+                    <div className="text-[#2AD4C8] text-sm">{promo.code}</div>
+
+                    {/* DISCOUNT */}
+                    <div className="text-white">{discountLabel}</div>
+
+                    {/* APPLIES TO */}
+                    <div className="text-white">{appliesToLabel}</div>
+
+                    {/* USED */}
+                    <div className="text-white">
+                      {usedCount}/{maxCapacity}
+                    </div>
+
+                    {/* STATUS */}
+                    <div className="flex justify-end">
+                      <button
+                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${isActive
+                            ? "bg-[#0f2c1e] text-[#4ADE80]"
+                            : "bg-[#301515] text-[#FB7185]"
+                          }`}
+                      >
+                        <span>{isActive ? "ON" : "OFF"}</span>
+                        <ChevronDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
-          <button
-            onClick={() => setIsPromoModalOpen(true)}
-            className="text-sm bg-[#1C1D1D] text-white px-3 py-1 mr-2 rounded-md hover:bg-[#3A3A3A] transition flex items-center gap-1"
-          >
-            Add Promo <span className="text-lg">+</span>
-          </button>
-        </div>
+        ) : (
+          // Jika tidak ada promo code
+          <div className="bg-[#141717] border border-[#212121] rounded-xl flex justify-between items-center p-2 font-['Satoshi-Medium',_sans-serif]">
+            <div className="flex items-center gap-1">
+              <img src={promo} alt="Promo" className="w-14 h-14 object-contain" />
+              <div>
+                <div className="text-white font-['Satoshi-Bold',_sans-serif]">
+                  No Promo Codes
+                </div>
+                <div className="text-sm text-[#A2A2A2]">
+                  You can create promo codes to offer discounts to your guests
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsPromoModalOpen(true)}
+              className="text-sm bg-[#1C1D1D] text-white px-3 py-1 mr-2 rounded-md hover:bg-[#3A3A3A] transition flex items-center gap-1"
+            >
+              Add Promo <span className="text-lg">+</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {isPromoModalOpen && (

@@ -21,7 +21,7 @@ import {
   getPaymentFee,
   getTotalTicketPrice,
   getTotalPrice,
-  totalTaxAmount,
+  countPriceWithType,
 } from './lib/pricing';
 
 const urlBe = import.meta.env.VITE_URL_BE;
@@ -47,6 +47,11 @@ export default function EventPage() {
   const [paymentModal, setPaymentModal] = useState(false);
   const [paymentPayload, setPaymentPayload] = useState(null);
 
+  const [promo, setPromo] = useState(null);
+  const [promoError, setPromoError] = useState('');
+  const [promoMessage, setPromoMessage] = useState('');
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+
   const [localInvoiceId] = useState(() => `INV${Date.now()}`);
 
   // init quantities when event loaded
@@ -71,11 +76,15 @@ export default function EventPage() {
   const isPaid = useMemo(() => hasPaidTicket(selectedTickets), [selectedTickets]);
   const totalTicketPrice = useMemo(() => getTotalTicketPrice(selectedTickets, quantities), [selectedTickets, quantities]);
   // const serviceFee = useMemo(() => getServiceFee(isPaid), [isPaid]);
-  const taxFee = useMemo(() => totalTaxAmount(totalTicketPrice, event?.type_tax, event?.tax), [totalTicketPrice, event]);
-  const platformFee = useMemo(() => totalTaxAmount(totalTicketPrice, event?.type_tax_kebbu, event?.tax_kebbu), [totalTicketPrice, event]);
+  const taxFee = useMemo(() => countPriceWithType(totalTicketPrice, event?.type_tax, event?.tax), [totalTicketPrice, event]);
+  const platformFee = useMemo(() => countPriceWithType(totalTicketPrice, event?.type_tax_kebbu, event?.tax_kebbu), [totalTicketPrice, event]);
   const paymentFee = useMemo(() => getPaymentFee(isPaid, totalTicketPrice), [isPaid, totalTicketPrice]);
+  const discountAmount = useMemo(() => {
+    if (!promo?.type) return 0;
+    return countPriceWithType(totalTicketPrice, promo.type, promo.price);
+  }, [promo, totalTicketPrice]);
 
-  const totalPrice = useMemo(() => getTotalPrice(totalTicketPrice, platformFee, taxFee, paymentFee), [totalTicketPrice, platformFee, taxFee, paymentFee]);
+  const totalPrice = useMemo(() => getTotalPrice(totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount), [totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount]);
 
   if (loading) return <EventSkeleton />;
   if (!event) return <p className="text-red-500">Event not found.</p>;
@@ -143,7 +152,7 @@ export default function EventPage() {
         event_id: event.id,
         tickets,
         payment: paymentCode,
-        fees: isPaid ? [{ type: 'platform', value: platformFee }, { type: 'tax', value: taxFee }, { type: 'payment', value: paymentFee }] : [],
+        fees: isPaid ? [{ type: 'platform', value: platformFee }, { type: 'tax', value: taxFee }, { type: 'payment', value: paymentFee }, { type: 'discount', value: discountAmount }] : [],
         total: totalPrice,
       };
 
@@ -161,6 +170,41 @@ export default function EventPage() {
       alert('Registrasi gagal.');
     } finally {
       setIsRegistered(false);
+    }
+  }
+
+  async function handleApplyPromo({ code, eventId, ticketIds }) {
+    setIsApplyingPromo(true);
+    setPromoError('');
+    setPromoMessage('');
+
+    try {
+      const res = await axios.post(`${urlBe}/ticket/apply-promo`, {
+        code,
+        event_id: eventId,
+        ticket_ids: ticketIds,
+      });
+
+      const body = res.data;
+      if (body.code !== '1') {
+        setPromoError(body.message || 'Promo code invalid.');
+        setPromo(null);
+        return;
+      }
+
+      const promoData = body.data;
+      setPromo(promoData);                       // simpan promo { id, code, price, type, ... }
+      setPromoMessage('Promo applied successfully.');
+    } catch (err) {
+      console.error('Error applying promo:', err);
+      setPromo(null);
+      setPromoError(
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        'Cannot apply promo code.'
+      );
+    } finally {
+      setIsApplyingPromo(false);
     }
   }
 
@@ -407,7 +451,7 @@ export default function EventPage() {
           onClose={() => setRegistrationModal(false)}
           event={event}
           headerInfo={{ startDay, startMonth, formattedStartTime }}
-          pricingInfo={{ selectedTickets, isPaid, platformFee, taxFee, paymentFee, totalPrice, quantities }}
+          pricingInfo={{ selectedTickets, isPaid, platformFee, taxFee, paymentFee, totalPrice, quantities, discountAmount }}
           showPromoInput={showPromoInput}
           setShowPromoInput={setShowPromoInput}
           formData={formData}
@@ -418,6 +462,10 @@ export default function EventPage() {
           setSelectedPayment={setSelectedPayment}
           isSubmitting={isRegistered}
           onSubmit={submitRegistration}
+          onApplyPromo={handleApplyPromo}
+          isApplyingPromo={isApplyingPromo}
+          promoError={promoError}
+          promoMessage={promoMessage}
         />
 
         <PaymentModal

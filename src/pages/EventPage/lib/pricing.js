@@ -13,7 +13,7 @@ export function getTotalTicketPrice(selectedTickets, quantities) {
   }, 0);
 }
 
-export function totalTaxAmount(price, type_tax, value_tax) {
+export function countPriceWithType(price, type_tax, value_tax) {
   if (type_tax === "Percentage") {
     return (price * value_tax) / 100;
   } else if (type_tax === "Amount") {
@@ -23,9 +23,9 @@ export function totalTaxAmount(price, type_tax, value_tax) {
 } 
 
 export function getPaymentFee(isPaid, totalTicketPrice) {
-  return isPaid ? totalTicketPrice * 0.01 : 0;
+  return isPaid ? totalTicketPrice * 0.015 : 0;
 }
 
-export function getTotalPrice(totalTicketPrice, platformFee, taxFee, paymentFee) {
-  return totalTicketPrice + platformFee + taxFee + paymentFee;
+export function getTotalPrice(totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount) {
+  return totalTicketPrice + platformFee + taxFee + paymentFee - (discountAmount || 0);
 }
