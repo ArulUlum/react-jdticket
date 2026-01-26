@@ -298,7 +298,12 @@ export default function PaymentModal({
 
             <div className="flex flex-col items-center gap-4">
               <div className="bg-white p-3 rounded-xl">
-                <QRCodeCanvas value={qrString || invoiceCode || "EMPTY"} size={220} includeMargin />
+                <QRCodeCanvas
+                  id="kebbu-qris-canvas"
+                  value={qrString || invoiceCode || "EMPTY"}
+                  size={220}
+                  includeMargin
+                />
               </div>
 
               <div className="text-white text-lg">
