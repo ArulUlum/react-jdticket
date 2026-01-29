@@ -27,6 +27,9 @@ const MorePage = ({ id }) => {
   const [isUpdatingUrl, setIsUpdatingUrl] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
 
+  // Cancel Event State
+  const [isCancelingEvent, setIsCancelingEvent] = useState(false);
+
   const modals = [
     { ref: cancelModalRef, isOpen: isCancelModalOpen, close: () => setIsCancelModalOpen(false) },
     { ref: duplicateModalRef, isOpen: isDuplicateModalOpen, close: () => setIsDuplicateModalOpen(false) }
@@ -108,6 +111,31 @@ const MorePage = ({ id }) => {
     } catch (err) {
       console.error('Failed to copy URL:', err);
       setUpdateMessage({ type: 'error', text: 'Failed to copy URL' });
+    }
+  };
+
+  const handleCancelEvent = async () => {
+    try {
+      setIsCancelingEvent(true);
+      const response = await axios.delete(`${urlBe}/events/${id}`, {
+        headers: { 'x-jdticket': localStorage.getItem('token') || '', },
+      });
+      
+      if (response.data.code === "1") {
+        alert('Event cancelled successfully');
+        setIsCancelModalOpen(false);
+        // Redirect to user profile after successful cancellation
+        setTimeout(() => {
+          window.location.href = '/user-profil';
+        }, 500);
+      } else {
+        alert('Failed to cancel event: ' + response.data.message);
+      }
+    } catch (err) {
+      console.error('Failed to cancel event:', err);
+      alert(err.response?.data?.message || 'Failed to cancel event. Please try again.');
+    } finally {
+      setIsCancelingEvent(false);
     }
   };
 
@@ -260,13 +288,11 @@ const MorePage = ({ id }) => {
             <h2 className="text-white text-2xl font-bold mb-3">Cancel Event</h2>
             <p className="text-[#f94d4d] text-base mb-8">Are you sure you want to cancel this event? This action cannot be undone.</p>
             <button
-              className="bg-[#f94d4d] rounded-[14px] px-4 py-3 w-full text-white text-lg font-semibold mb-2 hover:bg-[#c93333] transition"
-              onClick={() => {
-                // TODO: Implement cancel event logic here
-                setIsCancelModalOpen(false);
-              }}
+              className="bg-[#f94d4d] rounded-[14px] px-4 py-3 w-full text-white text-lg font-semibold mb-2 hover:bg-[#c93333] transition disabled:opacity-50"
+              onClick={handleCancelEvent}
+              disabled={isCancelingEvent}
             >
-              Cancel Event
+              {isCancelingEvent ? 'Cancelling...' : 'Cancel Event'}
             </button>
           </div>
         </div>

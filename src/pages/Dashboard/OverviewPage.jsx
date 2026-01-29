@@ -1,5 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import Cropper from 'react-easy-crop';
+import getCroppedImg from '../../utils/cropImage';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import {
   UserPlus,
   Send,
@@ -11,7 +15,8 @@ import {
   TrendingDown,
   Eye,
   EyeOff,
-  CalendarDays
+  CalendarDays,
+  X
 } from "lucide-react";
 import { format } from 'date-fns';
 import axios from 'axios';
@@ -23,6 +28,42 @@ function OverviewPage({ id, event }) {
   const [showModal, setShowModal] = useState(false);
   const [targetVisibility, setTargetVisibility] = useState(null);
   const [visibility, setVisibility] = useState(event.visibility === true ? "public" : "private");
+  const [eventImage, setEventImage] = useState(event.image || "https://wallpapercave.com/wp/wp9297718.jpg");
+  const [imageFile, setImageFile] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showCropper, setShowCropper] = useState(false);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [rawImage, setRawImage] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // Edit Event Modal States
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    name: event.name || '',
+    description: event.description || '',
+    location: event.location || '',
+    location_name: event.location_name || '',
+    location_address: event.location_address || '',
+    start_date: new Date(event.start_date),
+    end_date: new Date(event.end_date),
+  });
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [showLocationOptions, setShowLocationOptions] = useState(false);
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
+
+  // Helper to convert dataURL to File
+  function dataURLtoFile(dataurl, filename) {
+    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1];
+    var bstr = atob(arr[1]);
+    var n = bstr.length;
+    var u8arr = new Uint8Array(n);
+    for (var i = 0; i < n; i++) {
+      u8arr[i] = bstr.charCodeAt(i);
+    }
+    return new File([u8arr], filename, { type: mime });
+  }
 
   const startDate = new Date(event.start_date);
   const endDate = new Date(event.end_date);
@@ -70,6 +111,122 @@ function OverviewPage({ id, event }) {
       } else {
         alert('Unexpected error' + error);
       }
+    }
+  };
+
+  const handleImageUploadDirect = async (file) => {
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const saveImgRes = await axios.post(`${urlBe}/image/upload`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const imgUrl = saveImgRes.data.img_url;
+
+      const res = await axios.put(`${urlBe}/events/update/${id}`, 
+        { image: imgUrl },
+        {
+          headers: {
+            'x-jdticket': localStorage.getItem('token') || '',
+          }
+        }
+      );
+
+      if (res.data.code === "1") {
+        setEventImage(imgUrl);
+        setImageFile(null);
+        alert('Image updated successfully');
+      } else {
+        alert("Gagal update: " + res.data.message);
+      }
+    } catch (error) {
+      if (error.response) {
+        alert(`(${error.response.status}) ${error.response.data?.message || 'Server Error'}`);
+      } else if (error.request) {
+        alert('No response from server');
+      } else {
+        alert('Unexpected error: ' + error);
+      }
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  // Location autocomplete for edit modal
+  const fetchLocationSuggestions = async (input) => {
+    try {
+      const response = await axios.get(`${urlBe}/image/autocomplete`, {
+        params: {
+          input,
+          key: "AIzaSyDBnmmNXN3uCvSfjxeGafgUnRxtWxxLbOw",
+          components: "country:ID"
+        },
+        headers: {
+          "x-requested-with": "XMLHttpRequest"
+        }
+      });
+      setLocationSuggestions(response.data.predictions);
+    } catch (error) {
+      console.error("Error fetching Google Places suggestions", error);
+    }
+  };
+
+  const formatDateTime = (dateObj, timeObj) => {
+    const date = new Date(dateObj);
+    const time = new Date(timeObj);
+    date.setHours(time.getHours(), time.getMinutes(), time.getSeconds());
+    return date.toISOString();
+  };
+
+  const handleEditSubmit = async () => {
+    try {
+      setIsSubmittingEdit(true);
+      const startDateTime = formatDateTime(editFormData.start_date, editFormData.start_date);
+      const endDateTime = formatDateTime(editFormData.end_date, editFormData.end_date);
+
+      const updateData = {
+        name: editFormData.name,
+        description: editFormData.description,
+        location: editFormData.location,
+        location_name: editFormData.location_name,
+        location_address: editFormData.location_address,
+        start_date: startDateTime,
+        end_date: endDateTime,
+      };
+
+      const res = await axios.put(`${urlBe}/events/update/${id}`, updateData, {
+        headers: {
+          'x-jdticket': localStorage.getItem('token') || '',
+        }
+      });
+
+      if (res.data.code === "1") {
+        alert('Event updated successfully');
+        setShowEditModal(false);
+        // Refresh event data
+        window.location.reload();
+      } else {
+        alert("Gagal update: " + res.data.message);
+      }
+    } catch (error) {
+      if (error.response) {
+        alert(`(${error.response.status}) ${error.response.data?.message || 'Server Error'}`);
+      } else if (error.request) {
+        alert('No response from server');
+      } else {
+        alert('Unexpected error: ' + error);
+      }
+    } finally {
+      setIsSubmittingEdit(false);
     }
   };
 
@@ -143,17 +300,55 @@ function OverviewPage({ id, event }) {
       {/* Event Card */}
       <div className="bg-[#141717] rounded-xl mt-6 p-5 flex gap-6 items-start text-white font-satoshi">
         {/* Left: Image */}
-        <img
-          src={event.image || "https://wallpapercave.com/wp/wp9297718.jpg"}
-          alt="event"
-          className="w-[250px] h-[250px] object-cover rounded-lg"
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="shrink-0 cursor-pointer hover:opacity-80 transition rounded-lg overflow-hidden"
+          title="Click to edit image"
+        >
+          <img
+            src={eventImage}
+            alt="event"
+            className="w-[250px] h-[250px] object-cover rounded-lg"
+          />
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const img = new window.Image();
+                img.src = reader.result;
+                img.onload = () => {
+                  if (img.width !== img.height) {
+                    setRawImage(reader.result);
+                    setImageFile(file);
+                    setShowCropper(true);
+                  } else {
+                    setEventImage(reader.result);
+                    setImageFile(file);
+                    setTimeout(() => {
+                      setImageFile(file);
+                      handleImageUploadDirect(file);
+                    }, 0);
+                  }
+                };
+              };
+              reader.readAsDataURL(file);
+              e.target.value = null;
+            }
+          }}
         />
 
         {/* Right: Content */}
         <div className="flex-1">
           <div className="flex justify-between items-start">
             <h1 className="text-responsive-title mb-4">{event.name}</h1>
-            <button className="flex items-center gap-1 text-sm text-white bg-[#1c1d1d] px-3 py-1 rounded-lg border border-[#212121] hover:bg-[#2a2a2a] transition">
+            <button onClick={() => setShowEditModal(true)} className="flex items-center gap-1 text-sm text-white bg-[#1c1d1d] px-3 py-1 rounded-lg border border-[#212121] hover:bg-[#2a2a2a] transition">
               Edit Event
               <PencilLine className="w-4 h-4" />
             </button>
@@ -420,6 +615,205 @@ function OverviewPage({ id, event }) {
                 className="px-4 py-2 rounded bg-[#3DAA95] text-black font-semibold"
               >
                 Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cropper Modal */}
+      {showCropper && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setShowCropper(false)}>
+          <div className="bg-[#181818] rounded-xl p-6 shadow-lg w-[90vw] max-w-lg relative" onClick={e => e.stopPropagation()}>
+            <h2 className="text-white text-lg mb-4">Crop Image to 1:1</h2>
+            <div className="relative w-full h-[350px] bg-black">
+              <Cropper
+                image={rawImage}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={(_, areaPixels) => setCroppedAreaPixels(areaPixels)}
+              />
+            </div>
+            <div className="flex gap-4 mt-4">
+              <input
+                type="range"
+                min={1}
+                max={3}
+                step={0.01}
+                value={zoom}
+                onChange={e => setZoom(Number(e.target.value))}
+                className="w-full"
+              />
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <button
+                className="bg-gray-700 text-white px-4 py-2 rounded"
+                onClick={() => setShowCropper(false)}
+              >Cancel</button>
+              <button
+                className="bg-[#00594F] text-white px-4 py-2 rounded"
+                onClick={async () => {
+                  const croppedImg = await getCroppedImg(rawImage, croppedAreaPixels);
+                  setEventImage(croppedImg);
+                  const croppedFile = dataURLtoFile(croppedImg, 'event-image.png');
+                  setImageFile(croppedFile);
+                  setShowCropper(false);
+                  await handleImageUploadDirect(croppedFile);
+                }}
+              >Crop & Use</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Event Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+          <div className="bg-[#1a1a1a] border border-[#333] rounded-lg p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Edit Event</h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-white hover:text-gray-300"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Event Name */}
+              <div>
+                <label className="text-white text-sm font-semibold block mb-2">Event Name</label>
+                <input
+                  type="text"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                  className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
+                />
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="text-white text-sm font-semibold block mb-2">Description</label>
+                <textarea
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                  className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95] h-24 resize-none"
+                />
+              </div>
+
+              {/* Location with Autocomplete */}
+              <div>
+                <label className="text-white text-sm font-semibold block mb-2">Location</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={editFormData.location_address}
+                    onChange={(e) => {
+                      setEditFormData({...editFormData, location_address: e.target.value});
+                      if (e.target.value.length > 2) {
+                        fetchLocationSuggestions(e.target.value);
+                        setShowLocationOptions(true);
+                      }
+                    }}
+                    onFocus={() => editFormData.location_address && setShowLocationOptions(true)}
+                    className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
+                    placeholder="Search location..."
+                  />
+                  
+                  {showLocationOptions && locationSuggestions.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-[#141717] border border-[#333] rounded max-h-48 overflow-y-auto z-50">
+                      {locationSuggestions.map((suggestion, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setEditFormData({
+                              ...editFormData,
+                              location: suggestion.place_id,
+                              location_name: suggestion.main_text,
+                              location_address: suggestion.description
+                            });
+                            setShowLocationOptions(false);
+                          }}
+                          className="w-full text-left px-3 py-2 hover:bg-[#2a2a2a] text-white border-b border-[#333] last:border-b-0"
+                        >
+                          <div className="font-semibold">{suggestion.main_text}</div>
+                          <div className="text-xs text-gray-400">{suggestion.description}</div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Start Date & Time */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-white text-sm font-semibold block mb-2">Start Date</label>
+                  <DatePicker
+                    selected={editFormData.start_date}
+                    onChange={(date) => setEditFormData({...editFormData, start_date: date})}
+                    dateFormat="dd/MM/yyyy"
+                    className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
+                  />
+                </div>
+                <div>
+                  <label className="text-white text-sm font-semibold block mb-2">Start Time</label>
+                  <DatePicker
+                    selected={editFormData.start_date}
+                    onChange={(date) => setEditFormData({...editFormData, start_date: date})}
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeIntervals={15}
+                    dateFormat="HH:mm"
+                    className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
+                  />
+                </div>
+              </div>
+
+              {/* End Date & Time */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-white text-sm font-semibold block mb-2">End Date</label>
+                  <DatePicker
+                    selected={editFormData.end_date}
+                    onChange={(date) => setEditFormData({...editFormData, end_date: date})}
+                    dateFormat="dd/MM/yyyy"
+                    className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
+                  />
+                </div>
+                <div>
+                  <label className="text-white text-sm font-semibold block mb-2">End Time</label>
+                  <DatePicker
+                    selected={editFormData.end_date}
+                    onChange={(date) => setEditFormData({...editFormData, end_date: date})}
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeIntervals={15}
+                    dateFormat="HH:mm"
+                    className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-3 mt-8">
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="flex-1 px-4 py-2 text-white bg-[#2a2a2a] border border-[#333] rounded hover:bg-[#333] transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditSubmit}
+                disabled={isSubmittingEdit}
+                className="flex-1 px-4 py-2 text-white bg-gradient-to-r from-[#44A08D] to-[#00594F] rounded hover:opacity-90 transition disabled:opacity-50"
+              >
+                {isSubmittingEdit ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>

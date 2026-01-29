@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, CalendarDays } from 'lucide-react';
+import { MapPin, CalendarDays, ArrowUpRight } from 'lucide-react';
 
 import insta from '../../assets/insta.svg';
 import copy from '../../assets/copy.svg';
@@ -28,7 +28,11 @@ const urlBe = import.meta.env.VITE_URL_BE;
 
 export default function EventPage() {
   const { url } = useParams();
+  const navigate = useNavigate();
   const { event, loading } = useEventDetail(url);
+
+  // current user (from Layout localStorage usage)
+  const currentUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
 
   const [isRegistered, setIsRegistered] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -88,6 +92,8 @@ export default function EventPage() {
 
   if (loading) return <EventSkeleton />;
   if (!event) return <p className="text-red-500">Event not found.</p>;
+
+  const isCreator = currentUser && event && String(currentUser.id) === String(event?.created_by?.id);
 
   const startDate = new Date(event.start_date);
   const endDate = new Date(event.end_date);
@@ -210,6 +216,16 @@ export default function EventPage() {
 
   return (
     <div className="mb-16 mt-4">
+      {isCreator && (
+        <button
+          onClick={() => navigate(`/dashboard/${event.public_id || event.id}`)}
+          className="fixed top-14 right-6 z-50 bg-gradient-to-r from-[#44A08D] to-[#00594F] text-white px-4 py-2 rounded-full shadow-lg hover:opacity-95 flex items-center gap-2"
+          title="Go to event dashboard"
+        >
+          <span className="text-sm font-semibold">Manage</span>
+          <ArrowUpRight className="w-4 h-4" />
+        </button>
+      )}
       <div className="flex flex-col md:flex-row gap-4 pb-2 justify-center items-start">
         {/* Left Panel */}
         <div className="w-full lg:max-w-[300px] pr-4 items-center">
