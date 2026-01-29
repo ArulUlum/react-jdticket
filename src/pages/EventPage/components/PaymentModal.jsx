@@ -208,7 +208,6 @@ export default function PaymentModal({
             <h2 className="text-responsive-sub-title text-white">Payment</h2>
             <div className="text-[#a2a2a2] text-sm">Scan QRIS untuk bayar</div>
           </div>
-          <button className="text-[#a2a2a2]" onClick={onClose}>✕</button>
         </div>
 
         {/* States */}
@@ -235,6 +234,14 @@ export default function PaymentModal({
               Buat pembayaran baru untuk mendapatkan QR yang masih aktif.
             </div>
             <div className="text-xs text-[#a2a2a2] mt-3">Invoice: {invoiceCode || "-"}</div>
+            <div className="mt-6">
+              <button
+                className="bg-white text-[#141717] font-bold rounded-lg py-2 px-4"
+                onClick={onClose}
+              >
+                Close
+              </button>
+            </div>
           </div>
         )}
 
@@ -242,7 +249,7 @@ export default function PaymentModal({
           <div className="text-center py-10 text-green-300">
             <div className="text-lg font-semibold">Pembayaran Berhasil ✅</div>
             <div className="text-sm text-[#a2a2a2] mt-2">
-              Tiket kamu sudah aktif.
+              Tiket kamu sudah berhasil dikirim ke Email!.
             </div>
             <div className="text-xs text-[#a2a2a2] mt-3">Invoice: {invoiceCode || "-"}</div>
             <div className="mt-6">
@@ -273,7 +280,7 @@ export default function PaymentModal({
                       const payStatus = (payment?.paymentStatus || payment?.payment_status || "UNPAID").toString().toUpperCase();
                       if (payStatus.includes("PAID") || payStatus.includes("SUCCESS")) {
                         return (
-                          <div className="bg-green-600 text-white text-xs py-1 px-3 rounded-full font-semibold">{payStatus}</div>
+                          <div className="bg-[#f94d4d] bg-opacity-10 text-[#f94d4d] text-xs py-1 px-3 rounded-full font-semibold">{payStatus}</div>
                         );
                       }
                       // default / unpaid
@@ -286,7 +293,7 @@ export default function PaymentModal({
 
                 <div className="flex justify-between items-center">
                   <div className="text-[#a2a2a2]">Transaction Status</div>
-                  <div className="bg-gradient-to-r from-yellow-500 to-yellow-400 text-[#3b2b00] text-xs py-1 px-3 rounded-full font-semibold">{status}</div>
+                  <div className="bg-yellow-500 bg-opacity-10 text-yellow-500 text-xs py-1 px-3 rounded-full font-semibold">{status}</div>
                 </div>
 
                 <div className="flex justify-between items-center">
