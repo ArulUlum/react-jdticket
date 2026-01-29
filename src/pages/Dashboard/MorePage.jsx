@@ -22,6 +22,11 @@ const MorePage = ({ id }) => {
   const [isDuplicateModalOpen, setIsDuplicateModalOpen] = useState(false);
   // Tambahkan modal lainnya di sini...
 
+  // URL Update States
+  const [urlInput, setUrlInput] = useState('');
+  const [isUpdatingUrl, setIsUpdatingUrl] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
+
   const modals = [
     { ref: cancelModalRef, isOpen: isCancelModalOpen, close: () => setIsCancelModalOpen(false) },
     { ref: duplicateModalRef, isOpen: isDuplicateModalOpen, close: () => setIsDuplicateModalOpen(false) }
@@ -53,12 +58,56 @@ const MorePage = ({ id }) => {
 
   const fetchData = async (id) => {
     try {
-      const response = await axios.get(`${urlBe}/events/ticket-overview/${id}`, {
+      const response = await axios.get(`${urlBe}/events/more/${id}`, {
         headers: { 'x-jdticket': localStorage.getItem('token') || '', },
       });
       setData(response.data.data);
+      setUrlInput(response.data.data?.url || '');
     } catch (err) {
       console.error('Failed to fetch sales report:', err);
+    }
+  };
+
+  const handleUpdateUrl = async () => {
+    if (!urlInput.trim()) {
+      setUpdateMessage({ type: 'error', text: 'URL cannot be empty' });
+      return;
+    }
+
+    setIsUpdatingUrl(true);
+    setUpdateMessage('');
+
+    try {
+      const response = await axios.put(
+        `${urlBe}/events/update/${id}`,
+        { url: urlInput },
+        {
+          headers: { 'x-jdticket': localStorage.getItem('token') || '', },
+        }
+      );
+      setData({ ...data, url: urlInput });
+      setUpdateMessage({ type: 'success', text: 'Event URL updated successfully!' });
+      setTimeout(() => setUpdateMessage(''), 3000);
+    } catch (err) {
+      console.error('Failed to update URL:', err);
+      setUpdateMessage({ 
+        type: 'error', 
+        text: err.response?.data?.message || 'Failed to update event URL. Please try again.' 
+      });
+    } finally {
+      setIsUpdatingUrl(false);
+    }
+  };
+
+  const handleCopyUrl = async () => {
+    const fullUrl = `kebbu.id/event/${urlInput}`;
+    try {
+      await navigator.clipboard.writeText(fullUrl);
+      setUpdateMessage({ type: 'success', text: 'URL copied to clipboard!' });
+      setTimeout(() => setUpdateMessage(''), 3000);
+    } catch (err) {
+      console.error('Failed to copy URL:', err);
+      setUpdateMessage({ type: 'error', text: 'Failed to copy URL' });
     }
   };
 
@@ -152,15 +201,33 @@ const MorePage = ({ id }) => {
         <p className="text-white mb-3 text-responsive-regular"> 
           Edit the link to your event page. Make it short, clear, and easy to remember.
         </p>
-        <div className="flex items-center text-responsive-medium-small bg-[#181818] border border-[#333] rounded-lg px-4 py-3 w-fit mb-3">
-          <Link className="w-5 h-5 text-[#a2a2a2] mr-4" />
-          <span className="text-[#a2a2a2] ">kebbu.id/event/</span>
-          <input
-            type="text"
-            value={data?.custom_url || "XYZFestival"}
-            className="bg-transparent text-white font-semibold outline-none ml-2 w-32"
-          />
+        <div className="flex items-center gap-3">
+          <div className="flex items-center text-responsive-regular bg-[#181818] border border-[#333] rounded-lg px-4 py-3 w-fit">
+            <Link 
+              className="w-5 h-5 text-[#a2a2a2] mr-4 cursor-pointer hover:text-white transition"
+              onClick={handleCopyUrl}
+            />
+            <span className="text-[#a2a2a2] ">kebbu.id/event/</span>
+            <input
+              type="text"
+              value={urlInput}
+              onChange={e => setUrlInput(e.target.value)}
+              className="bg-transparent text-white font-semibold outline-none w-32"
+            />
+          </div>
+          <button
+            onClick={handleUpdateUrl}
+            disabled={isUpdatingUrl}
+            className="bg-white border border-[#212121] rounded-lg px-4 py-3 text-[#141717] font-semibold hover:bg-[#e5e5e5] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isUpdatingUrl ? 'Saving...' : 'Save URL'}
+          </button>
         </div>
+        {updateMessage && (
+          <p className={`text-sm font-medium mt-3 ${updateMessage.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+            {updateMessage.text}
+          </p>
+        )}
       </div>
 
       {/* Divider */}
