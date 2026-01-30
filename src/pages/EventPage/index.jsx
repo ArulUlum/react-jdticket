@@ -388,7 +388,7 @@ export default function EventPage() {
               </div>
             </div>
 
-            <div className="mt-6">
+            {/* <div className="mt-6">
               <h3 className="text-responsive-item-title text-[#a2a2a2]">{event.registered.total} Going</h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
               <div className="flex items-center space-x-2 mb-1 mt-3">
@@ -413,7 +413,7 @@ export default function EventPage() {
                 {event.registered.list.map((u) => u.name).join(', ')}
                 {event.registered.others > 0 && ` and ${event.registered.others} others`}
               </div>
-            </div>
+            </div> */}
 
             <div className="mt-6 mb-4">
               <h3 className="text-responsive-item-title text-[#a2a2a2]">Share</h3>
