@@ -216,16 +216,6 @@ export default function EventPage() {
 
   return (
     <div className="mb-16 mt-4">
-      {isCreator && (
-        <button
-          onClick={() => navigate(`/dashboard/${event.public_id || event.id}`)}
-          className="fixed top-14 right-6 z-50 bg-gradient-to-r from-[#44A08D] to-[#00594F] text-white px-4 py-2 rounded-full shadow-lg hover:opacity-95 flex items-center gap-2"
-          title="Go to event dashboard"
-        >
-          <span className="text-sm font-semibold">Manage</span>
-          <ArrowUpRight className="w-4 h-4" />
-        </button>
-      )}
       <div className="flex flex-col md:flex-row gap-4 pb-2 justify-center items-start">
         {/* Left Panel */}
         <div className="w-full lg:max-w-[300px] pr-4 items-center">
@@ -237,6 +227,21 @@ export default function EventPage() {
               style={{ aspectRatio: '1 / 1' }}
             />
           </div>
+
+          {isCreator && (
+            <div className="mt-4 hidden md:block">
+              <a
+                href={`/dashboard/${event.public_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-responsive-item-title text-white w-full py-2 rounded bg-gradient-to-r from-[#44A08D] to-[#00594F] hover:from-[#58c1ac] hover:to-[#007467] hover:text-white focus:text-white no-underline flex items-center justify-center gap-2 shadow-lg"
+                title="Open event dashboard in new tab"
+                aria-label="Open event dashboard in new tab"
+              >
+                Manage Event
+              </a>
+            </div>
+          )}
 
           {/* desktop extras */}
           <div className="hidden md:block">
@@ -260,7 +265,7 @@ export default function EventPage() {
               </div>
             </div>
 
-            <div className="mt-6">
+            {/* <div className="mt-6">
               <h3 className="text-responsive-item-title text-[#a2a2a2]">{event.registered.total} Going</h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
               <div className="flex items-center space-x-2 mb-1 mt-3">
@@ -285,14 +290,14 @@ export default function EventPage() {
                 {event.registered.list.map((user) => user.name).join(', ')}
                 {event.registered.others > 0 && ` and ${event.registered.others} others`}
               </div>
-            </div>
+            </div> */}
 
             <div className="mt-6 mb-4">
               <h3 className="text-responsive-item-title text-[#a2a2a2]">Share</h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
               <div className="flex flex-row items-center gap-2">
                 <img src={copy} alt="Copy Icon" className="w-5 h-5 cursor-pointer" onClick={handleCopy} />
-                <p className="text-white text-responsive-regular mt-0.5">Copy link</p>
+                <p className="text-white text-responsive-regular mt-0.5 cursor-pointer" onClick={handleCopy}>Copy link</p>
               </div>
             </div>
 
