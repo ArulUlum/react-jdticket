@@ -33,7 +33,7 @@ function Home() {
         setError(`Server error: ${err.response.status} - ${err.response.data?.message || err.message}`);
       } else if (err.request) {
         // Request dikirim tapi tidak ada respon
-        setError("Tidak bisa terhubung ke server. Coba cek koneksi internetmu.");
+        setError("Tidak bisa terhubung ke server.");
       } else {
         // Error saat menyusun request
         setError("Terjadi kesalahan saat memuat data. Silakan coba lagi.");
