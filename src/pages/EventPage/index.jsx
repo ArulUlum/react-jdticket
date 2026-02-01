@@ -22,6 +22,7 @@ import {
   getTotalTicketPrice,
   getTotalPrice,
   countPriceWithType,
+  getTotalselectedTickets,
 } from './lib/pricing';
 
 const urlBe = import.meta.env.VITE_URL_BE;
@@ -79,14 +80,15 @@ export default function EventPage() {
   const selectedTickets = useMemo(() => getSelectedTickets(event, quantities), [event, quantities]);
   const isPaid = useMemo(() => hasPaidTicket(selectedTickets), [selectedTickets]);
   const totalTicketPrice = useMemo(() => getTotalTicketPrice(selectedTickets, quantities), [selectedTickets, quantities]);
+  const totalSelectedTickets = useMemo(() => getTotalselectedTickets(selectedTickets, quantities), [selectedTickets, quantities]);
   // const serviceFee = useMemo(() => getServiceFee(isPaid), [isPaid]);
-  const taxFee = useMemo(() => countPriceWithType(totalTicketPrice, event?.type_tax, event?.tax), [totalTicketPrice, event]);
-  const platformFee = useMemo(() => countPriceWithType(totalTicketPrice, event?.type_tax_kebbu, event?.tax_kebbu), [totalTicketPrice, event]);
+  const taxFee = useMemo(() => countPriceWithType(totalTicketPrice, event?.type_tax, event?.tax, totalSelectedTickets), [totalTicketPrice, event, totalSelectedTickets]);
+  const platformFee = useMemo(() => countPriceWithType(totalTicketPrice, event?.type_tax_kebbu, event?.tax_kebbu, totalSelectedTickets), [totalTicketPrice, event, totalSelectedTickets]);
   const paymentFee = useMemo(() => getPaymentFee(isPaid, totalTicketPrice), [isPaid, totalTicketPrice]);
   const discountAmount = useMemo(() => {
     if (!promo?.type) return 0;
-    return countPriceWithType(totalTicketPrice, promo.type, promo.price);
-  }, [promo, totalTicketPrice]);
+    return countPriceWithType(totalTicketPrice, promo.type, promo.price, quantities);
+  }, [promo, totalTicketPrice, quantities]);
 
   const totalPrice = useMemo(() => getTotalPrice(totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount), [totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount]);
 

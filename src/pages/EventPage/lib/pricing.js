@@ -2,6 +2,13 @@ export function getSelectedTickets(event, quantities) {
   return event?.list_ticket?.filter((t) => (quantities?.[t.id] || 0) > 0) || [];
 }
 
+export function getTotalselectedTickets(selectedTickets, quantities) {
+  return selectedTickets.reduce((sum, t) => {
+    const qty = quantities?.[t.id] || 0;
+    return sum + qty;
+  }, 0);
+}
+
 export function hasPaidTicket(selectedTickets) {
   return selectedTickets.some((t) => (t.price || 0) > 0);
 }
@@ -13,11 +20,11 @@ export function getTotalTicketPrice(selectedTickets, quantities) {
   }, 0);
 }
 
-export function countPriceWithType(price, type_tax, value_tax) {
+export function countPriceWithType(price, type_tax, value_tax, quantities) {
   if (type_tax === "Percentage") {
     return (price * value_tax) / 100;
   } else if (type_tax === "Amount") {
-    return value_tax;
+    return value_tax * (quantities || 1);
   }
   return 0;
 } 
