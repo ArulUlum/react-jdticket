@@ -2,11 +2,12 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { Menu } from 'lucide-react';
 import IconWorld from '../assets/icon-world.svg';
-import { 
+import {
   CircleUserRound,
-  Wallet, 
-  Settings, 
-  LogOut } from 'lucide-react';
+  Wallet,
+  Settings,
+  LogOut
+} from 'lucide-react';
 import Ticket from '../assets/Vector.svg';
 
 function Header({ user, isLoggedIn, handleLogout }) {
@@ -32,8 +33,8 @@ function Header({ user, isLoggedIn, handleLogout }) {
     <div className="w-full fixed top-0 z-50 bg-[rgba(103,103,103,0.10)] backdrop-blur-[8.8px]">
       <div className="px-4 mx-auto h-[45px] flex items-center justify-between">
         {/* Logo */}
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="text-white font-['Lexend-Bold',sans-serif] text-xl font-bold tracking-tight transition-colors duration-200 hover:text-[#fff] hover:brightness-150"
         >
           kebbu
@@ -128,7 +129,8 @@ function Header({ user, isLoggedIn, handleLogout }) {
           ) : (
             <Link
               to="/login"
-              className="rounded-[20px] px-4 py-1 flex items-center justify-center text-white text-sm font-['Satoshi-Medium',sans-serif]"
+              className="rounded-[20px] px-4 py-1 flex items-center justify-center hover:text-white text-white text-sm font-['Satoshi-Medium',sans-serif]
+             transition-all duration-300 hover:brightness-110"
               style={{
                 background: "linear-gradient(90deg, rgba(68,160,141,1) 0%, rgba(0,89,79,1) 100%)"
               }}

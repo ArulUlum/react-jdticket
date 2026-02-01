@@ -224,6 +224,14 @@ export default function PaymentModal({
             <div className="text-sm text-[#a2a2a2] mt-2">
               Silakan tutup lalu coba lagi.
             </div>
+            <div className="mt-6">
+              <button
+                className="bg-white text-[#141717] font-bold rounded-lg py-2 px-4"
+                onClick={onClose}
+              >
+                Close
+              </button>
+            </div>
           </div>
         )}
 

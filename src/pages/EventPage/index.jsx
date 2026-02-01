@@ -87,8 +87,8 @@ export default function EventPage() {
   const paymentFee = useMemo(() => getPaymentFee(isPaid, totalTicketPrice), [isPaid, totalTicketPrice]);
   const discountAmount = useMemo(() => {
     if (!promo?.type) return 0;
-    return countPriceWithType(totalTicketPrice, promo.type, promo.price, quantities);
-  }, [promo, totalTicketPrice, quantities]);
+    return countPriceWithType(totalTicketPrice, promo.type, promo.price, totalSelectedTickets);
+  }, [promo, totalTicketPrice, totalSelectedTickets]);
 
   const totalPrice = useMemo(() => getTotalPrice(totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount), [totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount]);
 

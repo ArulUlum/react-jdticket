@@ -83,6 +83,15 @@ function CreateEvent() {
   const [locationName, setlocationName] = useState("");
   const [locationAddress, setlocationAddress] = useState("");
   const [tags, setTags] = useState("");
+  const [errors, setErrors] = useState({
+    eventName: "",
+    description: "",
+  });
+
+  const eventNameRef = useRef(null);
+  const descriptionRef = useRef(null);
+
+
   document.title = 'Create Event - Kebbu';
 
   const fetchLocationSuggestions = async (input) => {
@@ -102,6 +111,39 @@ function CreateEvent() {
       console.error("Error fetching Google Places suggestions", error);
     }
   };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!eventName.trim()) {
+      newErrors.eventName = "Event name wajib diisi";
+    }
+
+    if (!description.trim()) {
+      newErrors.description = "Description wajib diisi";
+    }
+
+    setErrors(newErrors);
+
+    // auto scroll ke error pertama
+    if (newErrors.eventName && eventNameRef.current) {
+      eventNameRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      eventNameRef.current.focus();
+    } else if (newErrors.description && descriptionRef.current) {
+      descriptionRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      descriptionRef.current.focus();
+    }
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+
 
   const formatDateTime = (dateObj, timeObj) => {
     const date = new Date(dateObj);
@@ -131,6 +173,11 @@ function CreateEvent() {
     return Number(number).toLocaleString('id-ID');
   };
 
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+    // setiap kali start date diganti, end date ikut diset sama
+    setEndDate(date);
+  };
 
   const handleSaveDraft = async (e) => {
     e.preventDefault();
@@ -149,6 +196,11 @@ function CreateEvent() {
   }
 
   const handleSubmit = async () => {
+
+    if (!validateForm()) {
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError(null);
 
@@ -320,19 +372,48 @@ function CreateEvent() {
         )}
 
         <div className="space-y-4 mt-6 w-full">
+
+          {/* Error message Event Name */}
+          {errors.eventName && (
+            <div className="text-red-500 text-xs mb-1">
+              {errors.eventName}
+            </div>
+          )}
           <input
+            ref={eventNameRef}
             type="text"
             placeholder="Event Name"
             value={eventName}
-            onChange={(e) => setEventName(e.target.value)}
-            className="w-full bg-[#0f0f0f] border border-white rounded-lg p-3 text-white text-responsive-medium outline-none"
+            onChange={(e) => {
+              setEventName(e.target.value);
+              if (errors.eventName) {
+                setErrors((prev) => ({ ...prev, eventName: "" }));
+              }
+            }}
+            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${errors.eventName ? "border-red-500" : "border-white"
+              }`}
           />
+
+          {/* Error message Description */}
+          {errors.description && (
+            <div className="text-red-500 text-xs mb-1">
+              {errors.description}
+            </div>
+          )}
           <textarea
+            ref={descriptionRef}
             placeholder="Description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-[#0f0f0f] border border-white rounded-lg p-3 text-white text-responsive-medium outline-none"
+            onChange={(e) => {
+              setDescription(e.target.value);
+              if (errors.description) {
+                setErrors((prev) => ({ ...prev, description: "" }));
+              }
+            }}
+            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${errors.description ? "border-red-500" : "border-white"
+              }`}
           />
+
           <input
             type="text"
             placeholder="Add tags..."
@@ -389,7 +470,7 @@ function CreateEvent() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="w-full">
-              <DatePickerBox value={startDate} onChange={setStartDate} />
+              <DatePickerBox value={startDate} onChange={handleStartDateChange} />
             </div>
             <div className="w-full">
               <TimePickerBox value={startTime} onChange={setStartTime} />

@@ -188,6 +188,55 @@ const GuestPage = ({id}) => {
     }
   };
 
+  // Approve (check-in) directly from the guest list
+  const handleApprove = async (guest) => {
+    if (actionLoading || !guest?.id) return;
+    setActionLoading(true);
+    try {
+      const detail = await fetchGuestDetail(guest.id);
+      if (!detail) throw new Error('Failed to fetch guest detail');
+      const invoice_code = detail.invoice_code;
+      const ticket_id = detail.ticket_id;
+      if (!invoice_code) throw new Error('No invoice code available for check-in');
+      await axios.post(`${urlBe}/user/checkin-user`, { invoice_code, ticket_id }, {
+        headers: { 'x-jdticket': localStorage.getItem('token') || '' }
+      });
+      alert('✅ Guest approved and checked in');
+      fetchGuests(id, search);
+    } catch (err) {
+      alert(`❌ Approve failed: ${err?.response?.data?.message || err.message || 'Unknown error'}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Decline directly from the guest list
+  const handleDeclineFromList = async (guest) => {
+    if (actionLoading || !guest?.id) return;
+    if (!confirm('Are you sure you want to decline this guest?')) return;
+    setActionLoading(true);
+    try {
+      await axios.post(`${urlBe}/events/guests/${guest.id}/decline`, {}, {
+        headers: { 'x-jdticket': localStorage.getItem('token') || '' }
+      });
+      alert('✅ Guest declined');
+      fetchGuests(id, search);
+    } catch (err) {
+      // fallback
+      try {
+        await axios.put(`${urlBe}/events/guests/${guest.id}/status`, { status: 'DECLINED' }, {
+          headers: { 'x-jdticket': localStorage.getItem('token') || '' }
+        });
+        alert('✅ Guest declined');
+        fetchGuests(id, search);
+      } catch (e) {
+        alert(`❌ Decline failed: ${err?.response?.data?.message || err.message || e?.message || 'Unknown error'}`);
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const percent = (totalCheckIn / total) * 100; 
 
   const statusLabel = {
@@ -291,13 +340,26 @@ const GuestPage = ({id}) => {
                     {guest.total_ticket} Tickets
                   </div>
                 )}
-                {guest.status === "approve" ? (
-                  <div className={`flex items-center gap-1 text-sm font-['Satoshi-Regular',_sans-serif]`}>
-                    {guest.status}
+                {guest.is_checkin ? (
+                  <div className="text-sm font-['Satoshi-Medium',_sans-serif] text-green-400">
+                    GOING
                   </div>
                 ) : (
-                  <div className={`text-sm font-['Satoshi-Medium',_sans-serif]`}>
-                    {guest.status}
+                  <div className="flex items-center gap-3">
+                    <div
+                      onClick={(e) => { e.stopPropagation(); handleApprove(guest); }}
+                      className={`flex items-center gap-1 text-sm text-green-400 hover:opacity-80 ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      disabled={actionLoading}
+                    >
+                      <Check size={16} /> Approve
+                    </div>
+                    <div
+                      onClick={(e) => { e.stopPropagation(); handleDeclineFromList(guest); }}
+                      className={`flex items-center gap-1 text-sm text-red-500 hover:opacity-80 ${actionLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      disabled={actionLoading}
+                    >
+                      <X size={16} /> Decline
+                    </div>
                   </div>
                 )}
                 {guest.role === "GUEST" ? (
