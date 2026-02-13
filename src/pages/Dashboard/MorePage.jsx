@@ -82,7 +82,7 @@ const MorePage = ({ id }) => {
 
     try {
       const response = await axios.put(
-        `${urlBe}/events/update/${id}`,
+        `${urlBe}/events/update-url/${id}`,
         { url: urlInput },
         {
           headers: { 'x-jdticket': localStorage.getItem('token') || '', },
