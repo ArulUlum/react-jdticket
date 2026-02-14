@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../utils/cropImage';
@@ -16,6 +16,8 @@ import {
   Eye,
   EyeOff,
   CalendarDays,
+  Calendar,
+  Clock,
   X
 } from "lucide-react";
 import { format } from 'date-fns';
@@ -132,7 +134,7 @@ function OverviewPage({ id, event }) {
 
       const imgUrl = saveImgRes.data.img_url;
 
-      const res = await axios.put(`${urlBe}/events/update/${id}`, 
+      const res = await axios.put(`${urlBe}/events/update/${id}`,
         { image: imgUrl },
         {
           headers: {
@@ -183,8 +185,21 @@ function OverviewPage({ id, event }) {
   const formatDateTime = (dateObj, timeObj) => {
     const date = new Date(dateObj);
     const time = new Date(timeObj);
-    date.setHours(time.getHours(), time.getMinutes(), time.getSeconds());
-    return date.toISOString();
+
+    date.setHours(time.getHours());
+    date.setMinutes(time.getMinutes());
+    date.setSeconds(time.getSeconds());
+
+    const pad = (num) => String(num).padStart(2, '0');
+
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1); // 0-indexed
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
   const handleEditSubmit = async () => {
@@ -690,7 +705,7 @@ function OverviewPage({ id, event }) {
                 <input
                   type="text"
                   value={editFormData.name}
-                  onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
                   className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
                 />
               </div>
@@ -700,7 +715,7 @@ function OverviewPage({ id, event }) {
                 <label className="text-white text-sm font-semibold block mb-2">Description</label>
                 <textarea
                   value={editFormData.description}
-                  onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
                   className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95] h-24 resize-none"
                 />
               </div>
@@ -713,7 +728,7 @@ function OverviewPage({ id, event }) {
                     type="text"
                     value={editFormData.location_address}
                     onChange={(e) => {
-                      setEditFormData({...editFormData, location_address: e.target.value});
+                      setEditFormData({ ...editFormData, location_address: e.target.value });
                       if (e.target.value.length > 2) {
                         fetchLocationSuggestions(e.target.value);
                         setShowLocationOptions(true);
@@ -723,7 +738,7 @@ function OverviewPage({ id, event }) {
                     className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
                     placeholder="Search location..."
                   />
-                  
+
                   {showLocationOptions && locationSuggestions.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-[#141717] border border-[#333] rounded max-h-48 overflow-y-auto z-50">
                       {locationSuggestions.map((suggestion, idx) => (
@@ -753,24 +768,11 @@ function OverviewPage({ id, event }) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-white text-sm font-semibold block mb-2">Start Date</label>
-                  <DatePicker
-                    selected={editFormData.start_date}
-                    onChange={(date) => setEditFormData({...editFormData, start_date: date})}
-                    dateFormat="dd/MM/yyyy"
-                    className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
-                  />
+                  <DatePickerBox value={editFormData.start_date} onChange={(date) => setEditFormData({ ...editFormData, start_date: date })} />
                 </div>
                 <div>
                   <label className="text-white text-sm font-semibold block mb-2">Start Time</label>
-                  <DatePicker
-                    selected={editFormData.start_date}
-                    onChange={(date) => setEditFormData({...editFormData, start_date: date})}
-                    showTimeSelect
-                    showTimeSelectOnly
-                    timeIntervals={15}
-                    dateFormat="HH:mm"
-                    className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
-                  />
+                  <TimePickerBox value={editFormData.start_date} onChange={(date) => setEditFormData({ ...editFormData, start_date: date })} />
                 </div>
               </div>
 
@@ -778,24 +780,11 @@ function OverviewPage({ id, event }) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-white text-sm font-semibold block mb-2">End Date</label>
-                  <DatePicker
-                    selected={editFormData.end_date}
-                    onChange={(date) => setEditFormData({...editFormData, end_date: date})}
-                    dateFormat="dd/MM/yyyy"
-                    className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
-                  />
+                  <DatePickerBox value={editFormData.end_date} onChange={(date) => setEditFormData({ ...editFormData, end_date: date })} />
                 </div>
                 <div>
                   <label className="text-white text-sm font-semibold block mb-2">End Time</label>
-                  <DatePicker
-                    selected={editFormData.end_date}
-                    onChange={(date) => setEditFormData({...editFormData, end_date: date})}
-                    showTimeSelect
-                    showTimeSelectOnly
-                    timeIntervals={15}
-                    dateFormat="HH:mm"
-                    className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95]"
-                  />
+                  <TimePickerBox value={editFormData.end_date} onChange={(date) => setEditFormData({ ...editFormData, end_date: date })} />
                 </div>
               </div>
             </div>
@@ -822,5 +811,105 @@ function OverviewPage({ id, event }) {
     </div>
   )
 }
+
+const DatePickerBox = ({ value, onChange }) => {
+  // Custom UI yang tidak pakai <input>
+  const CustomDateInput = React.forwardRef(({ value, onClick }, ref) => (
+    <div
+      onClick={onClick}
+      ref={ref}
+      className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 cursor-pointer w-full"
+    >
+      <div className="flex items-center gap-2.5 w-full">
+        <Calendar className="w-5 h-5 text-white" />
+        <span className="text-white text-base font-['Satoshi-Medium']">
+          {value || "Select date"}
+        </span>
+      </div>
+      <span className="text-white text-sm">▼</span>
+    </div>
+  ));
+
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const customDateHeader = ({ date, changeMonth, changeYear }) => (
+    <div className="flex justify-between items-center px-4 py-2 text-white">
+      <select
+        value={getMonth(date)}
+        onChange={({ target: { value } }) => changeMonth(value)}
+        className="bg-[#141717] text-white px-2 py-1 rounded"
+      >
+        {months.map((label, index) => (
+          <option key={label} value={index}>
+            {label}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={getYear(date)}
+        onChange={({ target: { value } }) => changeYear(value)}
+        className="bg-[#141717] text-white px-2 py-1 rounded"
+      >
+        {Array(30)
+          .fill(0)
+          .map((_, i) => {
+            const year = 2000 + i;
+            return (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            );
+          })}
+      </select>
+    </div>
+  );
+
+  return (
+    <DatePicker
+      selected={value}
+      onChange={onChange}
+      dateFormat="EEE, MMM d"
+      customInput={<CustomDateInput />}
+      // renderCustomHeader={customDateHeader}
+      calendarClassName="custom-calendar"
+    />
+  );
+};
+
+const TimePickerBox = ({ value, onChange }) => {
+  const CustomTimeInput = React.forwardRef(({ value, onClick }, ref) => (
+    <div
+      onClick={onClick}
+      ref={ref}
+      className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 cursor-pointer w-full"
+    >
+      <div className="flex items-center gap-2.5 w-full">
+        <Clock className="w-5 h-5 text-white" />
+        <span className="text-white text-base font-['Satoshi-Medium']">
+          {value || "Select time"}
+        </span>
+      </div>
+      <span className="text-white text-sm">▼</span>
+    </div>
+  ));
+
+  return (
+    <DatePicker
+      selected={value}
+      onChange={onChange}
+      showTimeSelect
+      showTimeSelectOnly
+      timeIntervals={30}
+      timeCaption="Time"
+      dateFormat="HH:mm"
+      timeFormat="HH:mm"
+      customInput={<CustomTimeInput />}
+    />
+  );
+};
 
 export default OverviewPage;
