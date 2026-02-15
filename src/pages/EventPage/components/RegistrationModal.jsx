@@ -29,7 +29,16 @@ export default function RegistrationModal({
   if (!isOpen || !event) return null;
 
   const { startDay, startMonth, formattedStartTime } = headerInfo;
-  const { selectedTickets, isPaid, platformFee, taxFee, paymentFee, totalPrice, quantities, discountAmount } = pricingInfo;
+  const {
+    selectedTickets,
+    isPaid,
+    platformFee,
+    taxFee,
+    paymentFee,
+    totalPrice,
+    quantities,
+    discountAmount,
+  } = pricingInfo;
 
   const handleApplyPromoClick = () => {
     if (!formData.promoCode) return;
@@ -96,15 +105,9 @@ export default function RegistrationModal({
                       {isApplyingPromo ? 'Applying...' : 'Apply'}
                     </button>
                   </div>
-                  {promoError && (
-                    <p className="text-red-400 text-xs mt-1">
-                      {promoError}
-                    </p>
-                  )}
+                  {promoError && <p className="text-red-400 text-xs mt-1">{promoError}</p>}
                   {promoMessage && !promoError && (
-                    <p className="text-[#13E7BD] text-xs mt-1">
-                      {promoMessage}
-                    </p>
+                    <p className="text-[#13E7BD] text-xs mt-1">{promoMessage}</p>
                   )}
                 </>
               )}
@@ -115,8 +118,12 @@ export default function RegistrationModal({
           <div className="space-y-1 text-responsive-caption text-[#a2a2a2]">
             {selectedTickets.map((t) => (
               <div key={t.id} className="flex justify-between">
-                <span>{t.name} (x{quantities[t.id]})</span>
-                <span>{t.price === 0 ? 'FREE' : `Rp ${(t.price * quantities[t.id]).toLocaleString()}`}</span>
+                <span>
+                  {t.name} (x{quantities[t.id]})
+                </span>
+                <span>
+                  {t.price === 0 ? 'FREE' : `Rp ${(t.price * quantities[t.id]).toLocaleString()}`}
+                </span>
               </div>
             ))}
 
@@ -152,10 +159,7 @@ export default function RegistrationModal({
 
           <div className="flex justify-between text-responsive-medium mt-1">
             <span>Total Price</span>
-            <span>
-              {!isPaid ? 'FREE' : `Rp ${totalPrice.toLocaleString()}`
-              }
-            </span>
+            <span>{!isPaid ? 'FREE' : `Rp ${totalPrice.toLocaleString()}`}</span>
           </div>
         </div>
 
@@ -214,8 +218,9 @@ export default function RegistrationModal({
                 {payments.map((group) => (
                   <div key={group.group} className="flex flex-col gap-1">
                     <div
-                      className={`text-responsive-caption-bold cursor-pointer py-1 rounded transition-colors duration-150 ${selectedPaymentGroup === group.group ? 'text-white' : 'text-[#a2a2a2]'
-                        }`}
+                      className={`text-responsive-caption-bold cursor-pointer py-1 rounded transition-colors duration-150 ${
+                        selectedPaymentGroup === group.group ? 'text-white' : 'text-[#a2a2a2]'
+                      }`}
                       onClick={() => {
                         if (selectedPaymentGroup !== group.group) {
                           setSelectedPaymentGroup(group.group);
@@ -231,14 +236,17 @@ export default function RegistrationModal({
                         {group.items.map((item) => (
                           <div
                             key={item.label}
-                            className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${selectedPayment === item.label
-                              ? 'border-[#13E7BD] bg-[#1c1d1d]'
-                              : 'border-[#212121] bg-[#1c1d1d]'
-                              }`}
+                            className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${
+                              selectedPayment === item.label
+                                ? 'border-[#13E7BD] bg-[#1c1d1d]'
+                                : 'border-[#212121] bg-[#1c1d1d]'
+                            }`}
                             onClick={() => setSelectedPayment(item.label)}
                           >
                             <img src={item.icon} alt={item.label} className="w-9 h-9" />
-                            <div className="text-[#a2a2a2] text-responsive-medium flex-1">{item.label}</div>
+                            <div className="text-[#a2a2a2] text-responsive-medium flex-1">
+                              {item.label}
+                            </div>
                             <input
                               type="radio"
                               name="paymentMethod"

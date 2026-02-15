@@ -21,13 +21,13 @@ export function getTotalTicketPrice(selectedTickets, quantities) {
 }
 
 export function countPriceWithType(price, type_tax, value_tax, quantities) {
-  if (type_tax === "Percentage") {
+  if (type_tax === 'Percentage') {
     return (price * value_tax) / 100;
-  } else if (type_tax === "Amount") {
+  } else if (type_tax === 'Amount') {
     return value_tax * (quantities || 1);
   }
   return 0;
-} 
+}
 
 export function getPaymentFee(isPaid, totalTicketPrice) {
   return isPaid ? totalTicketPrice * 0.015 : 0;

@@ -65,10 +65,9 @@ export default function TicketModal({
 
                 {status && (
                   <p
-                    className={`text-xs mt-1 ${status.type === 'soldout'
-                        ? 'text-red-500'
-                        : 'text-yellow-400'
-                      }`}
+                    className={`text-xs mt-1 ${
+                      status.type === 'soldout' ? 'text-red-500' : 'text-yellow-400'
+                    }`}
                   >
                     {status.text}
                   </p>
@@ -85,9 +84,7 @@ export default function TicketModal({
                   –
                 </button>
 
-                <span className="w-6 text-center text-white">
-                  {quantities?.[ticket.id] || 0}
-                </span>
+                <span className="w-6 text-center text-white">{quantities?.[ticket.id] || 0}</span>
 
                 <button
                   onClick={() => increaseQty(ticket.id)}
@@ -101,7 +98,6 @@ export default function TicketModal({
             </div>
           );
         })}
-
 
         {errorMessage && <p className="text-red-500 text-sm mb-2">{errorMessage}</p>}
 

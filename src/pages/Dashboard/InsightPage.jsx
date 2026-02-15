@@ -1,20 +1,20 @@
-import { useState } from "react";
+import { useState } from 'react';
 // You can use a chart library like recharts, chart.js, or just a placeholder SVG for the line chart
 
 function InsightPage() {
   // Example data
-  const [trend, setTrend] = useState("weekly");
+  const [trend, setTrend] = useState('weekly');
   const chartData = [
-    { date: "21-05-2025", value: 10000 },
-    { date: "22-05-2025", value: 50000 },
-    { date: "23-05-2025", value: 40000 },
-    { date: "24-05-2025", value: 80000 },
-    { date: "25-05-2025", value: 120000 },
-    { date: "26-05-2025", value: 110000 },
-    { date: "27-05-2025", value: 130000 },
-    { date: "28-05-2025", value: 150000 },
-    { date: "29-05-2025", value: 60000 },
-    { date: "Now", value: 40000 },
+    { date: '21-05-2025', value: 10000 },
+    { date: '22-05-2025', value: 50000 },
+    { date: '23-05-2025', value: 40000 },
+    { date: '24-05-2025', value: 80000 },
+    { date: '25-05-2025', value: 120000 },
+    { date: '26-05-2025', value: 110000 },
+    { date: '27-05-2025', value: 130000 },
+    { date: '28-05-2025', value: 150000 },
+    { date: '29-05-2025', value: 60000 },
+    { date: 'Now', value: 40000 },
   ];
 
   return (
@@ -27,11 +27,17 @@ function InsightPage() {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="text-white text-lg font-bold">Visitor Trend</span>
-            <span className="ml-2 bg-green-900 text-green-300 px-2 py-1 rounded-full text-xs font-semibold">↑ 75%</span>
+            <span className="ml-2 bg-green-900 text-green-300 px-2 py-1 rounded-full text-xs font-semibold">
+              ↑ 75%
+            </span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="bg-[#232323] text-white px-3 py-1 rounded-lg text-xs font-medium">Weekly</button>
-            <button className="bg-transparent text-[#a2a2a2] px-3 py-1 rounded-lg text-xs font-medium">▼</button>
+            <button className="bg-[#232323] text-white px-3 py-1 rounded-lg text-xs font-medium">
+              Weekly
+            </button>
+            <button className="bg-transparent text-[#a2a2a2] px-3 py-1 rounded-lg text-xs font-medium">
+              ▼
+            </button>
           </div>
         </div>
         {/* Chart Placeholder */}
@@ -53,8 +59,12 @@ function InsightPage() {
             {/* Example dot and tooltip */}
             <circle cx="280" cy="80" r="7" fill="#6fffc6" />
             <rect x="250" y="30" width="80" height="30" rx="8" fill="#232323" />
-            <text x="290" y="50" textAnchor="middle" fill="#fff" fontSize="14">June 25</text>
-            <text x="290" y="65" textAnchor="middle" fill="#a2a2a2" fontSize="12">22 Views</text>
+            <text x="290" y="50" textAnchor="middle" fill="#fff" fontSize="14">
+              June 25
+            </text>
+            <text x="290" y="65" textAnchor="middle" fill="#a2a2a2" fontSize="12">
+              22 Views
+            </text>
           </svg>
         </div>
       </div>
@@ -62,19 +72,27 @@ function InsightPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
         <div className="bg-[#181818] rounded-xl p-5 border border-[#232323] flex flex-col gap-2">
-          <span className="text-[#a2a2a2] text-xs flex items-center gap-1">Unique Visitors <span className="ml-1">ⓘ</span></span>
+          <span className="text-[#a2a2a2] text-xs flex items-center gap-1">
+            Unique Visitors <span className="ml-1">ⓘ</span>
+          </span>
           <span className="text-white text-2xl font-bold">180</span>
         </div>
         <div className="bg-[#181818] rounded-xl p-5 border border-[#232323] flex flex-col gap-2">
-          <span className="text-[#a2a2a2] text-xs flex items-center gap-1">Avg. Session Time <span className="ml-1">ⓘ</span></span>
+          <span className="text-[#a2a2a2] text-xs flex items-center gap-1">
+            Avg. Session Time <span className="ml-1">ⓘ</span>
+          </span>
           <span className="text-white text-2xl font-bold">2m 30s</span>
         </div>
         <div className="bg-[#181818] rounded-xl p-5 border border-[#232323] flex flex-col gap-2">
-          <span className="text-[#a2a2a2] text-xs flex items-center gap-1">Bounce Rate <span className="ml-1">ⓘ</span></span>
+          <span className="text-[#a2a2a2] text-xs flex items-center gap-1">
+            Bounce Rate <span className="ml-1">ⓘ</span>
+          </span>
           <span className="text-white text-2xl font-bold">45%</span>
         </div>
         <div className="bg-[#181818] rounded-xl p-5 border border-[#232323] flex flex-col gap-2">
-          <span className="text-[#a2a2a2] text-xs flex items-center gap-1">Returning Visitors <span className="ml-1">ⓘ</span></span>
+          <span className="text-[#a2a2a2] text-xs flex items-center gap-1">
+            Returning Visitors <span className="ml-1">ⓘ</span>
+          </span>
           <span className="text-white text-2xl font-bold">35%</span>
         </div>
       </div>
@@ -84,13 +102,23 @@ function InsightPage() {
         <div className="bg-[#181818] rounded-xl p-5 border border-[#232323] flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="text-[#a2a2a2] text-xs">Profile Visit</span>
-            <span className="bg-green-900 text-green-300 px-2 py-1 rounded-full text-xs font-semibold">↑ 75%</span>
+            <span className="bg-green-900 text-green-300 px-2 py-1 rounded-full text-xs font-semibold">
+              ↑ 75%
+            </span>
           </div>
-          <span className="text-white text-2xl font-bold">1.502 <span className="text-[#a2a2a2] text-xs font-normal">All time visit</span></span>
+          <span className="text-white text-2xl font-bold">
+            1.502 <span className="text-[#a2a2a2] text-xs font-normal">All time visit</span>
+          </span>
           <div className="flex gap-4 text-[#a2a2a2] text-xs">
-            <span>700 <span className="font-normal">30Days</span></span>
-            <span>350 <span className="font-normal">7 Days</span></span>
-            <span>89 <span className="font-normal">24 hours</span></span>
+            <span>
+              700 <span className="font-normal">30Days</span>
+            </span>
+            <span>
+              350 <span className="font-normal">7 Days</span>
+            </span>
+            <span>
+              89 <span className="font-normal">24 hours</span>
+            </span>
           </div>
         </div>
         <div className="bg-[#181818] rounded-xl p-5 border border-[#232323] flex flex-col gap-2">

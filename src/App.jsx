@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout'
-import ScrollToTop from "./components/ScrollToTop";
+import Layout from './components/Layout';
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import CreateEvent from './pages/CreateEvent';
 import EventPage from './pages/EventPage';
 import UserProfile from './pages/UserProfil';
 import Dashboard from './pages/Dashboard';
 import QRScanner from './pages/QRScanner';
-import LoginPage from './pages/LoginPage' 
+import LoginPage from './pages/LoginPage';
 import UserScanPage from './pages/UserScanPage';
 import TermsPage from './pages/TermsPage';
 import PrivacyPage from './pages/PrivacyPage';

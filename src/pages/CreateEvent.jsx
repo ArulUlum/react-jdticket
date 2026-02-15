@@ -5,8 +5,8 @@ import getCroppedImg from '../utils/cropImage';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { format, addMinutes, getMonth, getYear } from 'date-fns';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import {
   Eye,
   EyeOff,
@@ -20,8 +20,8 @@ import {
   X,
   Users,
   Video,
-  ImagePlus
-} from "lucide-react";
+  ImagePlus,
+} from 'lucide-react';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
@@ -30,7 +30,8 @@ function CreateEvent() {
   const roundedNow = new Date(Math.ceil(now.getTime() / (30 * 60000)) * 30 * 60000);
   // Helper to convert dataURL to File
   function dataURLtoFile(dataurl, filename) {
-    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1];
+    var arr = dataurl.split(','),
+      mime = arr[0].match(/:(.*?);/)[1];
     var bstr = atob(arr[1]);
     var n = bstr.length;
     var u8arr = new Uint8Array(n);
@@ -55,42 +56,41 @@ function CreateEvent() {
   const [ticketInput, setTicketInput] = useState({ name: '', price: '', max_capacity: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
-  const [visibility, setVisibility] = useState("Public");
+  const [visibility, setVisibility] = useState('Public');
   const [showVisibilityOptions, setShowVisibilityOptions] = useState(false);
   const [startDate, setStartDate] = useState(now);
   const [endDate, setEndDate] = useState(now);
   const [startTime, setStartTime] = useState(roundedNow);
   const [endTime, setEndTime] = useState(addMinutes(roundedNow, 60));
-  const [locationInput, setLocationInput] = useState("");
+  const [locationInput, setLocationInput] = useState('');
   const [locationSuggestions, setLocationSuggestions] = useState([]);
   const [showLocationOptions, setShowLocationOptions] = useState(false);
   const [showMaps, setShowMaps] = useState(false);
-  const [capacityMode, setCapacityMode] = useState("unlimited");
-  const [customCapacity, setCustomCapacity] = useState("");
-  const [eventType, setEventType] = useState("Free Event");
+  const [capacityMode, setCapacityMode] = useState('unlimited');
+  const [customCapacity, setCustomCapacity] = useState('');
+  const [eventType, setEventType] = useState('Free Event');
   const [showEventTypeOptions, setShowEventTypeOptions] = useState(false);
   const [requireApproval, setRequireApproval] = useState(false);
-  const [eventImage, setEventImage] = useState("https://wallpapercave.com/wp/wp9297718.jpg");
+  const [eventImage, setEventImage] = useState('https://wallpapercave.com/wp/wp9297718.jpg');
   const [eventImageFile, setEventImageFile] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [rawImage, setRawImage] = useState(null);
-  const [eventName, setEventName] = useState("");
-  const [description, setDescription] = useState("");
+  const [eventName, setEventName] = useState('');
+  const [description, setDescription] = useState('');
   const [price, setPrice] = useState(0);
-  const [locationName, setlocationName] = useState("");
-  const [locationAddress, setlocationAddress] = useState("");
-  const [tags, setTags] = useState("");
+  const [locationName, setlocationName] = useState('');
+  const [locationAddress, setlocationAddress] = useState('');
+  const [tags, setTags] = useState('');
   const [errors, setErrors] = useState({
-    eventName: "",
-    description: "",
+    eventName: '',
+    description: '',
   });
 
   const eventNameRef = useRef(null);
   const descriptionRef = useRef(null);
-
 
   document.title = 'Create Event - Kebbu';
 
@@ -99,16 +99,16 @@ function CreateEvent() {
       const response = await axios.get(`${urlBe}/image/autocomplete`, {
         params: {
           input,
-          key: "AIzaSyDBnmmNXN3uCvSfjxeGafgUnRxtWxxLbOw",
-          components: "country:ID"
+          key: 'AIzaSyDBnmmNXN3uCvSfjxeGafgUnRxtWxxLbOw',
+          components: 'country:ID',
         },
         headers: {
-          "x-requested-with": "XMLHttpRequest"
-        }
+          'x-requested-with': 'XMLHttpRequest',
+        },
       });
       setLocationSuggestions(response.data.predictions);
     } catch (error) {
-      console.error("Error fetching Google Places suggestions", error);
+      console.error('Error fetching Google Places suggestions', error);
     }
   };
 
@@ -116,11 +116,11 @@ function CreateEvent() {
     const newErrors = {};
 
     if (!eventName.trim()) {
-      newErrors.eventName = "Event name wajib diisi";
+      newErrors.eventName = 'Event name wajib diisi';
     }
 
     if (!description.trim()) {
-      newErrors.description = "Description wajib diisi";
+      newErrors.description = 'Description wajib diisi';
     }
 
     setErrors(newErrors);
@@ -128,22 +128,20 @@ function CreateEvent() {
     // auto scroll ke error pertama
     if (newErrors.eventName && eventNameRef.current) {
       eventNameRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
+        behavior: 'smooth',
+        block: 'center',
       });
       eventNameRef.current.focus();
     } else if (newErrors.description && descriptionRef.current) {
       descriptionRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
+        behavior: 'smooth',
+        block: 'center',
       });
       descriptionRef.current.focus();
     }
 
     return Object.keys(newErrors).length === 0;
   };
-
-
 
   const formatDateTime = (dateObj, timeObj) => {
     const date = new Date(dateObj);
@@ -167,9 +165,9 @@ function CreateEvent() {
   };
 
   const formatPrice = (value) => {
-    if (value === null || value === undefined || value === "") return "";
-    const number = String(value).replace(/\D/g, "");
-    if (number === "") return "";
+    if (value === null || value === undefined || value === '') return '';
+    const number = String(value).replace(/\D/g, '');
+    if (number === '') return '';
     return Number(number).toLocaleString('id-ID');
   };
 
@@ -184,19 +182,18 @@ function CreateEvent() {
     const payload = {
       name: eventName,
       description: description,
-      visibility: (visibility === "Public" ? true : false),
+      visibility: visibility === 'Public' ? true : false,
       start_date: formatDateTime(startDate, startTime),
       end_date: formatDateTime(endDate, endTime),
       location: locationInput,
-      max_capacity: capacityMode === "unlimited" ? null : parseInt(customCapacity || 0, 10),
+      max_capacity: capacityMode === 'unlimited' ? null : parseInt(customCapacity || 0, 10),
       list_ticket: tickets,
-      approval: requireApproval
+      approval: requireApproval,
     };
-    console.log(payload)
-  }
+    console.log(payload);
+  };
 
   const handleSubmit = async () => {
-
     if (!validateForm()) {
       return;
     }
@@ -205,7 +202,7 @@ function CreateEvent() {
     setSubmitError(null);
 
     const tickets = {
-      name: eventType === "Free Event" ? "Free" : "Paid",
+      name: eventType === 'Free Event' ? 'Free' : 'Paid',
       price: parseInt(String(price || 0).replace(/\D/g, ''), 10) || 0,
       max_capacity: null,
     };
@@ -215,11 +212,11 @@ function CreateEvent() {
 
       if (eventImageFile) {
         const formData = new FormData();
-        formData.append("image", eventImageFile);
+        formData.append('image', eventImageFile);
 
         const saveImgRes = await axios.post(`${urlBe}/image/upload`, formData, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
           },
         });
 
@@ -230,29 +227,25 @@ function CreateEvent() {
         name: eventName,
         image: imgUrl,
         description: description,
-        visibility: visibility === "Public" ? true : false,
+        visibility: visibility === 'Public' ? true : false,
         start_date: formatDateTime(startDate, startTime),
         end_date: formatDateTime(endDate, endTime),
         location: locationInput,
         location_name: locationName,
         location_address: locationAddress,
-        max_capacity: capacityMode === "unlimited" ? null : parseInt(customCapacity || 0, 10),
+        max_capacity: capacityMode === 'unlimited' ? null : parseInt(customCapacity || 0, 10),
         tickets: tickets,
-        approval: requireApproval
+        approval: requireApproval,
       };
 
-      const response = await axios.post(
-        `${urlBe}/events/create`,
-        payload,
-        {
-          headers: {
-            'x-jdticket': localStorage.getItem('token') || '',
-          },
-        }
-      );
+      const response = await axios.post(`${urlBe}/events/create`, payload, {
+        headers: {
+          'x-jdticket': localStorage.getItem('token') || '',
+        },
+      });
       const { code, message, event_id } = response.data;
       if (code !== '1') {
-        console.log(message)
+        console.log(message);
         setSubmitError(message);
       } else {
         alert(message);
@@ -260,7 +253,9 @@ function CreateEvent() {
       }
     } catch (error) {
       if (error.response) {
-        setSubmitError(`(${error.response.status}) ${error.response.data?.message || 'Server Error'}`);
+        setSubmitError(
+          `(${error.response.status}) ${error.response.data?.message || 'Server Error'}`,
+        );
       } else if (error.request) {
         setSubmitError('No response from server');
       } else {
@@ -272,7 +267,7 @@ function CreateEvent() {
   };
 
   if (submitError) {
-    alert(submitError)
+    alert(submitError);
     setSubmitError(null);
   }
 
@@ -280,7 +275,10 @@ function CreateEvent() {
     <div className="min-h-screen flex flex-col lg:flex-row gap-4 pb-10 justify-center items-start">
       {/* Left Card */}
       <div className="bg-[#141717] rounded-[10px] border border-strokesss w-full max-w-md lg:max-w-[300px] p-4 relative mx-auto lg:mx-0 flex flex-col items-center">
-        <label htmlFor="image-upload" className="relative w-full flex justify-center cursor-pointer">
+        <label
+          htmlFor="image-upload"
+          className="relative w-full flex justify-center cursor-pointer"
+        >
           <div className="aspect-square w-full bg-[#141717] rounded-[7px] overflow-hidden flex items-center justify-center">
             <img
               className="w-full h-full object-cover"
@@ -327,8 +325,14 @@ function CreateEvent() {
         </label>
         {/* Cropper Modal */}
         {showCropper && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setShowCropper(false)}>
-            <div className="bg-[#181818] rounded-xl p-6 shadow-lg w-[90vw] max-w-lg relative" onClick={e => e.stopPropagation()}>
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+            onClick={() => setShowCropper(false)}
+          >
+            <div
+              className="bg-[#181818] rounded-xl p-6 shadow-lg w-[90vw] max-w-lg relative"
+              onClick={(e) => e.stopPropagation()}
+            >
               <h2 className="text-white text-lg mb-4">Crop Image to 1:1</h2>
               <div className="relative w-full h-[350px] bg-black">
                 <Cropper
@@ -348,7 +352,7 @@ function CreateEvent() {
                   max={3}
                   step={0.01}
                   value={zoom}
-                  onChange={e => setZoom(Number(e.target.value))}
+                  onChange={(e) => setZoom(Number(e.target.value))}
                   className="w-full"
                 />
               </div>
@@ -356,7 +360,9 @@ function CreateEvent() {
                 <button
                   className="bg-gray-700 text-white px-4 py-2 rounded"
                   onClick={() => setShowCropper(false)}
-                >Cancel</button>
+                >
+                  Cancel
+                </button>
                 <button
                   className="bg-[#00594F] text-white px-4 py-2 rounded"
                   onClick={async () => {
@@ -365,20 +371,17 @@ function CreateEvent() {
                     setEventImageFile(dataURLtoFile(croppedImg, 'event-image.png'));
                     setShowCropper(false);
                   }}
-                >Crop & Use</button>
+                >
+                  Crop & Use
+                </button>
               </div>
             </div>
           </div>
         )}
 
         <div className="space-y-4 mt-6 w-full">
-
           {/* Error message Event Name */}
-          {errors.eventName && (
-            <div className="text-red-500 text-xs mb-1">
-              {errors.eventName}
-            </div>
-          )}
+          {errors.eventName && <div className="text-red-500 text-xs mb-1">{errors.eventName}</div>}
           <input
             ref={eventNameRef}
             type="text"
@@ -387,18 +390,17 @@ function CreateEvent() {
             onChange={(e) => {
               setEventName(e.target.value);
               if (errors.eventName) {
-                setErrors((prev) => ({ ...prev, eventName: "" }));
+                setErrors((prev) => ({ ...prev, eventName: '' }));
               }
             }}
-            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${errors.eventName ? "border-red-500" : "border-white"
-              }`}
+            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${
+              errors.eventName ? 'border-red-500' : 'border-white'
+            }`}
           />
 
           {/* Error message Description */}
           {errors.description && (
-            <div className="text-red-500 text-xs mb-1">
-              {errors.description}
-            </div>
+            <div className="text-red-500 text-xs mb-1">{errors.description}</div>
           )}
           <textarea
             ref={descriptionRef}
@@ -407,11 +409,12 @@ function CreateEvent() {
             onChange={(e) => {
               setDescription(e.target.value);
               if (errors.description) {
-                setErrors((prev) => ({ ...prev, description: "" }));
+                setErrors((prev) => ({ ...prev, description: '' }));
               }
             }}
-            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${errors.description ? "border-red-500" : "border-white"
-              }`}
+            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${
+              errors.description ? 'border-red-500' : 'border-white'
+            }`}
           />
 
           <input
@@ -428,9 +431,7 @@ function CreateEvent() {
       <div className="bg-[#141717] rounded-[10px] border border-strokesss border-solid w-full p-6 mx-auto lg:mx-0">
         <div className="grid gap-2 items-center">
           {/* Visibility */}
-          <div className="text-white text-responsive-medium leading-[18px]">
-            Visibility
-          </div>
+          <div className="text-white text-responsive-medium leading-[18px]">Visibility</div>
           <div className="relative w-full">
             <div
               onClick={() => setShowVisibilityOptions(!showVisibilityOptions)}
@@ -442,13 +443,15 @@ function CreateEvent() {
                 ) : (
                   <EyeOff className="w-5 h-5 text-white" />
                 )}
-                <span className="text-white text-responsive-medium leading-[18px]">{visibility}</span>
+                <span className="text-white text-responsive-medium leading-[18px]">
+                  {visibility}
+                </span>
               </div>
               <span className="text-white text-sm">▼</span>
             </div>
             {showVisibilityOptions && (
               <div className="absolute z-10 w-full bg-[#1f1f1f] border border-strokesss rounded-lg shadow-md">
-                {['Public', 'Private'].map(option => (
+                {['Public', 'Private'].map((option) => (
                   <div
                     key={option}
                     className="px-4 py-2 hover:bg-gray-800 text-white cursor-pointer"
@@ -465,9 +468,7 @@ function CreateEvent() {
           </div>
 
           {/* Start Date */}
-          <div className="text-white text-responsive-medium leading-[18px]">
-            Start
-          </div>
+          <div className="text-white text-responsive-medium leading-[18px]">Start</div>
           <div className="grid grid-cols-2 gap-4">
             <div className="w-full">
               <DatePickerBox value={startDate} onChange={handleStartDateChange} />
@@ -478,9 +479,7 @@ function CreateEvent() {
           </div>
 
           {/* End Date */}
-          <div className="text-white text-responsive-medium leading-[18px]">
-            End
-          </div>
+          <div className="text-white text-responsive-medium leading-[18px]">End</div>
           <div className="grid grid-cols-2 gap-4">
             <div className="w-full">
               <DatePickerBox value={endDate} onChange={setEndDate} />
@@ -491,15 +490,13 @@ function CreateEvent() {
           </div>
 
           {/* Location */}
-          <div className="text-white text-responsive-medium leading-[18px]">
-            Location
-          </div>
+          <div className="text-white text-responsive-medium leading-[18px]">Location</div>
           <div className="relative w-full">
             <div className="flex items-center gap-2.5 bg-[#0f0f0f] border border-strokesss rounded-lg p-4">
               <MapPin className="w-5 h-5 text-white" />
               <input
                 value={locationInput}
-                onChange={e => {
+                onChange={(e) => {
                   const val = e.target.value;
                   setLocationInput(val);
                   setShowLocationOptions(true);
@@ -511,10 +508,9 @@ function CreateEvent() {
               <X
                 className="w-5 h-5 text-white cursor-pointer"
                 onClick={() => {
-                  setLocationInput("")
+                  setLocationInput('');
                   setShowMaps(false);
-                }
-                }
+                }}
               />
             </div>
             {showLocationOptions && locationInput && (
@@ -525,14 +521,18 @@ function CreateEvent() {
                     className="px-4 py-2 hover:bg-gray-800 cursor-pointer text-white"
                     onClick={() => {
                       setLocationInput(item.description);
-                      setlocationName(item.structured_formatting.main_text)
-                      setlocationAddress(item.structured_formatting.secondary_text)
-                      setShowMaps(true)
+                      setlocationName(item.structured_formatting.main_text);
+                      setlocationAddress(item.structured_formatting.secondary_text);
+                      setShowMaps(true);
                       setShowLocationOptions(false);
                     }}
                   >
-                    <div className="font-['Satoshi-Bold']">{item.structured_formatting.main_text}</div>
-                    <div className="text-xs text-gray-400">{item.structured_formatting.secondary_text}</div>
+                    <div className="font-['Satoshi-Bold']">
+                      {item.structured_formatting.main_text}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {item.structured_formatting.secondary_text}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -540,7 +540,7 @@ function CreateEvent() {
           </div>
           {showMaps && (
             <>
-              <div className='my-1'>
+              <div className="my-1">
                 <iframe
                   title="event-location"
                   src={`https://www.google.com/maps?q=${encodeURIComponent(locationInput)}&output=embed`}
@@ -552,19 +552,17 @@ function CreateEvent() {
           )}
 
           {/* Capacity */}
-          <div className="text-white text-responsive-medium leading-[18px]">
-            Capacity
-          </div>
-          {capacityMode === "unlimited" ? (
+          <div className="text-white text-responsive-medium leading-[18px]">Capacity</div>
+          {capacityMode === 'unlimited' ? (
             <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4">
-              <div
-                className="flex items-center gap-2.5"
-                onClick={() => setCapacityMode("custom")}
-              >
+              <div className="flex items-center gap-2.5" onClick={() => setCapacityMode('custom')}>
                 <Users className="w-5 h-5 shrink-0 text-white" />
                 <span className="text-white text-responsive-medium leading-[18px]">Unlimited</span>
               </div>
-              <Edit className="w-4 h-4 text-white cursor-pointer" onClick={() => setCapacityMode("custom")} />
+              <Edit
+                className="w-4 h-4 text-white cursor-pointer"
+                onClick={() => setCapacityMode('custom')}
+              />
             </div>
           ) : (
             <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4">
@@ -579,14 +577,18 @@ function CreateEvent() {
                   className="bg-transparent text-white outline-none w-full font-['Satoshi-Medium']"
                 />
               </div>
-              <X className="w-4 h-4 text-white cursor-pointer" onClick={() => { setCapacityMode("unlimited"); setCustomCapacity(""); }} />
+              <X
+                className="w-4 h-4 text-white cursor-pointer"
+                onClick={() => {
+                  setCapacityMode('unlimited');
+                  setCustomCapacity('');
+                }}
+              />
             </div>
           )}
 
           {/* Event Type */}
-          <div className="text-white text-responsive-medium leading-[18px]">
-            Event Type
-          </div>
+          <div className="text-white text-responsive-medium leading-[18px]">Event Type</div>
           <div className="relative w-full">
             <div
               onClick={() => setShowEventTypeOptions(!showEventTypeOptions)}
@@ -603,14 +605,14 @@ function CreateEvent() {
 
             {showEventTypeOptions && (
               <div className="absolute z-10 w-full bg-[#1f1f1f] border border-strokesss rounded-lg shadow-md">
-                {["Free Event", "Paid Event"].map((option) => (
+                {['Free Event', 'Paid Event'].map((option) => (
                   <div
                     key={option}
                     className="px-4 py-2 hover:bg-gray-800 text-white cursor-pointer"
                     onClick={() => {
                       setEventType(option);
                       setShowEventTypeOptions(false);
-                      if (option === "Free Event") {
+                      if (option === 'Free Event') {
                         setPrice(0);
                       }
                     }}
@@ -621,17 +623,13 @@ function CreateEvent() {
               </div>
             )}
           </div>
-          {eventType === "Paid Event" && (
+          {eventType === 'Paid Event' && (
             <>
-              <div className="text-white text-responsive-medium leading-[18px]">
-                Input Price
-              </div>
+              <div className="text-white text-responsive-medium leading-[18px]">Input Price</div>
               <div className="relative w-full">
                 <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full">
                   <div className="flex items-center gap-2.5 w-full">
-                    <div className="text-white text-responsive-medium leading-[18px]">
-                      Rp
-                    </div>
+                    <div className="text-white text-responsive-medium leading-[18px]">Rp</div>
                     <input
                       type="text"
                       className="bg-transparent text-white outline-none w-full font-['Satoshi-Medium']"
@@ -646,31 +644,35 @@ function CreateEvent() {
           )}
 
           {/* Approval */}
-          <div className="text-white text-responsive-medium leading-[18px]">
-            Approval
-          </div>
+          <div className="text-white text-responsive-medium leading-[18px]">Approval</div>
           <div className="flex items-center justify-between bg-[#0f0f0f] border border-strokesss rounded-lg p-4 w-full">
             <div className="flex items-center gap-2.5">
               {requireApproval ? (
                 <>
                   <Lock className="w-5 h-5 text-white" />
-                  <span className="text-white text-responsive-medium leading-[18px]">Require Approval</span>
+                  <span className="text-white text-responsive-medium leading-[18px]">
+                    Require Approval
+                  </span>
                 </>
               ) : (
                 <>
                   <Unlock className="w-5 h-5 text-white" />
-                  <span className="text-white text-responsive-medium leading-[18px]">No Need Approval</span>
+                  <span className="text-white text-responsive-medium leading-[18px]">
+                    No Need Approval
+                  </span>
                 </>
               )}
             </div>
             <div
               onClick={() => setRequireApproval(!requireApproval)}
-              className={`w-10 h-5 rounded-full flex items-center cursor-pointer px-1 ${requireApproval ? "bg-[#31D34F]" : "bg-gray-400"
-                }`}
+              className={`w-10 h-5 rounded-full flex items-center cursor-pointer px-1 ${
+                requireApproval ? 'bg-[#31D34F]' : 'bg-gray-400'
+              }`}
             >
               <div
-                className={`w-3 h-3 rounded-full bg-white transition-transform duration-300 ${requireApproval ? "translate-x-5" : "translate-x-0"
-                  }`}
+                className={`w-3 h-3 rounded-full bg-white transition-transform duration-300 ${
+                  requireApproval ? 'translate-x-5' : 'translate-x-0'
+                }`}
               />
             </div>
           </div>
@@ -688,7 +690,7 @@ function CreateEvent() {
             className="bg-[#00594F] rounded-lg px-6 py-3 text-white font-['Satoshi-Bold'] w-full sm:w-1/2 disabled:opacity-50"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Created..." : "Create Event"}
+            {isSubmitting ? 'Created...' : 'Create Event'}
           </button>
         </div>
       </div>
@@ -707,7 +709,7 @@ const DatePickerBox = ({ value, onChange }) => {
       <div className="flex items-center gap-2.5 w-full">
         <Calendar className="w-5 h-5 text-white" />
         <span className="text-white text-base font-['Satoshi-Medium']">
-          {value || "Select date"}
+          {value || 'Select date'}
         </span>
       </div>
       <span className="text-white text-sm">▼</span>
@@ -715,8 +717,18 @@ const DatePickerBox = ({ value, onChange }) => {
   ));
 
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   const customDateHeader = ({ date, changeMonth, changeYear }) => (
@@ -774,7 +786,7 @@ const TimePickerBox = ({ value, onChange }) => {
       <div className="flex items-center gap-2.5 w-full">
         <Clock className="w-5 h-5 text-white" />
         <span className="text-white text-base font-['Satoshi-Medium']">
-          {value || "Select time"}
+          {value || 'Select time'}
         </span>
       </div>
       <span className="text-white text-sm">▼</span>
@@ -795,6 +807,5 @@ const TimePickerBox = ({ value, onChange }) => {
     />
   );
 };
-
 
 export default CreateEvent;

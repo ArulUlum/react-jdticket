@@ -25,7 +25,6 @@ export function useEventDetail(url) {
 
   useEffect(() => {
     fetchData(url);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [url]);
 
   return { event, loading, refetch: () => fetchData(url) };
