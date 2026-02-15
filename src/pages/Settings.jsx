@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState } from 'react';
 import { lazy, Suspense } from 'react';
-
 
 function SkeletonLoader() {
   return (
@@ -20,9 +19,9 @@ const AccountInformationPage = lazy(() => import('./Settings/AccountInformationP
 const BankAccountPage = lazy(() => import('./Settings/BankAccountPage'));
 
 function Settings() {
-  const [activeTab, setActiveTab] = useState("Account Information");
+  const [activeTab, setActiveTab] = useState('Account Information');
 
-  const tabs = ["Account Information", "Bank Account"];
+  const tabs = ['Account Information', 'Bank Account'];
   const handleTabClick = (tabValue) => {
     setActiveTab(tabValue);
   };
@@ -36,14 +35,12 @@ function Settings() {
         {/* Sidebar */}
         <aside className="min-w-[220px]">
           <nav className="flex flex-col gap-6">
-            {tabs.map(tab => (
+            {tabs.map((tab) => (
               <div
                 key={tab}
                 onClick={() => handleTabClick(tab)}
                 className={`mr-4 text-resposive-medium cursor-pointer ${
-                  activeTab === tab
-                    ? "text-white"
-                    : "text-[#A2A2A2] hover:text-white"
+                  activeTab === tab ? 'text-white' : 'text-[#A2A2A2] hover:text-white'
                 }`}
               >
                 {tab}
@@ -51,12 +48,11 @@ function Settings() {
             ))}
           </nav>
         </aside>
-        
-        <Suspense fallback={<SkeletonLoader />}>
-          {activeTab === "Account Information" && <AccountInformationPage/>}
-          {activeTab === "Bank Account" && <BankAccountPage/>}
-        </Suspense>
 
+        <Suspense fallback={<SkeletonLoader />}>
+          {activeTab === 'Account Information' && <AccountInformationPage />}
+          {activeTab === 'Bank Account' && <BankAccountPage />}
+        </Suspense>
       </div>
     </div>
   );

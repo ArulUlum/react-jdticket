@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../utils/cropImage';
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import {
   UserPlus,
   Send,
@@ -18,8 +18,8 @@ import {
   CalendarDays,
   Calendar,
   Clock,
-  X
-} from "lucide-react";
+  X,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import axios from 'axios';
 
@@ -29,8 +29,10 @@ function OverviewPage({ id, event }) {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [targetVisibility, setTargetVisibility] = useState(null);
-  const [visibility, setVisibility] = useState(event.visibility === true ? "public" : "private");
-  const [eventImage, setEventImage] = useState(event.image || "https://wallpapercave.com/wp/wp9297718.jpg");
+  const [visibility, setVisibility] = useState(event.visibility === true ? 'public' : 'private');
+  const [eventImage, setEventImage] = useState(
+    event.image || 'https://wallpapercave.com/wp/wp9297718.jpg',
+  );
   const [imageFile, setImageFile] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
@@ -57,7 +59,8 @@ function OverviewPage({ id, event }) {
 
   // Helper to convert dataURL to File
   function dataURLtoFile(dataurl, filename) {
-    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1];
+    var arr = dataurl.split(','),
+      mime = arr[0].match(/:(.*?);/)[1];
     var bstr = atob(arr[1]);
     var n = bstr.length;
     var u8arr = new Uint8Array(n);
@@ -72,38 +75,39 @@ function OverviewPage({ id, event }) {
 
   const formattedStartDate = format(startDate, 'EEE, d MMM yyyy');
 
-  const startDay = format(startDate, 'd');         // contoh: "1"
-  const startMonth = format(startDate, 'MMM');     // contoh: "May"
+  const startDay = format(startDate, 'd'); // contoh: "1"
+  const startMonth = format(startDate, 'MMM'); // contoh: "May"
   const formattedStartTime = format(startDate, 'HH:mm');
   const formattedEndTime = format(endDate, 'HH:mm');
 
   document.title = 'Overview Event - Kebbu';
 
   const handleVisibleClick = (status) => {
-    setTargetVisibility(status === "public" ? true : false);
+    setTargetVisibility(status === 'public' ? true : false);
     setShowModal(true);
   };
 
   const confirmChange = async () => {
     try {
       // Kirim ke backend
-      const res = await axios.put(`${urlBe}/events/update/${id}`,
+      const res = await axios.put(
+        `${urlBe}/events/update/${id}`,
         {
           visibility: targetVisibility,
         },
         {
           headers: {
             'x-jdticket': localStorage.getItem('token') || '',
-          }
-        }
+          },
+        },
       );
 
-      if (res.data.code === "1") {
+      if (res.data.code === '1') {
         setVisibility(targetVisibility);
         setShowModal(false);
         window.location.reload();
       } else {
-        alert("Gagal update: " + res.data.message);
+        alert('Gagal update: ' + res.data.message);
       }
     } catch (error) {
       if (error.response) {
@@ -134,21 +138,22 @@ function OverviewPage({ id, event }) {
 
       const imgUrl = saveImgRes.data.img_url;
 
-      const res = await axios.put(`${urlBe}/events/update/${id}`,
+      const res = await axios.put(
+        `${urlBe}/events/update/${id}`,
         { image: imgUrl },
         {
           headers: {
             'x-jdticket': localStorage.getItem('token') || '',
-          }
-        }
+          },
+        },
       );
 
-      if (res.data.code === "1") {
+      if (res.data.code === '1') {
         setEventImage(imgUrl);
         setImageFile(null);
         alert('Image updated successfully');
       } else {
-        alert("Gagal update: " + res.data.message);
+        alert('Gagal update: ' + res.data.message);
       }
     } catch (error) {
       if (error.response) {
@@ -169,16 +174,16 @@ function OverviewPage({ id, event }) {
       const response = await axios.get(`${urlBe}/image/autocomplete`, {
         params: {
           input,
-          key: "AIzaSyDBnmmNXN3uCvSfjxeGafgUnRxtWxxLbOw",
-          components: "country:ID"
+          key: 'AIzaSyDBnmmNXN3uCvSfjxeGafgUnRxtWxxLbOw',
+          components: 'country:ID',
         },
         headers: {
-          "x-requested-with": "XMLHttpRequest"
-        }
+          'x-requested-with': 'XMLHttpRequest',
+        },
       });
       setLocationSuggestions(response.data.predictions);
     } catch (error) {
-      console.error("Error fetching Google Places suggestions", error);
+      console.error('Error fetching Google Places suggestions', error);
     }
   };
 
@@ -221,16 +226,16 @@ function OverviewPage({ id, event }) {
       const res = await axios.put(`${urlBe}/events/update/${id}`, updateData, {
         headers: {
           'x-jdticket': localStorage.getItem('token') || '',
-        }
+        },
       });
 
-      if (res.data.code === "1") {
+      if (res.data.code === '1') {
         alert('Event updated successfully');
         setShowEditModal(false);
         // Refresh event data
         window.location.reload();
       } else {
-        alert("Gagal update: " + res.data.message);
+        alert('Gagal update: ' + res.data.message);
       }
     } catch (error) {
       if (error.response) {
@@ -248,45 +253,44 @@ function OverviewPage({ id, event }) {
   const actions = [
     {
       icon: <UserPlus className="w-6 h-6 text-white" />,
-      label: "Create Invitation",
-      onClick: () => console.log("Invite"),
+      label: 'Create Invitation',
+      onClick: () => console.log('Invite'),
     },
     {
       icon: <Send className="w-6 h-6 text-white" />,
-      label: "Send a Blast",
-      onClick: () => console.log("Blast"),
+      label: 'Send a Blast',
+      onClick: () => console.log('Blast'),
     },
     {
       icon: <Share2 className="w-6 h-6 text-white" />,
-      label: "Share Event",
-      onClick: () => console.log("Share"),
+      label: 'Share Event',
+      onClick: () => console.log('Share'),
     },
   ];
 
   const salesData = [
     {
-      label: "Total Sales",
+      label: 'Total Sales',
       value: event.total_sales,
-      trend: "up",
-      percent: "20%",
-      color: "green",
+      trend: 'up',
+      percent: '20%',
+      color: 'green',
     },
     {
-      label: "Tickets Sold",
-      value: event.ticket_sold + "/" + (event.total_ticket === null ? "∞" : event.total_ticket),
-      trend: "down",
-      percent: "18%",
-      color: "red",
+      label: 'Tickets Sold',
+      value: event.ticket_sold + '/' + (event.total_ticket === null ? '∞' : event.total_ticket),
+      trend: 'down',
+      percent: '18%',
+      color: 'red',
     },
     {
-      label: "Total Visitor",
+      label: 'Total Visitor',
       value: event.total_visitor,
-      trend: "up",
-      percent: "75%",
-      color: "green",
+      trend: 'up',
+      percent: '75%',
+      color: 'green',
     },
   ];
-
 
   return (
     <div>
@@ -301,8 +305,9 @@ function OverviewPage({ id, event }) {
             <div
               className="p-1 rounded-md flex w-8 h-8"
               style={{
-                background: "var(--backgroundd, linear-gradient(90deg, rgba(68, 160, 141, 1) 0%, rgba(0, 89, 79, 1) 100%))",
-                color: "#fff"
+                background:
+                  'var(--backgroundd, linear-gradient(90deg, rgba(68, 160, 141, 1) 0%, rgba(0, 89, 79, 1) 100%))',
+                color: '#fff',
               }}
             >
               {icon}
@@ -363,7 +368,10 @@ function OverviewPage({ id, event }) {
         <div className="flex-1">
           <div className="flex justify-between items-start">
             <h1 className="text-responsive-title mb-4">{event.name}</h1>
-            <button onClick={() => setShowEditModal(true)} className="flex items-center gap-1 text-sm text-white bg-[#1c1d1d] px-3 py-1 rounded-lg border border-[#212121] hover:bg-[#2a2a2a] transition">
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="flex items-center gap-1 text-sm text-white bg-[#1c1d1d] px-3 py-1 rounded-lg border border-[#212121] hover:bg-[#2a2a2a] transition"
+            >
               Edit Event
               <PencilLine className="w-4 h-4" />
             </button>
@@ -375,8 +383,12 @@ function OverviewPage({ id, event }) {
               <CalendarDays className="text-white w-6 h-6" />
             </div>
             <div>
-              <div className="text-base font-['Satoshi-Bold',_sans-serif]">{formattedStartDate}</div>
-              <div className="text-sm text-[#A2A2A2] font-['Satoshi-Regular']">{formattedStartTime} - {formattedEndTime} WIB</div>
+              <div className="text-base font-['Satoshi-Bold',_sans-serif]">
+                {formattedStartDate}
+              </div>
+              <div className="text-sm text-[#A2A2A2] font-['Satoshi-Regular']">
+                {formattedStartTime} - {formattedEndTime} WIB
+              </div>
             </div>
           </div>
 
@@ -386,7 +398,9 @@ function OverviewPage({ id, event }) {
               <MapPin className="text-white w-6 h-6" />
             </div>
             <div>
-              <div className="text-base font-['Satoshi-Bold',_sans-serif]">{event.location_name}</div>
+              <div className="text-base font-['Satoshi-Bold',_sans-serif]">
+                {event.location_name}
+              </div>
               <div className="text-sm text-[#A2A2A2] font-['Satoshi-Regular']">
                 {event.location_address}
               </div>
@@ -418,14 +432,18 @@ function OverviewPage({ id, event }) {
         <div className="flex justify-between mb-6">
           <div className="flex gap-10">
             <div className="flex items-start gap-2">
-              <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.checkin_guest}/{event.total_guest}</span>
+              <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">
+                {event.checkin_guest}/{event.total_guest}
+              </span>
               <div className="text-sm text-[#A2A2A2] leading-tight">
                 <div>Guests</div>
                 <div>Checked in</div>
               </div>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.checkin_invitees}/{event.total_invitees}</span>
+              <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">
+                {event.checkin_invitees}/{event.total_invitees}
+              </span>
               <div className="text-sm text-[#A2A2A2] leading-tight">
                 <div>Invitees</div>
                 <div>Checked in</div>
@@ -433,7 +451,9 @@ function OverviewPage({ id, event }) {
             </div>
           </div>
           <div className="flex items-start gap-2">
-            <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">{event.total_checkin}/{event.total_registered}</span>
+            <span className="text-2xl font-['Satoshi-Bold',_sans-serif]">
+              {event.total_checkin}/{event.total_registered}
+            </span>
             <div className="text-sm text-[#A2A2A2] leading-tight">
               <div>Total</div>
               <div>Registered</div>
@@ -444,14 +464,14 @@ function OverviewPage({ id, event }) {
         {/* User List */}
         <div className="bg-[#1A1A1A] rounded-xl overflow-hidden divide-y divide-[#2a2a2a]">
           {event.user_checkin.map((user, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between px-4 py-3 text-sm"
-            >
+            <div key={index} className="flex items-center justify-between px-4 py-3 text-sm">
               {/* Left: Avatar & Name */}
               <div className="flex items-center gap-3">
                 <img
-                  src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}
+                  src={
+                    user.image ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
+                  }
                   alt={user.name}
                   className="w-8 h-8 rounded-full object-cover"
                 />
@@ -462,17 +482,20 @@ function OverviewPage({ id, event }) {
               {/* Center: Role */}
               <div>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium border ${user.role === "GUEST"
-                    ? "border-green-600 text-green-300"
-                    : "border-blue-600 text-blue-300"
-                    }`}
+                  className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                    user.role === 'GUEST'
+                      ? 'border-green-600 text-green-300'
+                      : 'border-blue-600 text-blue-300'
+                  }`}
                 >
                   {user.role}
                 </span>
               </div>
 
               {/* Right: Time */}
-              <div className="text-[#A2A2A2] text-sm">{format(new Date(user.date), 'HH:mm')} WIB</div>
+              <div className="text-[#A2A2A2] text-sm">
+                {format(new Date(user.date), 'HH:mm')} WIB
+              </div>
             </div>
           ))}
         </div>
@@ -500,17 +523,16 @@ function OverviewPage({ id, event }) {
               </div>
 
               <div className="flex justify-between items-center">
-                <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-3">
-                  {item.value}
-                </div>
+                <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-3">{item.value}</div>
                 {/* Bottom: Trend (icon + percent) */}
                 <div
-                  className={`inline-flex items-center gap-1 px-2 py-[2px] text-xs font-medium rounded-md ${item.color === "green"
-                    ? "bg-green-900 text-green-400"
-                    : "bg-red-900 text-red-400"
-                    }`}
+                  className={`inline-flex items-center gap-1 px-2 py-[2px] text-xs font-medium rounded-md ${
+                    item.color === 'green'
+                      ? 'bg-green-900 text-green-400'
+                      : 'bg-red-900 text-red-400'
+                  }`}
                 >
-                  {item.trend === "up" ? (
+                  {item.trend === 'up' ? (
                     <TrendingUp className="w-3 h-3" />
                   ) : (
                     <TrendingDown className="w-3 h-3" />
@@ -542,7 +564,7 @@ function OverviewPage({ id, event }) {
               <div className="flex items-center gap-4">
                 <img
                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    host.name
+                    host.name,
                   )}&background=random&bold=true`}
                   alt={host.name}
                   className="w-10 h-10 rounded-full object-cover"
@@ -554,10 +576,11 @@ function OverviewPage({ id, event }) {
               {/* Right: Role Badge + Add Button (only first) */}
               <div className="flex items-center gap-2">
                 <span
-                  className={`px-3 py-1 text-sm font-medium rounded-full border ${host.role === "Creator"
-                    ? "border-green-600 text-green-300"
-                    : "border-blue-600 text-blue-300"
-                    }`}
+                  className={`px-3 py-1 text-sm font-medium rounded-full border ${
+                    host.role === 'Creator'
+                      ? 'border-green-600 text-green-300'
+                      : 'border-blue-600 text-blue-300'
+                  }`}
                 >
                   {host.role}
                 </span>
@@ -585,11 +608,12 @@ function OverviewPage({ id, event }) {
         <div className="flex gap-4 w-full">
           {/* Public Button */}
           <button
-            onClick={() => handleVisibleClick("public")}
+            onClick={() => handleVisibleClick('public')}
             className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-sm w-full
-              ${visibility === "public"
-                ? "border-[#3DAA95] bg-[#1a1a1a] text-white"
-                : "border-transparent bg-[#1a1a1a] text-gray-500"
+              ${
+                visibility === 'public'
+                  ? 'border-[#3DAA95] bg-[#1a1a1a] text-white'
+                  : 'border-transparent bg-[#1a1a1a] text-gray-500'
               }`}
           >
             <Eye className="w-4 h-4" />
@@ -598,11 +622,12 @@ function OverviewPage({ id, event }) {
 
           {/* Private Button */}
           <button
-            onClick={() => handleVisibleClick("private")}
+            onClick={() => handleVisibleClick('private')}
             className={`flex items-center justify-center gap-2 py-3 rounded-xl border text-sm w-full
-              ${visibility === "private"
-                ? "border-[#3DAA95] bg-[#1a1a1a] text-white"
-                : "border-transparent bg-[#1a1a1a] text-gray-500"
+              ${
+                visibility === 'private'
+                  ? 'border-[#3DAA95] bg-[#1a1a1a] text-white'
+                  : 'border-transparent bg-[#1a1a1a] text-gray-500'
               }`}
           >
             <EyeOff className="w-4 h-4" />
@@ -614,9 +639,7 @@ function OverviewPage({ id, event }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="bg-[#1a1a1a] p-6 rounded-xl w-full max-w-sm text-white">
             <div className="text-lg font-semibold mb-4">
-              {targetVisibility === false
-                ? "Make this event private?"
-                : "Make this event public?"}
+              {targetVisibility === false ? 'Make this event private?' : 'Make this event public?'}
             </div>
             <div className="flex justify-end gap-4">
               <button
@@ -638,8 +661,14 @@ function OverviewPage({ id, event }) {
 
       {/* Cropper Modal */}
       {showCropper && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setShowCropper(false)}>
-          <div className="bg-[#181818] rounded-xl p-6 shadow-lg w-[90vw] max-w-lg relative" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+          onClick={() => setShowCropper(false)}
+        >
+          <div
+            className="bg-[#181818] rounded-xl p-6 shadow-lg w-[90vw] max-w-lg relative"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-white text-lg mb-4">Crop Image to 1:1</h2>
             <div className="relative w-full h-[350px] bg-black">
               <Cropper
@@ -659,7 +688,7 @@ function OverviewPage({ id, event }) {
                 max={3}
                 step={0.01}
                 value={zoom}
-                onChange={e => setZoom(Number(e.target.value))}
+                onChange={(e) => setZoom(Number(e.target.value))}
                 className="w-full"
               />
             </div>
@@ -667,7 +696,9 @@ function OverviewPage({ id, event }) {
               <button
                 className="bg-gray-700 text-white px-4 py-2 rounded"
                 onClick={() => setShowCropper(false)}
-              >Cancel</button>
+              >
+                Cancel
+              </button>
               <button
                 className="bg-[#00594F] text-white px-4 py-2 rounded"
                 onClick={async () => {
@@ -678,7 +709,9 @@ function OverviewPage({ id, event }) {
                   setShowCropper(false);
                   await handleImageUploadDirect(croppedFile);
                 }}
-              >Crop & Use</button>
+              >
+                Crop & Use
+              </button>
             </div>
           </div>
         </div>
@@ -715,7 +748,9 @@ function OverviewPage({ id, event }) {
                 <label className="text-white text-sm font-semibold block mb-2">Description</label>
                 <textarea
                   value={editFormData.description}
-                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, description: e.target.value })
+                  }
                   className="w-full bg-[#141717] border border-[#333] text-white rounded px-3 py-2 focus:outline-none focus:border-[#3DAA95] h-24 resize-none"
                 />
               </div>
@@ -749,7 +784,7 @@ function OverviewPage({ id, event }) {
                               ...editFormData,
                               location: suggestion.place_id,
                               location_name: suggestion.main_text,
-                              location_address: suggestion.description
+                              location_address: suggestion.description,
                             });
                             setShowLocationOptions(false);
                           }}
@@ -768,11 +803,17 @@ function OverviewPage({ id, event }) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-white text-sm font-semibold block mb-2">Start Date</label>
-                  <DatePickerBox value={editFormData.start_date} onChange={(date) => setEditFormData({ ...editFormData, start_date: date })} />
+                  <DatePickerBox
+                    value={editFormData.start_date}
+                    onChange={(date) => setEditFormData({ ...editFormData, start_date: date })}
+                  />
                 </div>
                 <div>
                   <label className="text-white text-sm font-semibold block mb-2">Start Time</label>
-                  <TimePickerBox value={editFormData.start_date} onChange={(date) => setEditFormData({ ...editFormData, start_date: date })} />
+                  <TimePickerBox
+                    value={editFormData.start_date}
+                    onChange={(date) => setEditFormData({ ...editFormData, start_date: date })}
+                  />
                 </div>
               </div>
 
@@ -780,11 +821,17 @@ function OverviewPage({ id, event }) {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-white text-sm font-semibold block mb-2">End Date</label>
-                  <DatePickerBox value={editFormData.end_date} onChange={(date) => setEditFormData({ ...editFormData, end_date: date })} />
+                  <DatePickerBox
+                    value={editFormData.end_date}
+                    onChange={(date) => setEditFormData({ ...editFormData, end_date: date })}
+                  />
                 </div>
                 <div>
                   <label className="text-white text-sm font-semibold block mb-2">End Time</label>
-                  <TimePickerBox value={editFormData.end_date} onChange={(date) => setEditFormData({ ...editFormData, end_date: date })} />
+                  <TimePickerBox
+                    value={editFormData.end_date}
+                    onChange={(date) => setEditFormData({ ...editFormData, end_date: date })}
+                  />
                 </div>
               </div>
             </div>
@@ -809,7 +856,7 @@ function OverviewPage({ id, event }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 const DatePickerBox = ({ value, onChange }) => {
@@ -823,7 +870,7 @@ const DatePickerBox = ({ value, onChange }) => {
       <div className="flex items-center gap-2.5 w-full">
         <Calendar className="w-5 h-5 text-white" />
         <span className="text-white text-base font-['Satoshi-Medium']">
-          {value || "Select date"}
+          {value || 'Select date'}
         </span>
       </div>
       <span className="text-white text-sm">▼</span>
@@ -831,8 +878,18 @@ const DatePickerBox = ({ value, onChange }) => {
   ));
 
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   const customDateHeader = ({ date, changeMonth, changeYear }) => (
@@ -890,7 +947,7 @@ const TimePickerBox = ({ value, onChange }) => {
       <div className="flex items-center gap-2.5 w-full">
         <Clock className="w-5 h-5 text-white" />
         <span className="text-white text-base font-['Satoshi-Medium']">
-          {value || "Select time"}
+          {value || 'Select time'}
         </span>
       </div>
       <span className="text-white text-sm">▼</span>

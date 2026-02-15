@@ -1,13 +1,8 @@
-import { useNavigate, useLocation, Link } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
 import { Menu } from 'lucide-react';
 import IconWorld from '../assets/icon-world.svg';
-import {
-  CircleUserRound,
-  Wallet,
-  Settings,
-  LogOut
-} from 'lucide-react';
+import { CircleUserRound, Wallet, Settings, LogOut } from 'lucide-react';
 import Ticket from '../assets/Vector.svg';
 
 function Header({ user, isLoggedIn, handleLogout }) {
@@ -65,23 +60,36 @@ function Header({ user, isLoggedIn, handleLogout }) {
 
               <div className="relative">
                 <img
-                  src={(user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || "User")}&background=random`)}
+                  src={
+                    user.image ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=random`
+                  }
                   alt="Profile"
                   className="w-6 h-6 rounded-full object-cover cursor-pointer"
                   onClick={() => setShowUserMenu(!showUserMenu)}
                 />
                 {showUserMenu && (
-                  <div ref={userMenuRef} className="absolute right-0 mt-2 w-60 rounded-xl bg-[#181818] border border-[#232323] z-50 shadow-lg">
+                  <div
+                    ref={userMenuRef}
+                    className="absolute right-0 mt-2 w-60 rounded-xl bg-[#181818] border border-[#232323] z-50 shadow-lg"
+                  >
                     {/* Profile Info */}
                     <div className="flex items-center gap-3 px-4 pt-4 pb-2">
                       <img
-                        src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=random`}
+                        src={
+                          user.image ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`
+                        }
                         alt="Profile"
                         className="w-9 h-9 rounded-full object-cover"
                       />
                       <div>
-                        <div className="text-white text-base font-['Satoshi-Medium'] leading-tight">{user.name}</div>
-                        <div className="text-xs font-['Satoshi-Medium'] text-[#a2a2a2]">{user.email}</div>
+                        <div className="text-white text-base font-['Satoshi-Medium'] leading-tight">
+                          {user.name}
+                        </div>
+                        <div className="text-xs font-['Satoshi-Medium'] text-[#a2a2a2]">
+                          {user.email}
+                        </div>
                       </div>
                     </div>
                     <hr className="border-t border-[#303030] mx-4 my-2" />
@@ -132,7 +140,7 @@ function Header({ user, isLoggedIn, handleLogout }) {
               className="rounded-[20px] px-4 py-1 flex items-center justify-center hover:text-white text-white text-sm font-['Satoshi-Medium',sans-serif]
              transition-all duration-300 hover:brightness-110"
               style={{
-                background: "linear-gradient(90deg, rgba(68,160,141,1) 0%, rgba(0,89,79,1) 100%)"
+                background: 'linear-gradient(90deg, rgba(68,160,141,1) 0%, rgba(0,89,79,1) 100%)',
               }}
             >
               Sign in

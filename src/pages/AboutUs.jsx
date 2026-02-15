@@ -1,19 +1,19 @@
-import React from "react";
+import React from 'react';
 
 const reasons = [
-  "COMMUNITY ORIENTED",
-  "SEMUA BISA BIKIN EVENT",
-  "BISA NARIK DUIT SEBELUM ACARA DIMULAI",
-  "PESERTA GA WAJIB BIKIN AKUN BUAT BELI TIKET",
-  "FEE SUPER RENDAH",
-  "METODE PEMBAYARAN LENGKAP",
-  "LIVE DASHBOARD PENJUALAN TIKET",
-  "BLAST EMAIL GRATIS SEPUASNYA",
-  "ADA INSIGHT NYA",
-  "FITUR CHECK IN DI WEBSITE",
-  "BISA BANYAK KATEGORI TIKET",
-  "CUSTOM KODE PROMO",
-  "ADDITIONAL QUESTION",
+  'COMMUNITY ORIENTED',
+  'SEMUA BISA BIKIN EVENT',
+  'BISA NARIK DUIT SEBELUM ACARA DIMULAI',
+  'PESERTA GA WAJIB BIKIN AKUN BUAT BELI TIKET',
+  'FEE SUPER RENDAH',
+  'METODE PEMBAYARAN LENGKAP',
+  'LIVE DASHBOARD PENJUALAN TIKET',
+  'BLAST EMAIL GRATIS SEPUASNYA',
+  'ADA INSIGHT NYA',
+  'FITUR CHECK IN DI WEBSITE',
+  'BISA BANYAK KATEGORI TIKET',
+  'CUSTOM KODE PROMO',
+  'ADDITIONAL QUESTION',
 ];
 
 function AboutUs() {
@@ -45,7 +45,9 @@ function AboutUs() {
                 className="object-cover w-full h-full"
               />
             </div>
-            <h2 className="text-[48px] md:text-[56px] text-right font-light leading-tight mb-4">KOMUNITAS DISINI</h2>
+            <h2 className="text-[48px] md:text-[56px] text-right font-light leading-tight mb-4">
+              KOMUNITAS DISINI
+            </h2>
             <div className="flex gap-4">
               <button className="px-7 py-2 border border-white rounded-full font-medium hover:bg-white/10 transition">
                 Explore Event

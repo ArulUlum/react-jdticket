@@ -27,13 +27,13 @@ const MorePage = lazy(() => import('./Dashboard/MorePage'));
 const urlBe = import.meta.env.VITE_URL_BE;
 
 const TAB_CONFIG = [
-  { key: "Overview", label: "Overview", component: OverviewPage },
-  { key: "Guests", label: "Guests", component: GuestPage },
-  { key: "Sales Report", label: "Sales Report", component: SalesPage },
-  { key: "Tickets", label: "Tickets", component: TicketsPage },
-  { key: "Blast", label: "Blast", component: BlastPage },
-  { key: "Insight", label: "Insight", component: InsightPage },
-  { key: "More", label: "More", component: MorePage },
+  { key: 'Overview', label: 'Overview', component: OverviewPage },
+  { key: 'Guests', label: 'Guests', component: GuestPage },
+  { key: 'Sales Report', label: 'Sales Report', component: SalesPage },
+  { key: 'Tickets', label: 'Tickets', component: TicketsPage },
+  { key: 'Blast', label: 'Blast', component: BlastPage },
+  { key: 'Insight', label: 'Insight', component: InsightPage },
+  { key: 'More', label: 'More', component: MorePage },
 ];
 
 function Dashboard() {
@@ -47,13 +47,13 @@ function Dashboard() {
 
   const tabs = useMemo(() => TAB_CONFIG, []);
   const activeTab = useMemo(() => {
-    const fromUrl = searchParams.get("tab");
+    const fromUrl = searchParams.get('tab');
     const isValid = tabs.some((t) => t.key === fromUrl);
     return isValid ? fromUrl : tabs[0].key;
   }, [searchParams, tabs]);
 
   useEffect(() => {
-    if (!searchParams.get("tab")) {
+    if (!searchParams.get('tab')) {
       setSearchParams({ tab: tabs[0].key }, { replace: true });
     }
   }, [searchParams, setSearchParams, tabs]);
@@ -66,13 +66,13 @@ function Dashboard() {
       setError(null);
       try {
         const res = await axios.get(`${urlBe}/events/overview/${id}`, {
-          headers: { "x-jdticket": localStorage.getItem("token") || "" },
+          headers: { 'x-jdticket': localStorage.getItem('token') || '' },
         });
         if (!mounted) return;
         setEvent(res.data.data);
       } catch (err) {
         if (!mounted) return;
-        const message = err?.response?.data?.message || "Failed to load event";
+        const message = err?.response?.data?.message || 'Failed to load event';
         console.error(message);
         setError(message);
         setEvent(null);
@@ -100,19 +100,13 @@ function Dashboard() {
   }
 
   if (error || !event) {
-    return (
-      <div className="text-red-500">
-        {error || "Event not found."}
-      </div>
-    );
+    return <div className="text-red-500">{error || 'Event not found.'}</div>;
   }
 
   return (
     <>
       <div className="text-white mb-6">
-        <h1 className="text-responsive-title mb-4">
-          {state?.name || event.name}
-        </h1>
+        <h1 className="text-responsive-title mb-4">{state?.name || event.name}</h1>
 
         <div className="flex gap-4">
           {tabs.map((tab) => {

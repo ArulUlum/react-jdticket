@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import GoogleLoginCustom from "./GoogleLoginCustom";
-import { LogIn, ChevronLeft, Clipboard, Upload } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import GoogleLoginCustom from './GoogleLoginCustom';
+import { LogIn, ChevronLeft, Clipboard, Upload } from 'lucide-react';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 const google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
@@ -11,10 +11,16 @@ const google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const OTP_LEN = 6;
 const RESEND_SECONDS = 60;
 
-const normalizeEmail = (v) => String(v || "").trim().toLowerCase();
+const normalizeEmail = (v) =>
+  String(v || '')
+    .trim()
+    .toLowerCase();
 
 function parseOtp(text) {
-  const numbers = String(text || "").replace(/\D/g, "").slice(0, OTP_LEN).split("");
+  const numbers = String(text || '')
+    .replace(/\D/g, '')
+    .slice(0, OTP_LEN)
+    .split('');
   return numbers.length === OTP_LEN ? numbers : null;
 }
 
@@ -23,7 +29,7 @@ function getErrMsg(err) {
     err?.response?.data?.message ||
     err?.response?.data?.error ||
     err?.message ||
-    "Terjadi kesalahan tak dikenal."
+    'Terjadi kesalahan tak dikenal.'
   );
 }
 
@@ -32,21 +38,21 @@ export default function LoginPage() {
 
   const [step, setStep] = useState(1);
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const emailNormalized = useMemo(() => normalizeEmail(email), [email]);
 
-  const [name, setName] = useState("");
-  const [noHp, setNoHp] = useState("");
+  const [name, setName] = useState('');
+  const [noHp, setNoHp] = useState('');
 
-  const [codeOtp, setCodeOtp] = useState(() => new Array(OTP_LEN).fill(""));
+  const [codeOtp, setCodeOtp] = useState(() => new Array(OTP_LEN).fill(''));
 
   const [resendTimer, setResendTimer] = useState(RESEND_SECONDS);
 
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
 
-  const [errorName, setErrorName] = useState("");
-  const [loginError, setLoginError] = useState("");
+  const [errorName, setErrorName] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
@@ -57,14 +63,14 @@ export default function LoginPage() {
 
   // Title
   useEffect(() => {
-    document.title = "Login - Kebbu";
+    document.title = 'Login - Kebbu';
   }, []);
 
   // Alert error (side-effect yang aman)
   useEffect(() => {
     if (!loginError) return;
     alert(loginError);
-    setLoginError("");
+    setLoginError('');
   }, [loginError]);
 
   // Cleanup objectURL untuk avatar preview
@@ -87,30 +93,30 @@ export default function LoginPage() {
   }, [step, resendTimer]);
 
   const resetOtpUI = () => {
-    setCodeOtp(new Array(OTP_LEN).fill(""));
+    setCodeOtp(new Array(OTP_LEN).fill(''));
     // fokus ke kotak pertama
     requestAnimationFrame(() => otpRefs.current?.[0]?.focus?.());
   };
 
   const setToken = (res) => {
     const token = res?.data?.token;
-    if (token) localStorage.setItem("token", token);
+    if (token) localStorage.setItem('token', token);
   };
   const setUserData = (res) => {
     const user = res?.data?.data;
-    if (user) localStorage.setItem("user", JSON.stringify(user));
-  }
+    if (user) localStorage.setItem('user', JSON.stringify(user));
+  };
 
   const goToHome = (res) => {
     setToken(res);
     setUserData(res);
     setStep(5);
-    setTimeout(() => navigate("/"), 1500);
+    setTimeout(() => navigate('/'), 1500);
   };
 
   const sendOtpToEmail = async ({ forceResetTimer = true } = {}) => {
     if (!emailNormalized) {
-      setLoginError("Email is required");
+      setLoginError('Email is required');
       return false;
     }
 
@@ -118,17 +124,17 @@ export default function LoginPage() {
     try {
       const res = await axios.post(`${urlBe}/user/login-v2`, { email: emailNormalized });
 
-      if (res?.data?.code === "1") {
+      if (res?.data?.code === '1') {
         setStep(2);
         resetOtpUI();
         if (forceResetTimer) setResendTimer(RESEND_SECONDS);
         return true;
       }
 
-      setLoginError("Login gagal: " + (res?.data?.message || "Unknown error"));
+      setLoginError('Login gagal: ' + (res?.data?.message || 'Unknown error'));
       return false;
     } catch (err) {
-      setLoginError("Login gagal: " + getErrMsg(err));
+      setLoginError('Login gagal: ' + getErrMsg(err));
       return false;
     } finally {
       setIsSendingEmail(false);
@@ -138,11 +144,11 @@ export default function LoginPage() {
   const verifyOtp = async (finalCode) => {
     if (isVerifyingOtp) return;
     if (!finalCode || finalCode.length !== OTP_LEN) {
-      setLoginError("OTP harus 6 digit");
+      setLoginError('OTP harus 6 digit');
       return;
     }
     if (!emailNormalized) {
-      setLoginError("Email is required");
+      setLoginError('Email is required');
       setStep(1);
       return;
     }
@@ -154,14 +160,14 @@ export default function LoginPage() {
         code: finalCode,
       });
 
-      if (res?.data?.code !== "1") {
-        setLoginError("Login gagal: " + (res?.data?.message || "Invalid code"));
+      if (res?.data?.code !== '1') {
+        setLoginError('Login gagal: ' + (res?.data?.message || 'Invalid code'));
         return;
       }
 
       const data = res?.data?.data || {};
-      setName(data?.name || "");
-      setNoHp(data?.no_hp || "");
+      setName(data?.name || '');
+      setNoHp(data?.no_hp || '');
 
       // Kalau sudah lengkap, langsung masuk
       if (data?.name) {
@@ -174,7 +180,7 @@ export default function LoginPage() {
       if (!data?.no_hp) setStep(3);
       else setStep(4);
     } catch (err) {
-      setLoginError("Login gagal: " + getErrMsg(err));
+      setLoginError('Login gagal: ' + getErrMsg(err));
     } finally {
       setIsVerifyingOtp(false);
     }
@@ -184,20 +190,20 @@ export default function LoginPage() {
     setCodeOtp(otpArr);
     // fokus terakhir biar rapi
     requestAnimationFrame(() => otpRefs.current?.[OTP_LEN - 1]?.focus?.());
-    verifyOtp(otpArr.join(""));
+    verifyOtp(otpArr.join(''));
   };
 
   const handleOtpChange = (idx, raw) => {
     if (isVerifyingOtp) return;
 
-    const value = String(raw || "");
+    const value = String(raw || '');
     const char = value.slice(-1); // ambil karakter terakhir (biar kalau user paste 2 char, tetep aman)
 
     // kosong -> backspace behavior
-    if (char === "") {
+    if (char === '') {
       setCodeOtp((prev) => {
         const next = [...prev];
-        next[idx] = "";
+        next[idx] = '';
         return next;
       });
       if (idx > 0) otpRefs.current?.[idx - 1]?.focus?.();
@@ -217,8 +223,8 @@ export default function LoginPage() {
       }
 
       // auto submit kalau lengkap
-      const joined = next.join("");
-      if (next.every((n) => n !== "") && joined.length === OTP_LEN) {
+      const joined = next.join('');
+      if (next.every((n) => n !== '') && joined.length === OTP_LEN) {
         verifyOtp(joined);
       }
       return next;
@@ -228,7 +234,7 @@ export default function LoginPage() {
   const handleOtpKeyDown = (idx, e) => {
     if (isVerifyingOtp) return;
 
-    if (e.key === "Backspace") {
+    if (e.key === 'Backspace') {
       // kalau current cell kosong, pindah ke kiri
       if (!codeOtp[idx] && idx > 0) {
         e.preventDefault();
@@ -237,7 +243,7 @@ export default function LoginPage() {
     }
 
     // paste via keyboard
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
       // biarin onPaste handler yang jalan
     }
   };
@@ -245,7 +251,7 @@ export default function LoginPage() {
   const handleOtpPaste = (e) => {
     if (isVerifyingOtp) return;
 
-    const text = e.clipboardData?.getData("text") || "";
+    const text = e.clipboardData?.getData('text') || '';
     const otpArr = parseOtp(text);
     if (!otpArr) return;
 
@@ -260,49 +266,49 @@ export default function LoginPage() {
       const clipText = await navigator.clipboard.readText();
       const otpArr = parseOtp(clipText);
       if (!otpArr) {
-        setLoginError("Clipboard tidak berisi 6 digit OTP.");
+        setLoginError('Clipboard tidak berisi 6 digit OTP.');
         return;
       }
       fillOtpAndSubmit(otpArr);
     } catch {
-      setLoginError("Gagal membaca clipboard. Coba paste manual.");
+      setLoginError('Gagal membaca clipboard. Coba paste manual.');
     }
   };
 
   const handleSubmitNoHp = () => setStep(4);
 
   const handleSkipNoHp = () => {
-    setNoHp("");
+    setNoHp('');
     setStep(4);
   };
 
   const handleSaveProfile = async () => {
     if (isSavingProfile) return;
 
-    const trimmedName = String(name || "").trim();
+    const trimmedName = String(name || '').trim();
     if (!trimmedName) {
-      setErrorName("Name is required");
+      setErrorName('Name is required');
       return;
     }
     if (!emailNormalized) {
-      setLoginError("Email is required");
+      setLoginError('Email is required');
       setStep(1);
       return;
     }
 
     setIsSavingProfile(true);
     try {
-      let imgUrl = "";
+      let imgUrl = '';
 
       if (avatarFile) {
         const formData = new FormData();
-        formData.append("image", avatarFile);
+        formData.append('image', avatarFile);
 
         const saveImgRes = await axios.post(`${urlBe}/image/upload`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
 
-        imgUrl = saveImgRes?.data?.img_url || "";
+        imgUrl = saveImgRes?.data?.img_url || '';
       }
 
       const payload = {
@@ -313,17 +319,17 @@ export default function LoginPage() {
       };
 
       const res = await axios.post(`${urlBe}/user/edit-profile`, payload, {
-        headers: { "x-jdticket": localStorage.getItem("token") || "" },
+        headers: { 'x-jdticket': localStorage.getItem('token') || '' },
       });
 
-      if (res?.data?.code === "1") {
-        localStorage.setItem("user", JSON.stringify(payload));
+      if (res?.data?.code === '1') {
+        localStorage.setItem('user', JSON.stringify(payload));
         goToHome(res);
       } else {
-        setLoginError("Login gagal: " + (res?.data?.message || "Unknown error"));
+        setLoginError('Login gagal: ' + (res?.data?.message || 'Unknown error'));
       }
     } catch (err) {
-      setLoginError("Login gagal: " + getErrMsg(err));
+      setLoginError('Login gagal: ' + getErrMsg(err));
     } finally {
       setIsSavingProfile(false);
     }
@@ -340,18 +346,18 @@ export default function LoginPage() {
             className="p-6 rounded-xl w-[360px] shadow-xl border-solid border-[#212121] border"
             style={{
               background:
-                "var(--backgroundd, linear-gradient(135.91deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%))",
-              color: "#fff",
+                'var(--backgroundd, linear-gradient(135.91deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%))',
+              color: '#fff',
             }}
           >
             <div className="flex mb-4">
               <div
-                onClick={() => navigate("/")}
+                onClick={() => navigate('/')}
                 className="w-12 h-12 flex items-center justify-center rounded-full cursor-pointer"
                 style={{
                   background:
-                    "var(--backgroundd, linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%))",
-                  color: "#fff",
+                    'var(--backgroundd, linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%))',
+                  color: '#fff',
                 }}
               >
                 <LogIn className="w-6 h-6 text-white" />
@@ -375,7 +381,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") sendOtpToEmail();
+                if (e.key === 'Enter') sendOtpToEmail();
               }}
               disabled={isAnyBusy}
             />
@@ -386,7 +392,7 @@ export default function LoginPage() {
               disabled={isAnyBusy || !emailNormalized}
               onClick={() => sendOtpToEmail()}
             >
-              {isSendingEmail ? "Continue..." : "Continue"}
+              {isSendingEmail ? 'Continue...' : 'Continue'}
             </button>
 
             <GoogleLoginCustom />
@@ -399,8 +405,8 @@ export default function LoginPage() {
             className="p-6 rounded-xl w-[360px] shadow-xl border-solid border-[#212121] border"
             style={{
               background:
-                "var(--backgroundd, linear-gradient(135.91deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%))",
-              color: "#fff",
+                'var(--backgroundd, linear-gradient(135.91deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%))',
+              color: '#fff',
             }}
           >
             <div className="mb-4 flex justify-between items-start">
@@ -413,8 +419,8 @@ export default function LoginPage() {
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#2a2a2a] transition disabled:opacity-50"
                 style={{
                   background:
-                    "var(--backgroundd, linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%))",
-                  color: "#fff",
+                    'var(--backgroundd, linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%))',
+                  color: '#fff',
                 }}
                 disabled={isAnyBusy}
               >
@@ -425,7 +431,9 @@ export default function LoginPage() {
             <div className="text-white text-xl font-['Satoshi-Bold'] mb-2">Enter Code</div>
             <p className="text-gray-400 text-sm font-['Satoshi-Regular',_sans-serif] mb-4">
               Please enter the 6 digit code we send to <br />
-              <span className="text-white font-['Satoshi-Regular',_sans-serif]">{emailNormalized}</span>
+              <span className="text-white font-['Satoshi-Regular',_sans-serif]">
+                {emailNormalized}
+              </span>
             </p>
 
             <div className="flex justify-between gap-2 mb-4" onPaste={handleOtpPaste}>
@@ -472,9 +480,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {isVerifyingOtp && (
-              <p className="text-xs text-gray-400 mt-3">Verifying code...</p>
-            )}
+            {isVerifyingOtp && <p className="text-xs text-gray-400 mt-3">Verifying code...</p>}
           </div>
         )}
 
@@ -484,8 +490,8 @@ export default function LoginPage() {
             className="p-6 rounded-xl w-[360px] shadow-xl border-solid border-[#212121] border"
             style={{
               background:
-                "var(--backgroundd, linear-gradient(135.91deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%))",
-              color: "#fff",
+                'var(--backgroundd, linear-gradient(135.91deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%))',
+              color: '#fff',
             }}
           >
             <div className="text-white text-xl font-['Satoshi-Bold'] mb-2">Link Phone Number</div>
@@ -532,11 +538,13 @@ export default function LoginPage() {
             className="p-6 rounded-xl w-[360px] shadow-xl border-solid border-[#212121] border"
             style={{
               background:
-                "var(--backgroundd, linear-gradient(135.91deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%))",
-              color: "#fff",
+                'var(--backgroundd, linear-gradient(135.91deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%))',
+              color: '#fff',
             }}
           >
-            <div className="text-white text-xl font-['Satoshi-Bold'] mb-2">Complete Your Profile</div>
+            <div className="text-white text-xl font-['Satoshi-Bold'] mb-2">
+              Complete Your Profile
+            </div>
             <p className="text-[#A2A2A2] text-sm font-['Satoshi-Regular',_sans-serif] mb-4">
               Enter your name and choose an avatar so your friends can recognize you.
             </p>
@@ -548,7 +556,7 @@ export default function LoginPage() {
                   src={
                     avatarPreview ||
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      name?.trim() || "User"
+                      name?.trim() || 'User',
                     )}&background=random`
                   }
                   alt="Avatar"
@@ -589,10 +597,10 @@ export default function LoginPage() {
                   value={name}
                   onChange={(e) => {
                     setName(e.target.value);
-                    if (errorName) setErrorName("");
+                    if (errorName) setErrorName('');
                   }}
                   className={`w-full px-3 py-2 rounded bg-black text-white border ${
-                    errorName ? "border-red-500" : "border-gray-700"
+                    errorName ? 'border-red-500' : 'border-gray-700'
                   } placeholder:text-gray-500`}
                   disabled={isAnyBusy}
                 />
@@ -605,7 +613,7 @@ export default function LoginPage() {
               onClick={handleSaveProfile}
               disabled={isAnyBusy}
             >
-              {isSavingProfile ? "Saving..." : "Let’s Go"}
+              {isSavingProfile ? 'Saving...' : 'Let’s Go'}
             </button>
           </div>
         )}

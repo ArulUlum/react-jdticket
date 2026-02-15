@@ -3,11 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  MapPin,
-  CalendarDays
-} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, CalendarDays } from 'lucide-react';
 import insta from '../assets/insta.svg';
 import copy from '../assets/copy.svg';
 import qris from '../assets/QRIS.svg';
@@ -64,13 +61,16 @@ function EventPage() {
   const registrationModalRef = useRef(null);
   const ticketModalRef = useRef(null);
 
-
   const [registrationModal, setRegistrationModal] = useState(false);
   const [ticketModal, setTicketModal] = useState(false);
   // Tambahkan modal lainnya di sini...
 
   const modals = [
-    { ref: registrationModalRef, isOpen: registrationModal, close: () => setRegistrationModal(false) },
+    {
+      ref: registrationModalRef,
+      isOpen: registrationModal,
+      close: () => setRegistrationModal(false),
+    },
     { ref: ticketModalRef, isOpen: ticketModal, close: () => setTicketModal(false) },
     // Tambahkan modal lain: { ref, isOpen, close }
   ];
@@ -104,11 +104,13 @@ function EventPage() {
   const [selectedPaymentGroup, setSelectedPaymentGroup] = useState(payments[0].group);
 
   // Helper: get selected tickets
-  const getSelectedTickets = () => event?.list_ticket?.filter(ticket => quantities[ticket.id] > 0) || [];
+  const getSelectedTickets = () =>
+    event?.list_ticket?.filter((ticket) => quantities[ticket.id] > 0) || [];
   // Helper: check if any paid ticket selected
-  const hasPaidTicket = () => getSelectedTickets().some(ticket => ticket.price > 0);
+  const hasPaidTicket = () => getSelectedTickets().some((ticket) => ticket.price > 0);
   // Helper: total ticket price
-  const getTotalTicketPrice = () => getSelectedTickets().reduce((sum, ticket) => sum + (ticket.price * quantities[ticket.id]), 0);
+  const getTotalTicketPrice = () =>
+    getSelectedTickets().reduce((sum, ticket) => sum + ticket.price * quantities[ticket.id], 0);
   // Helper: service fee
   const getServiceFee = () => (hasPaidTicket() ? 2000 : 0);
   // Helper: total price
@@ -125,7 +127,7 @@ function EventPage() {
       document.title = event.name + ' - Kebbu';
     }
   }, [event]);
-  
+
   // Handle click outside modals
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -139,13 +141,13 @@ function EventPage() {
     // Cek apakah ada modal yang terbuka
     const anyOpen = modals.some(({ isOpen }) => isOpen);
     if (anyOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [modals.map(m => m.isOpen).join()]);
+  }, [modals.map((m) => m.isOpen).join()]);
 
   async function fetchData(url) {
     try {
@@ -156,7 +158,7 @@ function EventPage() {
       if (data.list_ticket?.length === 1) {
         initialQuantities[data.list_ticket[0].id] = 1;
       } else {
-        data.list_ticket?.forEach(ticket => {
+        data.list_ticket?.forEach((ticket) => {
           initialQuantities[ticket.id] = 0;
         });
       }
@@ -173,7 +175,6 @@ function EventPage() {
     return (
       <div className="max-w-5xl mx-auto pb-10 animate-pulse">
         <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-
           {/* Left Panel */}
           <div className="md:col-span-1 space-y-4">
             <div className="w-full h-[300px] bg-gray-700 rounded-xl"></div>
@@ -245,16 +246,16 @@ function EventPage() {
 
   const formattedStartDate = format(startDate, 'EEE, d MMM yyyy');
 
-  const startDay = format(startDate, 'd');         // contoh: "1"
-  const startMonth = format(startDate, 'MMM');     // contoh: "May"
+  const startDay = format(startDate, 'd'); // contoh: "1"
+  const startMonth = format(startDate, 'MMM'); // contoh: "May"
   const formattedStartTime = format(startDate, 'HH:mm');
   const formattedEndTime = format(endDate, 'HH:mm');
 
   function increaseQty(ticketId) {
-    setQuantities(prev => ({ ...prev, [ticketId]: prev[ticketId] + 1 }));
+    setQuantities((prev) => ({ ...prev, [ticketId]: prev[ticketId] + 1 }));
   }
   function decreaseQty(ticketId) {
-    setQuantities(prev => ({ ...prev, [ticketId]: Math.max(prev[ticketId] - 1, 0) }));
+    setQuantities((prev) => ({ ...prev, [ticketId]: Math.max(prev[ticketId] - 1, 0) }));
   }
 
   function handleRegister() {
@@ -278,12 +279,12 @@ function EventPage() {
     const tickets = Object.entries(quantities)
       .filter(([id, quantity]) => quantity > 0)
       .map(([id, quantity]) => {
-        const ticket = event.list_ticket.find(t => String(t.id) === String(id));
+        const ticket = event.list_ticket.find((t) => String(t.id) === String(id));
         return {
           id: parseInt(id),
           name: ticket?.name || '',
           price: ticket?.price || 0,
-          quantity
+          quantity,
         };
       });
     setIsRegistered(true);
@@ -292,7 +293,7 @@ function EventPage() {
       let payment = '';
       if (selectedPayment) {
         for (const group of payments) {
-          const found = group.items.find(item => item.label === selectedPayment);
+          const found = group.items.find((item) => item.label === selectedPayment);
           if (found) {
             payment = found.code;
             break;
@@ -306,10 +307,8 @@ function EventPage() {
         event_id: event.id,
         tickets,
         payment,
-        fees: hasPaidTicket()
-          ? [{ type: 'Service fee', value: 2000 }]
-          : [],
-        total: getTotalPrice()
+        fees: hasPaidTicket() ? [{ type: 'Service fee', value: 2000 }] : [],
+        total: getTotalPrice(),
       };
       let response;
       if (!hasPaidTicket()) {
@@ -323,7 +322,7 @@ function EventPage() {
         // response = await axios.post(`${urlBe}/payment/create-invoice-midtrans`, payload);
         // if (response.data && response.data.data.invoice_url) {
         // if (response.data && response.data.data.redirect_url) {
-          // window.location.href = response.data.data.invoice_url;
+        // window.location.href = response.data.data.invoice_url;
         //   window.location.href = response.data.data.redirect_url;
         // } else {
         //   console.error('Invalid response:', response.data);
@@ -342,14 +341,13 @@ function EventPage() {
     }
   }
 
-
   return (
-    <div className='mb-16 mt-4'>
+    <div className="mb-16 mt-4">
       <div className="flex flex-col md:flex-row gap-4 pb-2 justify-center items-start">
         {/* Left Panel */}
         <div className="w-full lg:max-w-[300px] pr-4 items-center">
           {/* image */}
-          <div className='w-full max-w-[300px] mx-auto flex'>
+          <div className="w-full max-w-[300px] mx-auto flex">
             <img
               src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
               alt={event.name}
@@ -358,37 +356,43 @@ function EventPage() {
             />
           </div>
           {/* host */}
-          <div className='hidden md:block'>
+          <div className="hidden md:block">
             <div className="mt-6">
               <h3 className="text-responsive-item-title text-[#a2a2a2]">Host</h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
-              <div className='flex flex-row justify-between items-center'>
+              <div className="flex flex-row justify-between items-center">
                 <div className="flex items-center gap-3">
                   <img
-                    src={event.created_by.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.created_by?.name || 'User')}&background=random`}
+                    src={
+                      event.created_by.image ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(event.created_by?.name || 'User')}&background=random`
+                    }
                     alt="Host Avatar"
                     className="w-10 h-10 rounded-full object-cover"
                   />
-                  <span className="text-white text-responsive-sub-title">{event.created_by.name}</span>
+                  <span className="text-white text-responsive-sub-title">
+                    {event.created_by.name}
+                  </span>
                 </div>
 
-                <img
-                  src={insta}
-                  alt="Instagram Icon"
-                  className="w-6 h-6"
-                />
+                <img src={insta} alt="Instagram Icon" className="w-6 h-6" />
               </div>
             </div>
 
             <div className="mt-6">
-              <h3 className="text-responsive-item-title text-[#a2a2a2]">{event.registered.total} Going</h3>
+              <h3 className="text-responsive-item-title text-[#a2a2a2]">
+                {event.registered.total} Going
+              </h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
               <div className="flex items-center space-x-2 mb-1 mt-3">
                 <div className="flex -space-x-3">
                   {event.registered.list.map((user, index) => (
                     <img
                       key={index}
-                      src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
+                      src={
+                        user.image ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`
+                      }
                       alt={user.name}
                       className="w-8 h-8 rounded-full border-2 border-black object-cover"
                     />
@@ -402,7 +406,7 @@ function EventPage() {
               </div>
 
               <div className="text-white text-responsive-regular mt-1">
-                {event.registered.list.map(user => user.name).join(", ")}
+                {event.registered.list.map((user) => user.name).join(', ')}
                 {event.registered.others > 0 && ` and ${event.registered.others} others`}
               </div>
             </div>
@@ -434,9 +438,7 @@ function EventPage() {
               <CalendarDays className="text-white w-7 h-7" />
             </div>
             <div className="flex flex-col ml-4">
-              <p className="text-responsive-medium text-white">
-                {formattedStartDate}
-              </p>
+              <p className="text-responsive-medium text-white">{formattedStartDate}</p>
               <p className="text-responsive-caption text-[#a2a2a2] mt-1">
                 {formattedStartTime} - {formattedEndTime} WIB
               </p>
@@ -449,9 +451,7 @@ function EventPage() {
             </div>
 
             <div className="flex flex-col ml-4">
-              <p className="text-responsive-medium text-white">
-                {event.location_name}
-              </p>
+              <p className="text-responsive-medium text-white">{event.location_name}</p>
               <p className="text-responsive-caption text-[#a2a2a2]">{event.location_address}</p>
             </div>
           </div>
@@ -486,37 +486,43 @@ function EventPage() {
             ></iframe>
           </div>
 
-          <div className='block md:hidden'>
+          <div className="block md:hidden">
             <div className="mt-6">
               <h3 className="text-responsive-item-title text-[#a2a2a2]">Host</h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
-              <div className='flex flex-row justify-between items-center'>
+              <div className="flex flex-row justify-between items-center">
                 <div className="flex items-center gap-3">
                   <img
-                    src={event.created_by.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(event.created_by?.name || 'User')}&background=random`}
+                    src={
+                      event.created_by.image ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(event.created_by?.name || 'User')}&background=random`
+                    }
                     alt="Host Avatar"
                     className="w-10 h-10 rounded-full object-cover"
                   />
-                  <span className="text-white text-responsive-sub-title">{event.created_by.name}</span>
+                  <span className="text-white text-responsive-sub-title">
+                    {event.created_by.name}
+                  </span>
                 </div>
 
-                <img
-                  src={insta}
-                  alt="Instagram Icon"
-                  className="w-6 h-6"
-                />
+                <img src={insta} alt="Instagram Icon" className="w-6 h-6" />
               </div>
             </div>
 
             <div className="mt-6">
-              <h3 className="text-responsive-item-title text-[#a2a2a2]">{event.registered.total} Going</h3>
+              <h3 className="text-responsive-item-title text-[#a2a2a2]">
+                {event.registered.total} Going
+              </h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
               <div className="flex items-center space-x-2 mb-1 mt-3">
                 <div className="flex -space-x-3">
                   {event.registered.list.map((user, index) => (
                     <img
                       key={index}
-                      src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`}
+                      src={
+                        user.image ||
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'User')}&background=random`
+                      }
                       alt={user.name}
                       className="w-8 h-8 rounded-full border-2 border-black object-cover"
                     />
@@ -530,7 +536,7 @@ function EventPage() {
               </div>
 
               <div className="text-white text-responsive-regular mt-1">
-                {event.registered.list.map(user => user.name).join(", ")}
+                {event.registered.list.map((user) => user.name).join(', ')}
                 {event.registered.others > 0 && ` and ${event.registered.others} others`}
               </div>
             </div>
@@ -553,7 +559,7 @@ function EventPage() {
           </div>
         </div>
 
-        <div className='fixed left-0 bottom-5 w-full z-20 flex justify-center items-center md:hidden'>
+        <div className="fixed left-0 bottom-5 w-full z-20 flex justify-center items-center md:hidden">
           <button
             className="text-responsive-item-title text-white w-full max-w-md py-2 rounded-lg bg-gradient-to-r from-[#44A08D] to-[#00594F] hover:from-[#58c1ac] hover:to-[#007467]"
             onClick={() => setTicketModal(true)}
@@ -566,10 +572,10 @@ function EventPage() {
           {copied && (
             <motion.div
               key="copy"
-              initial={{ y: "-100%" }}
+              initial={{ y: '-100%' }}
               animate={{ y: 0 }}
               exit={{ y: 0 }}
-              transition={{ duration: 0.3, ease: "easeIn" }}
+              transition={{ duration: 0.3, ease: 'easeIn' }}
               className="fixed top-5 -translate-x-1/2 bg-green-500 text-white z-50 overflow-y-auto shadow-xl px-4 py-2 rounded"
             >
               Copied to clipboard!
@@ -579,12 +585,12 @@ function EventPage() {
 
         {ticketModal && (
           <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-            <div 
+            <div
               className="bg-[#141717] w-[90%] max-w-md p-6 rounded-lg border border-[#212121]"
               ref={ticketModalRef}
             >
               <h2 className="text-responsive-sub-title text-white mb-2">Registration</h2>
-              {event.list_ticket?.map(ticket => (
+              {event.list_ticket?.map((ticket) => (
                 <div
                   key={ticket.id}
                   className="flex mb-2 justify-between items-center bg-[#1C1D1D] rounded-lg px-4 py-2 border border-[#212121]"
@@ -613,9 +619,7 @@ function EventPage() {
                   </div>
                 </div>
               ))}
-              {errorMessage && (
-                <p className="text-red-500 text-sm mb-2">{errorMessage}</p>
-              )}
+              {errorMessage && <p className="text-red-500 text-sm mb-2">{errorMessage}</p>}
               <button
                 className="bg-white text-responsive-item-title text-[#141717] w-full py-2 mt-2 rounded hover:bg-[#ffffffe4]"
                 onClick={handleRegister}
@@ -633,7 +637,9 @@ function EventPage() {
                   <h2 className="text-responsive-sub-title text-white">Payment Method</h2>
                   <div className="text-[#a2a2a2]">QRIS</div>
                 </div>
-                <button className="text-[#a2a2a2]" onClick={() => setPaymentModal(false)}>✕</button>
+                <button className="text-[#a2a2a2]" onClick={() => setPaymentModal(false)}>
+                  ✕
+                </button>
               </div>
 
               <div className="border border-[#a2a2a2] rounded-xl p-4 w-full mx-auto text-white mb-4">
@@ -654,17 +660,23 @@ function EventPage() {
               <div className="flex flex-col items-center gap-4">
                 {/* QR Image */}
                 {(() => {
-                  const qrData = encodeURIComponent(JSON.stringify({
-                    invoice: localInvoiceId,
-                    event: paymentPayload.event_id,
-                    total: paymentPayload.total,
-                    tickets: paymentPayload.tickets
-                  }));
+                  const qrData = encodeURIComponent(
+                    JSON.stringify({
+                      invoice: localInvoiceId,
+                      event: paymentPayload.event_id,
+                      total: paymentPayload.total,
+                      tickets: paymentPayload.tickets,
+                    }),
+                  );
                   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${qrData}`;
                   return (
                     <>
                       <img src={qrUrl} alt="QR Code" className="w-64 h-64 bg-white p-2 rounded" />
-                      <div className="text-white text-lg">{paymentPayload.total === 0 ? 'FREE' : `Rp ${paymentPayload.total.toLocaleString()}`}</div>
+                      <div className="text-white text-lg">
+                        {paymentPayload.total === 0
+                          ? 'FREE'
+                          : `Rp ${paymentPayload.total.toLocaleString()}`}
+                      </div>
                       <button
                         className="bg-gradient-to-r from-[#44A08D] to-[#00594F] text-white px-6 py-2 rounded"
                         onClick={() => downloadQrImage(qrUrl, `${localInvoiceId}.png`)}
@@ -705,7 +717,9 @@ function EventPage() {
                   />
                   <div>
                     <h3 className="text-responsive-item-title">{event.name}</h3>
-                    <p className="text-responsive-caption text-[#a2a2a2]">{startDay} {startMonth} at {formattedStartTime} WIB</p>
+                    <p className="text-responsive-caption text-[#a2a2a2]">
+                      {startDay} {startMonth} at {formattedStartTime} WIB
+                    </p>
                     <p className="text-responsive-caption text-[#a2a2a2]">{event.location_name}</p>
                   </div>
                 </div>
@@ -735,10 +749,16 @@ function EventPage() {
 
                 {/* Harga */}
                 <div className="space-y-1 text-responsive-caption text-[#a2a2a2]">
-                  {getSelectedTickets().map(ticket => (
+                  {getSelectedTickets().map((ticket) => (
                     <div key={ticket.id} className="flex justify-between">
-                      <span>{ticket.name} (x{quantities[ticket.id]})</span>
-                      <span>{ticket.price === 0 ? 'FREE' : `Rp ${(ticket.price * quantities[ticket.id]).toLocaleString()}`}</span>
+                      <span>
+                        {ticket.name} (x{quantities[ticket.id]})
+                      </span>
+                      <span>
+                        {ticket.price === 0
+                          ? 'FREE'
+                          : `Rp ${(ticket.price * quantities[ticket.id]).toLocaleString()}`}
+                      </span>
                     </div>
                   ))}
                   {hasPaidTicket() && (
@@ -751,7 +771,8 @@ function EventPage() {
                 <div className="flex justify-between text-responsive-medium mt-1">
                   <span>Total Price</span>
                   <span>
-                    {getSelectedTickets().length === 0 || getSelectedTickets().every(ticket => ticket.price === 0)
+                    {getSelectedTickets().length === 0 ||
+                    getSelectedTickets().every((ticket) => ticket.price === 0)
                       ? 'FREE'
                       : `Rp ${getTotalPrice().toLocaleString()}`}
                   </span>
@@ -767,9 +788,7 @@ function EventPage() {
                     type="text"
                     placeholder="Your Name"
                     value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     className="bg-[#1c1d1d] border border-gray-600 rounded-lg px-3 py-2 text-gray-400 w-full"
                   />
                 </div>
@@ -779,9 +798,7 @@ function EventPage() {
                     type="email"
                     placeholder="you@email.com"
                     value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="bg-[#1c1d1d] border border-gray-600 rounded-lg px-3 py-2 text-gray-400 w-full"
                   />
                 </div>
@@ -791,9 +808,7 @@ function EventPage() {
                     type="tel"
                     placeholder="081XXXXXXX"
                     value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="bg-[#1c1d1d] border border-gray-600 rounded-lg px-3 py-2 text-gray-400 w-full"
                   />
                 </div>
@@ -809,9 +824,7 @@ function EventPage() {
                       <div key={group.group} className="flex flex-col gap-1">
                         <div
                           className={`text-responsive-caption-bold cursor-pointer py-1 rounded transition-colors duration-150 ${
-                            selectedPaymentGroup === group.group
-                              ? "text-white"
-                              : "text-[#a2a2a2]"
+                            selectedPaymentGroup === group.group ? 'text-white' : 'text-[#a2a2a2]'
                           }`}
                           onClick={() => {
                             if (selectedPaymentGroup !== group.group) {
@@ -829,8 +842,8 @@ function EventPage() {
                                 key={item.label}
                                 className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${
                                   selectedPayment === item.label
-                                    ? "border-[#13E7BD] bg-[#1c1d1d]"
-                                    : "border-[#212121] bg-[#1c1d1d]"
+                                    ? 'border-[#13E7BD] bg-[#1c1d1d]'
+                                    : 'border-[#212121] bg-[#1c1d1d]'
                                 }`}
                                 onClick={() => setSelectedPayment(item.label)}
                               >
@@ -861,7 +874,7 @@ function EventPage() {
                 onClick={handleSubmitRegister}
                 disabled={isRegistered}
               >
-                {isRegistered ? "Continue..." : "Continue"}
+                {isRegistered ? 'Continue...' : 'Continue'}
               </button>
             </div>
           </div>

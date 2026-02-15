@@ -2,7 +2,6 @@ export default function EventSkeleton() {
   return (
     <div className="max-w-5xl mx-auto pb-10 animate-pulse">
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-
         {/* Left Panel */}
         <div className="md:col-span-1 space-y-4">
           <div className="w-full h-[300px] bg-gray-700 rounded-xl"></div>
@@ -56,7 +55,6 @@ export default function EventSkeleton() {
             <div className="h-60 bg-gray-800 rounded"></div>
           </div>
         </div>
-
       </div>
     </div>
   );

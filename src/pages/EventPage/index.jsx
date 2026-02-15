@@ -33,7 +33,8 @@ export default function EventPage() {
   const { event, loading } = useEventDetail(url);
 
   // current user (from Layout localStorage usage)
-  const currentUser = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
+  const currentUser =
+    typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('user') || 'null') : null;
 
   const [isRegistered, setIsRegistered] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -79,23 +80,48 @@ export default function EventPage() {
 
   const selectedTickets = useMemo(() => getSelectedTickets(event, quantities), [event, quantities]);
   const isPaid = useMemo(() => hasPaidTicket(selectedTickets), [selectedTickets]);
-  const totalTicketPrice = useMemo(() => getTotalTicketPrice(selectedTickets, quantities), [selectedTickets, quantities]);
-  const totalSelectedTickets = useMemo(() => getTotalselectedTickets(selectedTickets, quantities), [selectedTickets, quantities]);
+  const totalTicketPrice = useMemo(
+    () => getTotalTicketPrice(selectedTickets, quantities),
+    [selectedTickets, quantities],
+  );
+  const totalSelectedTickets = useMemo(
+    () => getTotalselectedTickets(selectedTickets, quantities),
+    [selectedTickets, quantities],
+  );
   // const serviceFee = useMemo(() => getServiceFee(isPaid), [isPaid]);
-  const taxFee = useMemo(() => countPriceWithType(totalTicketPrice, event?.type_tax, event?.tax, totalSelectedTickets), [totalTicketPrice, event, totalSelectedTickets]);
-  const platformFee = useMemo(() => countPriceWithType(totalTicketPrice, event?.type_tax_kebbu, event?.tax_kebbu, totalSelectedTickets), [totalTicketPrice, event, totalSelectedTickets]);
-  const paymentFee = useMemo(() => getPaymentFee(isPaid, totalTicketPrice), [isPaid, totalTicketPrice]);
+  const taxFee = useMemo(
+    () => countPriceWithType(totalTicketPrice, event?.type_tax, event?.tax, totalSelectedTickets),
+    [totalTicketPrice, event, totalSelectedTickets],
+  );
+  const platformFee = useMemo(
+    () =>
+      countPriceWithType(
+        totalTicketPrice,
+        event?.type_tax_kebbu,
+        event?.tax_kebbu,
+        totalSelectedTickets,
+      ),
+    [totalTicketPrice, event, totalSelectedTickets],
+  );
+  const paymentFee = useMemo(
+    () => getPaymentFee(isPaid, totalTicketPrice),
+    [isPaid, totalTicketPrice],
+  );
   const discountAmount = useMemo(() => {
     if (!promo?.type) return 0;
     return countPriceWithType(totalTicketPrice, promo.type, promo.price, totalSelectedTickets);
   }, [promo, totalTicketPrice, totalSelectedTickets]);
 
-  const totalPrice = useMemo(() => getTotalPrice(totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount), [totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount]);
+  const totalPrice = useMemo(
+    () => getTotalPrice(totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount),
+    [totalTicketPrice, platformFee, taxFee, paymentFee, discountAmount],
+  );
 
   if (loading) return <EventSkeleton />;
   if (!event) return <p className="text-red-500">Event not found.</p>;
 
-  const isCreator = currentUser && event && String(currentUser.id) === String(event?.created_by?.id);
+  const isCreator =
+    currentUser && event && String(currentUser.id) === String(event?.created_by?.id);
 
   const startDate = new Date(event.start_date);
   const endDate = new Date(event.end_date);
@@ -160,7 +186,14 @@ export default function EventPage() {
         event_id: event.id,
         tickets,
         payment: paymentCode,
-        fees: isPaid ? [{ type: 'platform', value: platformFee }, { type: 'tax', value: taxFee }, { type: 'payment', value: paymentFee }, { type: 'discount', value: discountAmount }] : [],
+        fees: isPaid
+          ? [
+              { type: 'platform', value: platformFee },
+              { type: 'tax', value: taxFee },
+              { type: 'payment', value: paymentFee },
+              { type: 'discount', value: discountAmount },
+            ]
+          : [],
         total: totalPrice,
       };
 
@@ -201,15 +234,13 @@ export default function EventPage() {
       }
 
       const promoData = body.data;
-      setPromo(promoData);                       // simpan promo { id, code, price, type, ... }
+      setPromo(promoData); // simpan promo { id, code, price, type, ... }
       setPromoMessage('Promo applied successfully.');
     } catch (err) {
       console.error('Error applying promo:', err);
       setPromo(null);
       setPromoError(
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        'Cannot apply promo code.'
+        err?.response?.data?.message || err?.response?.data?.error || 'Cannot apply promo code.',
       );
     } finally {
       setIsApplyingPromo(false);
@@ -260,7 +291,9 @@ export default function EventPage() {
                     alt="Host Avatar"
                     className="w-10 h-10 rounded-full object-cover"
                   />
-                  <span className="text-white text-responsive-sub-title">{event.created_by.name}</span>
+                  <span className="text-white text-responsive-sub-title">
+                    {event.created_by.name}
+                  </span>
                 </div>
 
                 <img src={insta} alt="Instagram Icon" className="w-6 h-6" />
@@ -298,8 +331,18 @@ export default function EventPage() {
               <h3 className="text-responsive-item-title text-[#a2a2a2]">Share</h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
               <div className="flex flex-row items-center gap-2">
-                <img src={copy} alt="Copy Icon" className="w-5 h-5 cursor-pointer" onClick={handleCopy} />
-                <p className="text-white text-responsive-regular mt-0.5 cursor-pointer" onClick={handleCopy}>Copy link</p>
+                <img
+                  src={copy}
+                  alt="Copy Icon"
+                  className="w-5 h-5 cursor-pointer"
+                  onClick={handleCopy}
+                />
+                <p
+                  className="text-white text-responsive-regular mt-0.5 cursor-pointer"
+                  onClick={handleCopy}
+                >
+                  Copy link
+                </p>
               </div>
             </div>
 
@@ -337,7 +380,6 @@ export default function EventPage() {
               </p>
             </div>
           </div>
-
 
           <button
             className="hidden md:block text-responsive-item-title text-white w-full py-2 mt-4 rounded bg-gradient-to-r from-[#44A08D] to-[#00594F] hover:from-[#58c1ac] hover:to-[#007467]"
@@ -384,7 +426,9 @@ export default function EventPage() {
                     alt="Host Avatar"
                     className="w-10 h-10 rounded-full object-cover"
                   />
-                  <span className="text-white text-responsive-sub-title">{event.created_by.name}</span>
+                  <span className="text-white text-responsive-sub-title">
+                    {event.created_by.name}
+                  </span>
                 </div>
                 <img src={insta} alt="Instagram Icon" className="w-6 h-6" />
               </div>
@@ -421,7 +465,12 @@ export default function EventPage() {
               <h3 className="text-responsive-item-title text-[#a2a2a2]">Share</h3>
               <hr className="border-t border-gray-300 my-2 opacity-20" />
               <div className="flex flex-row items-center gap-2">
-                <img src={copy} alt="Copy Icon" className="w-5 h-5 cursor-pointer" onClick={handleCopy} />
+                <img
+                  src={copy}
+                  alt="Copy Icon"
+                  className="w-5 h-5 cursor-pointer"
+                  onClick={handleCopy}
+                />
                 <p className="text-white text-responsive-regular mt-0.5">Copy link</p>
               </div>
             </div>
@@ -474,7 +523,16 @@ export default function EventPage() {
           onClose={() => setRegistrationModal(false)}
           event={event}
           headerInfo={{ startDay, startMonth, formattedStartTime }}
-          pricingInfo={{ selectedTickets, isPaid, platformFee, taxFee, paymentFee, totalPrice, quantities, discountAmount }}
+          pricingInfo={{
+            selectedTickets,
+            isPaid,
+            platformFee,
+            taxFee,
+            paymentFee,
+            totalPrice,
+            quantities,
+            discountAmount,
+          }}
           showPromoInput={showPromoInput}
           setShowPromoInput={setShowPromoInput}
           formData={formData}
@@ -500,7 +558,6 @@ export default function EventPage() {
             // setPaymentModal(false);
           }}
         />
-
       </div>
     </div>
   );

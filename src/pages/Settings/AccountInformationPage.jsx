@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../utils/cropImage';
-import axios from "axios";
+import axios from 'axios';
 import {
   Instagram,
   Globe,
@@ -10,16 +10,15 @@ import {
   Trash2,
   Upload,
   Download,
-  TriangleAlert
-} from "lucide-react";
-
+  TriangleAlert,
+} from 'lucide-react';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
 function AccountInformation() {
   const [profile, setProfile] = useState(null);
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [avatarFile, setAvatarFile] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -32,7 +31,8 @@ function AccountInformation() {
 
   // Helper to convert dataURL to File
   function dataURLtoFile(dataurl, filename) {
-    var arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1];
+    var arr = dataurl.split(','),
+      mime = arr[0].match(/:(.*?);/)[1];
     var bstr = atob(arr[1]);
     var n = bstr.length;
     var u8arr = new Uint8Array(n);
@@ -63,7 +63,10 @@ function AccountInformation() {
       });
       if (res.data && res.data.data) {
         setProfile(res.data.data);
-        setAvatarPreview(res.data.data.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(res.data.data.name || "User")}&background=random`);
+        setAvatarPreview(
+          res.data.data.image ||
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(res.data.data.name || 'User')}&background=random`,
+        );
       }
     } catch (err) {
       // Optionally handle error
@@ -77,11 +80,11 @@ function AccountInformation() {
       let updatedProfile = { ...profile };
       if (avatarFile) {
         const formData = new FormData();
-        formData.append("image", avatarFile);
+        formData.append('image', avatarFile);
 
         const saveImgRes = await axios.post(`${urlBe}/image/upload`, formData, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
           },
         });
 
@@ -96,29 +99,34 @@ function AccountInformation() {
         },
       });
       // Update localStorage and notify app to refresh header
-      localStorage.setItem("user", JSON.stringify({
-        ...updatedProfile,
-        // fallback for name field if needed
-        name: updatedProfile.name || updatedProfile.fullName || ""
-      }));
-      window.dispatchEvent(new Event("userProfileUpdated"));
-      alert(res.data.message || "Profile updated successfully!");
+      localStorage.setItem(
+        'user',
+        JSON.stringify({
+          ...updatedProfile,
+          // fallback for name field if needed
+          name: updatedProfile.name || updatedProfile.fullName || '',
+        }),
+      );
+      window.dispatchEvent(new Event('userProfileUpdated'));
+      alert(res.data.message || 'Profile updated successfully!');
       fetchProfile();
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
-        alert("Error: " + err.response.data.message);
+        alert('Error: ' + err.response.data.message);
       } else if (err.message) {
-        alert("Error: " + err.message);
+        alert('Error: ' + err.message);
       } else {
-        alert("Error: Terjadi kesalahan tak dikenal.");
+        alert('Error: Terjadi kesalahan tak dikenal.');
       }
     } finally {
       setIsUpdating(false);
     }
-  }
+  };
 
   if (!profile) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">Loading...</div>
+    );
   }
 
   return (
@@ -131,7 +139,7 @@ function AccountInformation() {
             <label className="block text-white text-responsive-medium mb-1">Full Name</label>
             <input
               name="fullName"
-              value={profile.name || ""}
+              value={profile.name || ''}
               onChange={onChange}
               className="w-full text-responsive-medium-normal bg-transparent border border-white rounded-lg px-3 py-2 text-white outline-none"
             />
@@ -142,7 +150,7 @@ function AccountInformation() {
             <label className="block text-white text-responsive-medium mb-1">Username</label>
             <input
               name="username"
-              value={profile.username || ""}
+              value={profile.username || ''}
               placeholder="Enter your username"
               onChange={onChange}
               className="w-full text-responsive-medium-normal bg-transparent border border-white rounded-lg px-3 py-2 text-white outline-none"
@@ -154,7 +162,7 @@ function AccountInformation() {
             <label className="block text-white text-responsive-medium mb-1">Email</label>
             <input
               name="email"
-              value={profile.email || ""}
+              value={profile.email || ''}
               onChange={onChange}
               className="w-full text-responsive-medium-normal bg-transparent border border-white rounded-lg px-3 py-2 text-white outline-none"
             />
@@ -165,7 +173,7 @@ function AccountInformation() {
             <label className="block text-white text-responsive-medium mb-1">Phone Number</label>
             <input
               name="phone"
-              value={profile.phone || ""}
+              value={profile.phone || ''}
               onChange={onChange}
               placeholder="08XXXXXXXXXX"
               className="w-full text-responsive-medium-normal bg-transparent border border-white rounded-lg px-3 py-2 text-white outline-none"
@@ -178,7 +186,7 @@ function AccountInformation() {
             <textarea
               rows={2}
               name="bio"
-              value={profile.bio || ""}
+              value={profile.bio || ''}
               onChange={onChange}
               className="w-full text-responsive-medium-normal bg-transparent border border-white rounded-lg px-3 py-2 text-white outline-none resize-none"
             />
@@ -228,8 +236,14 @@ function AccountInformation() {
             </div>
           </label>
           {showCropper && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70" onClick={() => setShowCropper(false)}>
-              <div className="bg-[#181818] rounded-xl p-6 shadow-lg w-[90vw] max-w-lg relative" onClick={e => e.stopPropagation()}>
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+              onClick={() => setShowCropper(false)}
+            >
+              <div
+                className="bg-[#181818] rounded-xl p-6 shadow-lg w-[90vw] max-w-lg relative"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <h2 className="text-white text-lg mb-4">Crop Image to 1:1</h2>
                 <div className="relative w-full h-[350px] bg-black">
                   <Cropper
@@ -237,8 +251,8 @@ function AccountInformation() {
                     crop={crop}
                     zoom={zoom}
                     aspect={1}
-                    cropShape="round"  // 🔥 ini bikin preview jadi bulat
-                    showGrid={false}   // opsional, gridnya biar ga ganggu
+                    cropShape="round" // 🔥 ini bikin preview jadi bulat
+                    showGrid={false} // opsional, gridnya biar ga ganggu
                     onCropChange={setCrop}
                     onZoomChange={setZoom}
                     onCropComplete={(_, areaPixels) => setCroppedAreaPixels(areaPixels)}
@@ -251,7 +265,7 @@ function AccountInformation() {
                     max={3}
                     step={0.01}
                     value={zoom}
-                    onChange={e => setZoom(Number(e.target.value))}
+                    onChange={(e) => setZoom(Number(e.target.value))}
                     className="w-full"
                   />
                 </div>
@@ -259,7 +273,9 @@ function AccountInformation() {
                   <button
                     className="bg-gray-700 text-white px-4 py-2 rounded"
                     onClick={() => setShowCropper(false)}
-                  >Cancel</button>
+                  >
+                    Cancel
+                  </button>
                   <button
                     className="bg-[#00594F] text-white px-4 py-2 rounded"
                     onClick={async () => {
@@ -268,7 +284,9 @@ function AccountInformation() {
                       setAvatarFile(dataURLtoFile(croppedImg, 'avatar.png'));
                       setShowCropper(false);
                     }}
-                  >Crop & Use</button>
+                  >
+                    Crop & Use
+                  </button>
                 </div>
               </div>
             </div>
@@ -284,7 +302,7 @@ function AccountInformation() {
             <Instagram className="w-5 h-5 text-white shrink-0" />
             <input
               name="instagram"
-              value={profile.instagram || ""}
+              value={profile.instagram || ''}
               onChange={onChange}
               className="flex-1 text-responsive-medium-normal bg-transparent border border-white rounded-lg px-3 py-2 text-white outline-none"
               placeholder="instagram.com/"
@@ -297,7 +315,7 @@ function AccountInformation() {
             <User className="w-5 h-5 text-white shrink-0" />
             <input
               name="xTwitter"
-              value={profile.x || ""}
+              value={profile.x || ''}
               onChange={onChange}
               className="flex-1 text-responsive-medium-normal bg-transparent border border-white rounded-lg px-3 py-2 text-white outline-none"
               placeholder="xTwitter"
@@ -310,7 +328,7 @@ function AccountInformation() {
             <User className="w-5 h-5 text-white shrink-0" />
             <input
               name="tiktok"
-              value={profile.tiktok || ""}
+              value={profile.tiktok || ''}
               onChange={onChange}
               className="flex-1 text-responsive-medium-normal bg-transparent border border-white rounded-lg px-3 py-2 text-white outline-none"
               placeholder="tiktok.com/@"
@@ -322,7 +340,7 @@ function AccountInformation() {
             <Globe className="w-5 h-5 text-white shrink-0" />
             <input
               name="website"
-              value={profile.website || ""}
+              value={profile.website || ''}
               onChange={onChange}
               className="flex-1 text-responsive-medium-normal bg-transparent border border-white rounded-lg px-3 py-2 text-white outline-none"
               placeholder="https://"
@@ -335,7 +353,7 @@ function AccountInformation() {
         onClick={handleSaveProfile}
         disabled={isUpdating}
       >
-        {isUpdating ? "Updating..." : "Save Update"}
+        {isUpdating ? 'Updating...' : 'Save Update'}
       </button>
 
       {/* Change Password */}
@@ -363,7 +381,9 @@ function AccountInformation() {
             />
           </div>
         </div>
-        <button className="bg-white text-black rounded-lg px-4 py-2 text-responsive-item-title mt-1 transition">Save Password</button>
+        <button className="bg-white text-black rounded-lg px-4 py-2 text-responsive-item-title mt-1 transition">
+          Save Password
+        </button>
       </section>
 
       {/* Delete Account */}

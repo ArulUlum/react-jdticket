@@ -9,8 +9,8 @@ const urlBe = import.meta.env.VITE_URL_BE;
 function QRScanner() {
   const { id } = useParams(); // ambil event id dari route
   const qrCodeRegionId = 'qr-reader';
-  const html5Ref = useRef(null);       // instance Html5Qrcode
-  const scanningRef = useRef(false);   // flag cegah double-submit
+  const html5Ref = useRef(null); // instance Html5Qrcode
+  const scanningRef = useRef(false); // flag cegah double-submit
 
   const [userData, setUserData] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -41,10 +41,9 @@ function QRScanner() {
       setLoadingSummary(true);
       setErrorSummary(null);
       try {
-        const res = await axios.get(
-          `${urlBe}/events/user/${id}/scan`,
-          { headers: { 'x-jdticket': localStorage.getItem('token') || '' } }
-        );
+        const res = await axios.get(`${urlBe}/events/user/${id}/scan`, {
+          headers: { 'x-jdticket': localStorage.getItem('token') || '' },
+        });
         // Expecting format persis seperti yang kamu kasih
         // {
         //   code:"1",
@@ -57,21 +56,24 @@ function QRScanner() {
           setErrorSummary(res?.data?.message || 'Gagal memuat data');
         }
       } catch (e) {
-        if (!ignore) setErrorSummary(e?.response?.data?.message || e.message || 'Gagal memuat data');
+        if (!ignore)
+          setErrorSummary(e?.response?.data?.message || e.message || 'Gagal memuat data');
       } finally {
         if (!ignore) setLoadingSummary(false);
       }
     };
 
     if (id) fetchSummary();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [id]);
 
   // ---- Hitung progress dari summary ----
   const totalCheckedIn = summary.checked_in || 0;
   const totalGuest = summary.registered_count || 0;
   const totalInvitation = summary.invitation_count || 0;
-  const totalCap = summary.all_count || (totalGuest + totalInvitation) || 1;
+  const totalCap = summary.all_count || totalGuest + totalInvitation || 1;
   const progress = Math.min(100, (totalCheckedIn / totalCap) * 100);
 
   // ---- QR Decode Handlers ----
@@ -89,7 +91,7 @@ function QRScanner() {
       const res = await axios.post(
         `${urlBe}/user/get-user-scan-new`,
         { invoice_code, ticket_id, serial_idx, qty },
-        { headers: { 'x-jdticket': localStorage.getItem('token') || '' } }
+        { headers: { 'x-jdticket': localStorage.getItem('token') || '' } },
       );
 
       setUserData(res.data.data);
@@ -99,7 +101,9 @@ function QRScanner() {
       await html5Ref.current?.pause(true);
     } catch (err) {
       scanningRef.current = false; // izinkan scan berikutnya
-      alert(`❌ QR Tidak valid: ${err?.response?.data?.message || err.message || 'Terjadi kesalahan server'}`);
+      alert(
+        `❌ QR Tidak valid: ${err?.response?.data?.message || err.message || 'Terjadi kesalahan server'}`,
+      );
     }
   };
 
@@ -119,7 +123,7 @@ function QRScanner() {
           { facingMode: 'environment' },
           { fps: 24, qrbox: 250 },
           (decodedText) => handleQrScanNew(decodedText),
-          () => {} // ignore scan failure per frame
+          () => {}, // ignore scan failure per frame
         );
       } catch (e) {
         console.error('Start scanner error:', e);
@@ -162,12 +166,14 @@ function QRScanner() {
       await axios.post(
         `${urlBe}/user/checkin-user`,
         { invoice_code, ticket_id },
-        { headers: { 'x-jdticket': localStorage.getItem('token') || '' } }
+        { headers: { 'x-jdticket': localStorage.getItem('token') || '' } },
       );
       alert('✅ Check-in Successful');
       closeModal();
     } catch (err) {
-      alert(`❌ Failed check-in: ${err?.response?.data?.message || err.message || 'Unknown error'}`);
+      alert(
+        `❌ Failed check-in: ${err?.response?.data?.message || err.message || 'Unknown error'}`,
+      );
     } finally {
       setLoadingCheckin(false);
     }
@@ -186,7 +192,7 @@ function QRScanner() {
           { facingMode: 'environment' },
           { fps: 24, qrbox: 250 },
           (decodedText) => handleQrScanNew(decodedText),
-          () => {}
+          () => {},
         );
       }
     } catch (e) {
@@ -210,12 +216,10 @@ function QRScanner() {
     <div className="bg-black min-h-screen text-white flex flex-col items-center justify-center p-6">
       {/* Header Event */}
       <div className="text-2xl font-bold mb-1">
-        {loadingSummary ? 'Loading…' : (summary.event_name || '—')}
+        {loadingSummary ? 'Loading…' : summary.event_name || '—'}
       </div>
       <div className="text-sm text-gray-400 mb-4">
-        {loadingSummary
-          ? ''
-          : (errorSummary ? 'Failed to load event info' : startingText)}
+        {loadingSummary ? '' : errorSummary ? 'Failed to load event info' : startingText}
       </div>
 
       {/* QR Viewfinder */}
@@ -226,12 +230,8 @@ function QRScanner() {
       {/* Stats */}
       <div className="bg-[#111] w-full max-w-md rounded-lg px-4 py-3">
         <div className="flex justify-between text-green-400 mb-1">
-          <div className="font-semibold">
-            {loadingSummary ? '-' : totalCheckedIn} Checked in
-          </div>
-          <div className="text-sm text-white">
-            {loadingSummary ? '-' : totalGuest} Guest
-          </div>
+          <div className="font-semibold">{loadingSummary ? '-' : totalCheckedIn} Checked in</div>
+          <div className="text-sm text-white">{loadingSummary ? '-' : totalGuest} Guest</div>
           <div className="text-sm text-white">
             {loadingSummary ? '-' : totalInvitation} Invitation
           </div>

@@ -11,7 +11,10 @@ function GuestListSkeleton({ count = 8 }) {
   return (
     <div className="bg-[#1a1a1a] rounded p-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="flex justify-between items-center py-3 border-b border-gray-800 last:border-none animate-pulse">
+        <div
+          key={i}
+          className="flex justify-between items-center py-3 border-b border-gray-800 last:border-none animate-pulse"
+        >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gray-700" />
             <div>
@@ -40,8 +43,8 @@ function UserScanPage() {
 
   // server-side query params
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState(null);        // 'GOING' | 'PENDING' | null
-  const [checkinFilter, setCheckinFilter] = useState(null);      // true | false | null
+  const [statusFilter, setStatusFilter] = useState(null); // 'GOING' | 'PENDING' | null
+  const [checkinFilter, setCheckinFilter] = useState(null); // true | false | null
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
 
@@ -52,7 +55,7 @@ function UserScanPage() {
   document.title = 'User List Scan - Kebbu';
 
   const getStatusBadge = (status) => {
-    const base = "rounded-full px-3 py-1 text-sm font-medium";
+    const base = 'rounded-full px-3 py-1 text-sm font-medium';
     switch (status) {
       case 'GOING':
         return <span className={`bg-green-600 text-white ${base}`}>Going</span>;
@@ -104,13 +107,13 @@ function UserScanPage() {
     try {
       const response = await axios.get(`${urlBe}/events/user/${id}/checkin`, {
         params: {
-          status,                         // 'GOING' | 'PENDING' | null
-          checkin_status,                 // true | false | null
+          status, // 'GOING' | 'PENDING' | null
+          checkin_status, // true | false | null
           search: q || undefined,
           page: newPage,
-          limit: newLimit
+          limit: newLimit,
         },
-        headers: { 'x-jdticket': localStorage.getItem('token') || '' }
+        headers: { 'x-jdticket': localStorage.getItem('token') || '' },
       });
 
       const d = response.data?.data;
@@ -121,17 +124,16 @@ function UserScanPage() {
       setTotal(d?.pagination?.total || (d?.guest_list?.length ?? 0));
 
       // kalau endpoint /scan juga kembalikan data event, perbarui sebagian
-      setData(prev => {
+      setData((prev) => {
         if (!prev) return d || null;
         return {
           ...prev,
           ...(d?.id ? { id: d.id } : {}),
           ...(d?.event_name ? { event_name: d.event_name } : {}),
           ...(d?.event_start_date ? { event_start_date: d.event_start_date } : {}),
-          ...(d?.summary ? { summary: d.summary } : prev?.summary ? { summary: prev.summary } : {})
+          ...(d?.summary ? { summary: d.summary } : prev?.summary ? { summary: prev.summary } : {}),
         };
       });
-
     } catch (error) {
       setErrorMsg('Error fetching guest list');
     } finally {
@@ -172,7 +174,7 @@ function UserScanPage() {
         acc.all += 1;
         return acc;
       },
-      { all: 0, going: 0, pending: 0, checked_in: 0 }
+      { all: 0, going: 0, pending: 0, checked_in: 0 },
     );
     return {
       all: s.all ?? countsFromList.all,
@@ -243,11 +245,7 @@ function UserScanPage() {
   }
 
   if (!data) {
-    return (
-      <div className="p-6 text-red-500">
-        {errorMsg || 'Event not found.'}
-      </div>
-    );
+    return <div className="p-6 text-red-500">{errorMsg || 'Event not found.'}</div>;
   }
 
   return (
@@ -269,8 +267,8 @@ function UserScanPage() {
               className="bg-transparent outline-none text-white w-full font-['Satoshi-Medium']"
             />
           </div>
-          <Link 
-            to={`/scan/${id}`} 
+          <Link
+            to={`/scan/${id}`}
             className="bg-green-700 px-4 py-2 rounded text-white inline-block"
           >
             Scan
@@ -313,7 +311,10 @@ function UserScanPage() {
             <div className="text-center text-gray-400 py-10">No guests found.</div>
           ) : (
             guests.map((guest) => (
-              <div key={guest.id} className="flex justify-between items-center py-3 border-b border-gray-800 last:border-none">
+              <div
+                key={guest.id}
+                className="flex justify-between items-center py-3 border-b border-gray-800 last:border-none"
+              >
                 <div className="flex items-center gap-3">
                   {guest.image ? (
                     <img
@@ -377,11 +378,7 @@ function UserScanPage() {
           </div>
         </div>
 
-        {errorMsg && (
-          <div className="mt-3 text-red-400 text-sm">
-            {errorMsg}
-          </div>
-        )}
+        {errorMsg && <div className="mt-3 text-red-400 text-sm">{errorMsg}</div>}
       </div>
     </div>
   );

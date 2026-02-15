@@ -17,7 +17,7 @@ export default function getCroppedImg(imageSrc, pixelCrop) {
         0,
         0,
         pixelCrop.width,
-        pixelCrop.height
+        pixelCrop.height,
       );
       resolve(canvas.toDataURL('image/jpeg'));
     };

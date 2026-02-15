@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -64,7 +64,7 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #2F645E;
+  border-color: #2f645e;
 }
 button:focus,
 button:focus-visible {
@@ -137,7 +137,7 @@ button:focus-visible {
 /* Variabel font text text */
 @layer utilities {
   /* BOLD */
-  .text-responsive-title { 
+  .text-responsive-title {
     @apply text-2xl font-['Satoshi-Bold'];
   }
 
@@ -152,7 +152,7 @@ button:focus-visible {
   .text-responsive-caption-bold {
     @apply text-xs font-['Satoshi-Bold'];
   }
-  
+
   /* Medium */
   .text-responsive-medium-big {
     @apply text-lg font-['Satoshi-Medium',_sans-serif];
@@ -184,10 +184,10 @@ button:focus-visible {
   }
 }
 
-
 /* Light theme fallback */
 @media (prefers-color-scheme: light) {
-  html, body {
+  html,
+  body {
     color: #213547;
     background-color: #ffffff;
   }

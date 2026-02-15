@@ -1,28 +1,38 @@
-import { useState, useEffect, useMemo } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useMemo } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
 function fmtDate(d) {
   const date = new Date(d);
   if (isNaN(date)) return null;
-  const day = new Intl.DateTimeFormat("en-GB", { day: "2-digit" }).format(date);
-  const month = new Intl.DateTimeFormat("en-GB", { month: "long" }).format(date);
-  const weekday = new Intl.DateTimeFormat("en-GB", { weekday: "long" }).format(date);
-  return { key: `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()}`, day, month, weekday };
+  const day = new Intl.DateTimeFormat('en-GB', { day: '2-digit' }).format(date);
+  const month = new Intl.DateTimeFormat('en-GB', { month: 'long' }).format(date);
+  const weekday = new Intl.DateTimeFormat('en-GB', { weekday: 'long' }).format(date);
+  return {
+    key: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
+    day,
+    month,
+    weekday,
+  };
 }
 function fmtTime(d) {
   const date = new Date(d);
   if (isNaN(date)) return null;
-  const hh = String(date.getHours()).padStart(2, "0");
-  const mm = String(date.getMinutes()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
   return `${hh}.${mm} WIB`;
 }
 function groupByDay(list) {
   const map = new Map();
-  list.forEach(e => {
-    const f = fmtDate(e.start_date) || { key: e.start_date, day: e.start_date, month: "", weekday: "" };
+  list.forEach((e) => {
+    const f = fmtDate(e.start_date) || {
+      key: e.start_date,
+      day: e.start_date,
+      month: '',
+      weekday: '',
+    };
     if (!map.has(f.key)) map.set(f.key, { label: f, items: [] });
     map.get(f.key).items.push(e);
   });
@@ -30,8 +40,8 @@ function groupByDay(list) {
 }
 
 function EventCard({ event }) {
-  const time = fmtTime(event.start_date) ?? (event.start_date?.split(" ")[1] || "");
-  const location = event.location_name || event.location || "";
+  const time = fmtTime(event.start_date) ?? (event.start_date?.split(' ')[1] || '');
+  const location = event.location_name || event.location || '';
   const guests = event.total_registered ?? event.guests ?? 0;
 
   return (
@@ -47,15 +57,21 @@ function EventCard({ event }) {
           </div>
           <div className="mt-2 flex items-center gap-3 text-sm text-white/60">
             <span className="inline-flex items-center gap-1">
-              <span role="img" aria-label="loc">📍</span>{location}
+              <span role="img" aria-label="loc">
+                📍
+              </span>
+              {location}
             </span>
             <span className="inline-flex items-center gap-1">
-              <span role="img" aria-label="guests">👥</span>{guests} guests
+              <span role="img" aria-label="guests">
+                👥
+              </span>
+              {guests} guests
             </span>
           </div>
         </div>
         <img
-          src={event.image || "https://wallpapercave.com/wp/wp9297718.jpg"}
+          src={event.image || 'https://wallpapercave.com/wp/wp9297718.jpg'}
           alt={event.name}
           className="w-36 h-28 rounded-xl object-cover shrink-0"
         />
@@ -70,7 +86,9 @@ function DayBlock({ day }) {
     <div className="flex items-center gap-8">
       {/* Left date label */}
       <div className="flex gap-2 min-w-[220px] text-white items-center">
-        <div className="text-responsive-sub-title leading-tight">{d} <span className="font-normal">{month}</span></div>
+        <div className="text-responsive-sub-title leading-tight">
+          {d} <span className="font-normal">{month}</span>
+        </div>
         <div className="text-responsive-sub-title text-[#a2a2a2]">{weekday}</div>
       </div>
 
@@ -85,19 +103,19 @@ function DayBlock({ day }) {
 }
 
 export default function MyEventPage() {
-  const [activeTab, setActiveTab] = useState("Upcoming");
+  const [activeTab, setActiveTab] = useState('Upcoming');
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [pastEvents, setPastEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const tabs = ["Upcoming", "Past"];
+  const tabs = ['Upcoming', 'Past'];
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    console.log("Klik tab:", tab);
+    console.log('Klik tab:', tab);
   };
 
-  let token = localStorage.getItem("token");
+  let token = localStorage.getItem('token');
   if (!token) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -118,16 +136,16 @@ export default function MyEventPage() {
       setError(null);
       try {
         const res = await axios.get(`${urlBe}/events/my-events`, {
-          headers: { "x-jdticket": localStorage.getItem("token") || "" },
+          headers: { 'x-jdticket': localStorage.getItem('token') || '' },
         });
-        if (res.data && res.data.code === "1" && res.data.data) {
+        if (res.data && res.data.code === '1' && res.data.data) {
           setUpcomingEvents(res.data.data.upcoming || []);
           setPastEvents(res.data.data.past || []);
         } else {
-          setError(res.data?.message || "Failed to fetch events");
+          setError(res.data?.message || 'Failed to fetch events');
         }
       } catch (err) {
-        setError(err?.response?.data?.message || err.message || "Failed to fetch events");
+        setError(err?.response?.data?.message || err.message || 'Failed to fetch events');
       } finally {
         setLoading(false);
       }
@@ -141,8 +159,8 @@ export default function MyEventPage() {
   const groupedUpcoming = useMemo(() => groupByDay(upcomingEvents), [upcomingEvents]);
   const groupedPast = useMemo(() => groupByDay(pastEvents), [pastEvents]);
 
-  const groups = activeTab === "Upcoming" ? groupedUpcoming : groupedPast;
-  const hasData = activeTab === "Upcoming" ? hasUpcoming : hasPast;
+  const groups = activeTab === 'Upcoming' ? groupedUpcoming : groupedPast;
+  const hasData = activeTab === 'Upcoming' ? hasUpcoming : hasPast;
 
   return (
     <div className="min-h-screen mb-12">
@@ -153,10 +171,11 @@ export default function MyEventPage() {
           <div
             key={tab}
             onClick={() => handleTabClick(tab)}
-            className={`mr-4 text-lg cursor-pointer ${activeTab === tab
+            className={`mr-4 text-lg cursor-pointer ${
+              activeTab === tab
                 ? "text-white font-['Satoshi-Bold',_sans-serif] border-b-2 border-[#2F645E]"
                 : "text-[#A2A2A2] font-['Satoshi-Regular'] hover:text-white"
-              }`}
+            }`}
           >
             {tab}
           </div>
@@ -194,7 +213,7 @@ export default function MyEventPage() {
       {!loading && !error && !hasData && (
         <div className="flex flex-col items-center justify-center mt-12">
           <div className="text-white text-2xl font-bold">
-            {tab === "upcoming" ? "No Upcoming Events" : "No Past Events"}
+            {tab === 'upcoming' ? 'No Upcoming Events' : 'No Past Events'}
           </div>
           <div className="text-white/60 mt-2 mb-6">Ready to create something awesome?</div>
           <Link

@@ -1,26 +1,26 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { format } from "date-fns";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { format } from 'date-fns';
 import { useNavigate, Link } from 'react-router-dom';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
 const TABS = [
-  { key: "all", label: "All Events" },
-  { key: "hosted", label: "Hosting" },
-  { key: "attended", label: "Attending" },
+  { key: 'all', label: 'All Events' },
+  { key: 'hosted', label: 'Hosting' },
+  { key: 'attended', label: 'Attending' },
 ];
 
 function UserProfile() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     axios
       .get(`${urlBe}/user/get-profile`, {
         headers: {
-          "x-jdticket": localStorage.getItem("token") || "",
+          'x-jdticket': localStorage.getItem('token') || '',
         },
       })
       .then((res) => setUser(res.data.data))
@@ -68,11 +68,11 @@ function UserProfile() {
 
   // Event tab logic
   let eventsToShow = [];
-  if (activeTab === "all") {
+  if (activeTab === 'all') {
     eventsToShow = user.all_event || [];
-  } else if (activeTab === "hosted") {
+  } else if (activeTab === 'hosted') {
     eventsToShow = user.hosted_event || [];
-  } else if (activeTab === "attended") {
+  } else if (activeTab === 'attended') {
     eventsToShow = user.attended_event || [];
   }
 
@@ -80,11 +80,11 @@ function UserProfile() {
   const usernameDisplay = user.username
     ? `@${user.username}`
     : user.name
-    ? `@${user.name.toLowerCase().replace(/\s/g, "")}`
-    : "";
+      ? `@${user.name.toLowerCase().replace(/\s/g, '')}`
+      : '';
 
   // Fallback bio
-  const bio = user.bio || "Let’s goo";
+  const bio = user.bio || 'Let’s goo';
 
   // Fallback image
   const avatar =
@@ -93,7 +93,7 @@ function UserProfile() {
 
   return (
     <div>
-      <div className='flex flex-col mb-8'>
+      <div className="flex flex-col mb-8">
         <h1 className="text-responsive-title">My Profile</h1>
         <p className="text-gray-400 text-responsive-medium mt-2">
           View all your profile details here.
@@ -120,11 +120,11 @@ function UserProfile() {
               className="text-left font-['Satoshi-Medium',_sans-serif] text-xl leading-6 font-medium w-full"
               style={{
                 background:
-                  "linear-gradient(270deg, rgba(19,231,189,1) 0%, rgba(6,232,232,1) 100%)",
-                backgroundClip: "text",
-                WebkitBackgroundClip: "text",
-                color: "transparent",
-                WebkitTextFillColor: "transparent",
+                  'linear-gradient(270deg, rgba(19,231,189,1) 0%, rgba(6,232,232,1) 100%)',
+                backgroundClip: 'text',
+                WebkitBackgroundClip: 'text',
+                color: 'transparent',
+                WebkitTextFillColor: 'transparent',
               }}
             >
               {usernameDisplay}
@@ -140,7 +140,7 @@ function UserProfile() {
                 alt="calendar"
               />
               <div className="text-second-gray text-left font-['Satoshi-Regular',_sans-serif] text-xl leading-6 font-normal">
-                Joined {format(new Date(user.create_date), "MMMM yyyy")}
+                Joined {format(new Date(user.create_date), 'MMMM yyyy')}
               </div>
             </div>
           </div>
@@ -171,12 +171,20 @@ function UserProfile() {
             </div>
             <div className="flex flex-row gap-[17px] items-center">
               {user.instagram && (
-                <a href={`https://www.instagram.com/${user.instagram}`} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={`https://www.instagram.com/${user.instagram}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <img className="shrink-0 w-6 h-6" src="/icon-instagram0.svg" alt="Instagram" />
                 </a>
               )}
               {user.x && (
-                <a href={`https://www.instagram.com/${user.instagram}`} target="_blank" rel="noopener noreferrer">
+                <a
+                  href={`https://www.instagram.com/${user.instagram}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <img className="shrink-0 w-6 h-6" src="/icon-x0.svg" alt="X" />
                 </a>
               )}
@@ -202,11 +210,11 @@ function UserProfile() {
         <h2 className="text-2xl font-bold mb-2">Events</h2>
         {/* Tabs */}
         <div className="flex gap-6 border-b border-gray-700 mb-4">
-          {TABS.map(tab => (
+          {TABS.map((tab) => (
             <button
               key={tab.key}
               className={`py-2 px-1 text-lg font-semibold relative ${
-                activeTab === tab.key ? "text-white" : "text-gray-400"
+                activeTab === tab.key ? 'text-white' : 'text-gray-400'
               }`}
               onClick={() => setActiveTab(tab.key)}
             >
@@ -222,7 +230,11 @@ function UserProfile() {
             eventsToShow.map((event) => (
               <Link
                 key={event.id}
-                to={event.type === "Attending" ? `/event/${event.public_id}` : `/dashboard/${event.public_id}`}
+                to={
+                  event.type === 'Attending'
+                    ? `/event/${event.public_id}`
+                    : `/dashboard/${event.public_id}`
+                }
                 state={{ name: event.name }}
                 className="flex items-start gap-4 p-3 rounded-2xl hover:bg-gray-800 transition group border border-gray-800"
               >
@@ -233,23 +245,20 @@ function UserProfile() {
                 />
                 <div className="flex-1">
                   {/* Badge Hosting/Attending */}
-                  <span className={`inline-block px-3 py-1 mb-1 text-xs font-semibold rounded-lg
-                    ${event.type === "Attending" ? "bg-green-900 text-green-200" : "bg-blue-900 text-blue-200"}`}>
+                  <span
+                    className={`inline-block px-3 py-1 mb-1 text-xs font-semibold rounded-lg
+                    ${event.type === 'Attending' ? 'bg-green-900 text-green-200' : 'bg-blue-900 text-blue-200'}`}
+                  >
                     {event.type}
                   </span>
-                  <div className="text-xl font-bold group-hover:text-primary">
-                    {event.name}
-                  </div>
+                  <div className="text-xl font-bold group-hover:text-primary">{event.name}</div>
                   <div className="flex items-center text-gray-400 gap-2 text-sm mt-1">
-                    <img
-                      src={avatar}
-                      className="w-4 h-4 rounded-full"
-                      alt="avatar"
-                    />
+                    <img src={avatar} className="w-4 h-4 rounded-full" alt="avatar" />
                     by {user.name}
                   </div>
                   <div className="text-sm text-gray-400 font-medium mt-1">
-                    {format(new Date(event.start_date.replace(" ", "T")), "EEE, d MMM yyyy, HH.mm")} WIB &bull; {event.location}
+                    {format(new Date(event.start_date.replace(' ', 'T')), 'EEE, d MMM yyyy, HH.mm')}{' '}
+                    WIB &bull; {event.location}
                   </div>
                 </div>
               </Link>
