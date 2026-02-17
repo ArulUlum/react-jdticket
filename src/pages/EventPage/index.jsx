@@ -262,7 +262,7 @@ export default function EventPage() {
           </div>
 
           {isCreator && (
-            <div className="mt-4 hidden md:block">
+            <div className="mt-4">
               <a
                 href={`/dashboard/${event.public_id}`}
                 target="_blank"
