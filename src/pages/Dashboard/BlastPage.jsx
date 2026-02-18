@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format, set } from 'date-fns';
-import { ChevronDown, X, SendHorizonal, Bell, MessageSquareText } from 'lucide-react';
+import { ChevronDown, X, SendHorizonal, Bell, MessageSquareText, Loader } from 'lucide-react';
 
 const dummySent = [
   {
@@ -22,6 +22,7 @@ function BlastPage({ id }) {
   const [showOptions, setShowOptions] = useState(false);
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   // Modal state
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [scheduleDate, setScheduleDate] = useState('');
@@ -67,12 +68,13 @@ function BlastPage({ id }) {
   };
 
   const sendEmailBlast = async (id) => {
+    setLoading(true);
     let scheduler = null;
     if (scheduleDate && scheduleTime) {
       scheduler = `${scheduleDate}T${scheduleTime}:00`;
     }
     const payload = {
-      id: id,
+      public_id: id,
       subject: subject,
       message: message,
       recipient_status: selectedOption ? selectedOption.value : null,
@@ -92,6 +94,8 @@ function BlastPage({ id }) {
       } else {
         alert('Unexpected error');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -201,7 +205,7 @@ function BlastPage({ id }) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Write Message Here"
-              className="text-sm outline-none bg-transparent font-['Satoshi-Medium',_sans-serif] w-full resize-none"
+              className="text-sm outline-none bg-transparent font-['Satoshi-Medium',_sans-serif] w-full resize-none min-h-[150px]"
             />
           </div>
         </div>
@@ -218,11 +222,21 @@ function BlastPage({ id }) {
             Schedule
           </button>
           <button
+            disabled={loading}
             onClick={() => sendEmailBlast(id)}
-            className="bg-white rounded-[10px] border border-[#212121] px-4 py-2 flex items-center gap-2 text-[#171414] text-base font-['Satoshi-Bold',_sans-serif]"
+            className={`bg-white rounded-[10px] border border-[#212121] px-4 py-2 flex items-center gap-2 text-[#171414] text-base font-['Satoshi-Bold',_sans-serif] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            Send Now
-            <SendHorizonal className="w-5 h-5" />
+            {loading ? (
+              <>
+                <Loader className="w-5 h-5 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              <>
+                Send Now
+                <SendHorizonal className="w-5 h-5" />
+              </>
+            )}
           </button>
         </div>
 
@@ -258,25 +272,35 @@ function BlastPage({ id }) {
                 />
               </div>
               <button
-                className="bg-white rounded-[10px] border border-[#212121] px-4 py-3 w-full flex items-center justify-center gap-2 text-[#171414] text-base font-['Satoshi-Bold',_sans-serif]"
+                disabled={loading}
+                className={`bg-white rounded-[10px] border border-[#212121] px-4 py-3 w-full flex items-center justify-center gap-2 text-[#171414] text-base font-['Satoshi-Bold',_sans-serif] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={() => {
                   sendEmailBlast(id);
                   handleCloseScheduleModal();
                 }}
               >
-                <span>
-                  <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
-                    <path
-                      stroke="#171414"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 6v6l4 2"
-                    />
-                    <circle cx="12" cy="12" r="10" stroke="#171414" strokeWidth="2" />
-                  </svg>
-                </span>
-                Schedule
+                {loading ? (
+                  <>
+                    <Loader className="w-5 h-5 animate-spin" />
+                    Scheduling...
+                  </>
+                ) : (
+                  <>
+                    <span>
+                      <svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+                        <path
+                          stroke="#171414"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 6v6l4 2"
+                        />
+                        <circle cx="12" cy="12" r="10" stroke="#171414" strokeWidth="2" />
+                      </svg>
+                    </span>
+                    Schedule
+                  </>
+                )}
               </button>
             </div>
           </div>
