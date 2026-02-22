@@ -84,7 +84,7 @@ export default function PaymentModal({
 
         if (!mounted) return;
         setPayment(data);
-        if (data.code === '1') {
+        if (res?.data?.code == '1') {
           setStatus('PENDING');
         } else {
           // Treat non-success response as an error so catch stores server payload
