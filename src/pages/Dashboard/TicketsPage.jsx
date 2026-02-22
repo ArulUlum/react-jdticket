@@ -22,7 +22,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
-const TicketsPage = ({ id, event }) => {
+const TicketsPage = ({ id }) => {
   const [data, setData] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedQuestionType, setSelectedQuestionType] = useState('Question per User');
@@ -73,6 +73,7 @@ const TicketsPage = ({ id, event }) => {
   const AddOptionsRef = useRef(null);
   const AddCheckboxRef = useRef(null);
   const promoModalRef = useRef(null);
+  const emailModalRef = useRef(null);
   // Tambahkan modal lainnya di sini...
 
   // Modal States
@@ -95,6 +96,15 @@ const TicketsPage = ({ id, event }) => {
   const [promoAmount, setPromoAmount] = useState('');
   const [capacityValue, setCapacityValue] = useState('');
   const [acceptRegistration, setAcceptRegistration] = useState(true);
+
+  // custom email registration states
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailStatus, setEmailStatus] = useState('');
+  const [emailMessages, setEmailMessages] = useState({
+    'Pending Approval': '',
+    Going: '',
+    Decline: '',
+  });
   // Tambahkan modal lainnya di sini...
 
   const modals = [
@@ -120,6 +130,7 @@ const TicketsPage = ({ id, event }) => {
       close: () => setShowAddCheckboxModal(false),
     },
     { ref: promoModalRef, isOpen: isPromoModalOpen, close: () => setIsPromoModalOpen(false) },
+    { ref: emailModalRef, isOpen: isEmailModalOpen, close: () => setIsEmailModalOpen(false) },
     // Tambahkan modal lain: { ref, isOpen, close }
   ];
 
@@ -251,6 +262,16 @@ const TicketsPage = ({ id, event }) => {
       console.error('Failed to fetch sales report:', err);
     }
   };
+
+  // initialize email messages from backend data when loaded
+  useEffect(() => {
+    if (!data) return;
+    setEmailMessages({
+      'Pending Approval': data.email_pending ?? '',
+      Going: data.email_going ?? '',
+      Decline: data.email_decline ?? '',
+    });
+  }, [data]);
 
   const fetchTicketDetail = async (ticketId) => {
     try {
@@ -387,6 +408,48 @@ const TicketsPage = ({ id, event }) => {
       console.error('Failed to update registration:', error);
       alert(error?.response?.data?.message || 'Gagal update registration. Silakan coba lagi.');
     }
+  };
+
+  const openEmailModal = (status) => {
+    setEmailStatus(status);
+    setIsEmailModalOpen(true);
+  };
+
+  const saveEmailMessage = async () => {
+    // messages have already been written via the textarea onChange
+    const text = emailMessages[emailStatus] || '';
+    // map UI label -> backend type
+    const typeMap = {
+      'Pending Approval': 'PENDING',
+      Going: 'GOING',
+      Decline: 'DECLINE',
+    };
+    const type = typeMap[emailStatus] || String(emailStatus).toUpperCase().replace(/\s+/g, '_');
+
+    try {
+      const res = await axios.post(
+        `${urlBe}/events/add-custom-email/${id}`,
+        { text, type },
+        { headers: { 'x-jdticket': localStorage.getItem('token') || '' } },
+      );
+
+      // give some feedback and close modal
+      if (res?.data?.code === '1' || res?.status === 200) {
+        alert('✅ Custom email saved');
+        setIsEmailModalOpen(false);
+      } else {
+        alert(res?.data?.message || 'Custom email saved');
+        setIsEmailModalOpen(false);
+      }
+    } catch (error) {
+      console.error('Failed to save custom email:', error);
+      alert(error?.response?.data?.message || '❌ Failed to save custom email.');
+    }
+  };
+
+  const truncateText = (text, max = 120) => {
+    if (!text) return '';
+    return text.length > max ? `${text.slice(0, max)}...` : text;
   };
 
   const formatDate = (isoString) => {
@@ -1288,6 +1351,111 @@ const TicketsPage = ({ id, event }) => {
           </div>
         )}
       </div>
+
+      {/* Divider */}
+      <hr className="my-8 border-[#333]" />
+
+      {/* Custom Email Registration Section */}
+      <div className="mb-6">
+        <h2 className="text-lg font-['Satoshi-Bold',_sans-serif] text-white mb-2">
+          Custom Email Registration
+        </h2>
+        <p className="text-[#A2A2A2] mb-4">Customize registration, approval, and decline emails</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[
+            { label: 'Pending Approval', color: '#f2ab27' },
+            { label: 'Going', color: '#31d34f' },
+            { label: 'Decline', color: '#f94d4d' },
+          ].map((item) => {
+            const preview =
+              item.label === 'Pending Approval'
+                ? data?.email_pending
+                : item.label === 'Going'
+                ? data?.email_going
+                : data?.email_decline;
+
+            return (
+              <div
+                key={item.label}
+                onClick={() => openEmailModal(item.label)}
+                className="bg-[#141717] rounded-xl px-4 py-4 cursor-pointer hover:bg-[#1d1f1f] transition"
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="text-xs px-2 py-1 rounded-full text-white"
+                    style={{ backgroundColor: item.color }}
+                  >
+                    {item.label}
+                  </span>
+                </div>
+
+                <div className="mt-3">
+                  {preview ? (
+                    <p className="text-sm text-[#A2A2A2]">
+                      {truncateText(preview, 140)}
+                    </p>
+                  ) : (
+                    <div className="h-6 bg-[#1f1f1f] rounded-md w-full" />
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {isEmailModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+          <div
+            ref={emailModalRef}
+            className="bg-[#141717] text-white p-6 rounded-xl w-[350px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
+                <img src={regis} alt="Icon" className="w-5 h-5" />
+              </div>
+              <h2 className="text-xl font-['Satoshi-Bold',_sans-serif]">
+                {emailStatus}
+              </h2>
+            </div>
+
+            <p className="text-sm text-[#A2A2A2] mb-2">
+              {/* description based on status */}
+              {emailStatus === 'Pending Approval'
+                ? 'Sent when a guest registers (pending approval or waitlist)'
+                : emailStatus === 'Going'
+                ? 'Sent when a guest registers or is approved'
+                : 'Sent when a guest is declined'}
+            </p>
+
+            <p className="text-sm text-[#A2A2A2] mb-4">
+              Registration {emailStatus.toLowerCase()} for EVENT NAME
+            </p>
+
+            <textarea
+              value={emailMessages[emailStatus] || ''}
+              onChange={(e) =>
+                setEmailMessages((prev) => ({
+                  ...prev,
+                  [emailStatus]: e.target.value,
+                }))
+              }
+              placeholder="Add your custom message here."
+              className="w-full bg-[#1f1f1f] text-white text-sm px-3 py-2 rounded-md mb-4 h-32 outline-none"
+            />
+
+            <div className="flex justify-between items-center">
+              <button className="text-sm text-[#A2A2A2]">Send a Preview</button>
+              <button
+                className="bg-white text-black px-4 py-2 rounded-lg font-['Satoshi-Bold',_sans-serif]"
+                onClick={saveEmailMessage}
+              >
+                Update Email
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isPromoModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">

@@ -84,11 +84,19 @@ export default function PaymentModal({
 
         if (!mounted) return;
         setPayment(data);
-        setStatus('PENDING');
+        if (data.code === '1') {
+          setStatus('PENDING');
+        } else {
+          // Treat non-success response as an error so catch stores server payload
+          throw { response: { data } };
+        }
       } catch (err) {
         if (axios.isCancel?.(err)) return;
         console.error('Failed to create invoice:', err);
         if (!mounted) return;
+        // store backend error payload (if any) so FAILED UI can show details
+        const errPayload = err?.response?.data ?? { message: err?.message || String(err) };
+        setPayment(errPayload);
         setStatus('FAILED');
       }
     })();
@@ -218,7 +226,16 @@ export default function PaymentModal({
         {status === 'FAILED' && (
           <div className="text-center py-10 text-red-400">
             <div className="text-lg font-semibold">Gagal membuat / mengecek pembayaran</div>
-            <div className="text-sm text-[#a2a2a2] mt-2">Silakan tutup lalu coba lagi.</div>
+            <div className="text-sm text-[#a2a2a2] mt-2">
+              {(
+                payment?.message ||
+                payment?.error ||
+                payment?.error_message ||
+                payment?.response?.message ||
+                payment?.detail ||
+                payment?.msg
+              ) || 'No details available from server.'}
+            </div>
             <div className="mt-6">
               <button
                 className="bg-white text-[#141717] font-bold rounded-lg py-2 px-4"
