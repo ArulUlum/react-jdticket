@@ -1429,7 +1429,7 @@ const TicketsPage = ({ id }) => {
             </p>
 
             <p className="text-sm text-[#A2A2A2] mb-4">
-              Registration {emailStatus.toLowerCase()} for EVENT NAME
+              Registration {emailStatus.toLowerCase()} for {data?.name}
             </p>
 
             <textarea
