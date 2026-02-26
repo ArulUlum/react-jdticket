@@ -22,49 +22,65 @@ const GuestPage = ({ id, event }) => {
   const [detailError, setDetailError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
-  // helper to export guests array to CSV and trigger download
-  const exportCsv = () => {
-    if (!guests || guests.length === 0) return;
-    const header = [
-      'Name',
-      'Email',
-      'Phone',
-      'Total Ticket',
-      'Approval Status',
-      'Is Check-in',
-      'Checkin Date',
-      'Role',
-    ];
-    const rows = guests.map((g) => [
-      g.name,
-      g.email,
-      g.phone || '',
-      g.total_ticket,
-      g.status,
-      g.is_checkin ? 'Yes' : 'No',
-      g.checkin_date || '',
-      g.role,
-    ]);
-    const escape = (v) => {
-      const s = v == null ? '' : String(v);
-      // only quote if contains comma, newline, or double quote
-      if (s.includes(',') || s.includes('\n') || s.includes('"')) {
-        return '"' + s.replace(/"/g, '""') + '"';
+  // helper to fetch export list from backend and trigger download
+  const exportCsv = async () => {
+    try {
+      const response = await axios.get(`${urlBe}/events/guests/${id}/export`, {
+        headers: {
+          'x-jdticket': localStorage.getItem('token') || '',
+        },
+      });
+      const guestsToExport = response.data?.data?.list_guest || [];
+      if (!guestsToExport.length) {
+        alert('No guests available for export');
+        return;
       }
-      return s;
-    };
-    const csvContent = [header, ...rows]
-      .map((r) => r.map(escape).join(','))
-      .join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${event?.name} - GUEST - ${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+
+      const header = [
+        'Name',
+        'Email',
+        'Phone',
+        'Total Ticket',
+        'Approval Status',
+        'Role',
+        'Created At',
+        'Is Check-in',
+        'Checkin Date',
+      ];
+      const rows = guestsToExport.map((g) => [
+        g.name,
+        g.email,
+        g.phone || '',
+        g.total_ticket,
+        g.status,
+        g.role,
+        g.create_date,
+        g.is_checkin ? 'Yes' : 'No',
+        g.checkin_date || '',
+      ]);
+      const escape = (v) => {
+        const s = v == null ? '' : String(v);
+        if (s.includes(',') || s.includes('\n') || s.includes('"')) {
+          return '"' + s.replace(/"/g, '""') + '"';
+        }
+        return s;
+      };
+      const csvContent = [header, ...rows]
+        .map((r) => r.map(escape).join(','))
+        .join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${event?.name} - GUEST - ${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export CSV failed:', err);
+      alert('Failed to export guests');
+    }
   };
   document.title = 'Guest List - Kebbu';
 
