@@ -527,7 +527,7 @@ const GuestPage = ({ id, event }) => {
                   <div>
                     <div className="text-xs text-gray-400">Phone Number</div>
                     <div className="font-['Satoshi-Medium',_sans-serif]'">
-                      {selectedGuestDetail.phone || selectedGuestDetail.phone_number || '-'}
+                      {selectedGuestDetail.phone || '-'}
                     </div>
                   </div>
                   <div>

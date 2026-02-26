@@ -32,7 +32,7 @@ function App() {
           <Route path="/wallet" element={<WalletPage />} />
           <Route path="/my-event" element={<MyEventPage />} />
           <Route path="/create-event" element={<CreateEvent />} />
-          <Route path="/event/:url" element={<EventPage />} />
+          <Route path="/:url" element={<EventPage />} />
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/dashboard/:id" element={<Dashboard />} />
           <Route path="/event-user-scan/:id" element={<UserScanPage />} />

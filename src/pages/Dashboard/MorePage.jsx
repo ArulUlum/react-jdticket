@@ -102,7 +102,7 @@ const MorePage = ({ id }) => {
   };
 
   const handleCopyUrl = async () => {
-    const fullUrl = `kebbu.id/event/${urlInput}`;
+    const fullUrl = `kebbu.id/${urlInput}`;
     try {
       await navigator.clipboard.writeText(fullUrl);
       setUpdateMessage({ type: 'success', text: 'URL copied to clipboard!' });
