@@ -46,7 +46,7 @@ function EventCard({ event }) {
 
   return (
     <Link
-      to={`/event/${event.url}`}
+      to={`/${event.url}`}
       className="block bg-[#151515]/90 hover:bg-[#181818] transition rounded-2xl border border-white/5 shadow-sm hover:shadow-lg"
     >
       <div className="flex items-center gap-5 p-5">

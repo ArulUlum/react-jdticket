@@ -232,7 +232,7 @@ function UserProfile() {
                 key={event.id}
                 to={
                   event.type === 'Attending'
-                    ? `/event/${event.public_id}`
+                    ? `/${event.url}`
                     : `/dashboard/${event.public_id}`
                 }
                 state={{ name: event.name }}
