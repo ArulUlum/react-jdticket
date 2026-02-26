@@ -136,7 +136,7 @@ function Home() {
           events.map((event) => (
             <Link
               key={event.id}
-              to={`/event/${event.url}`}
+              to={`/${event.url}`}
               className="keen-slider__slide text-white hover:text-white bg-[#141717] border border-[#2a2a2a] rounded-2xl cursor-pointer"
             >
               {/* Gambar Event */}
