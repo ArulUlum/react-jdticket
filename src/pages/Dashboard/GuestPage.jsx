@@ -4,7 +4,7 @@ import { Check, X, Ticket, Crown, Search, Filter, Download } from 'lucide-react'
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
-const GuestPage = ({ id }) => {
+const GuestPage = ({ id, event }) => {
   const [guests, setGuests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -21,6 +21,51 @@ const GuestPage = ({ id }) => {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+
+  // helper to export guests array to CSV and trigger download
+  const exportCsv = () => {
+    if (!guests || guests.length === 0) return;
+    const header = [
+      'Name',
+      'Email',
+      'Phone',
+      'Total Ticket',
+      'Approval Status',
+      'Is Check-in',
+      'Checkin Date',
+      'Role',
+    ];
+    const rows = guests.map((g) => [
+      g.name,
+      g.email,
+      g.phone || '',
+      g.total_ticket,
+      g.status,
+      g.is_checkin ? 'Yes' : 'No',
+      g.checkin_date || '',
+      g.role,
+    ]);
+    const escape = (v) => {
+      const s = v == null ? '' : String(v);
+      // only quote if contains comma, newline, or double quote
+      if (s.includes(',') || s.includes('\n') || s.includes('"')) {
+        return '"' + s.replace(/"/g, '""') + '"';
+      }
+      return s;
+    };
+    const csvContent = [header, ...rows]
+      .map((r) => r.map(escape).join(','))
+      .join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${event?.name} - GUEST - ${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
   document.title = 'Guest List - Kebbu';
 
   useEffect(() => {
@@ -332,7 +377,10 @@ const GuestPage = ({ id }) => {
           <button className="bg-transparent flex items-center gap-2 text-white px-4 py-2 rounded-lg border border-gray-700 font-['Satoshi-Regular',_sans-serif]">
             <Filter size={18} /> All Tickets
           </button>
-          <button className="bg-transparent text-white rounded-lg border border-gray-700">
+          <button
+            onClick={exportCsv}
+            className="bg-transparent text-white rounded-lg border border-gray-700"
+          >
             <Download size={18} />
           </button>
         </div>

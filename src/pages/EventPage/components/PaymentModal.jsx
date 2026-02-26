@@ -117,7 +117,9 @@ export default function PaymentModal({
     return normalizeQrString(payment?.qrCode || payment?.qr_string || payment?.qr || '');
   }, [payment]);
 
-  // 2) Countdown expiry
+  // 2) Countdown expiry (and notify backend when EXPIRED)
+  const expiredSentRef = useRef(false);
+
   useEffect(() => {
     if (!isOpen) return;
     if (!expiredAtRaw) return;
@@ -139,6 +141,16 @@ export default function PaymentModal({
 
     return () => clearInterval(interval);
   }, [isOpen, expiredAtRaw, status]);
+
+  // inform backend when we hit expired state
+  useEffect(() => {
+    if (status === 'EXPIRED' && invoiceCode && !expiredSentRef.current) {
+      expiredSentRef.current = true;
+      axios.post(`${urlBe}/payment/set-expired`, { invoiceCode }).catch((err) => {
+        console.warn('failed to notify expired:', err?.message || err);
+      });
+    }
+  }, [status, invoiceCode]);
 
   // 3) Polling status
   useEffect(() => {
