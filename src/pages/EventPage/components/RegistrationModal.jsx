@@ -233,30 +233,44 @@ export default function RegistrationModal({
 
                     {selectedPaymentGroup === group.group && (
                       <div className="flex flex-col gap-1 w-full">
-                        {group.items.map((item) => (
-                          <div
-                            key={item.label}
-                            className={`flex items-center gap-3 p-2 rounded-lg border w-full cursor-pointer ${
-                              selectedPayment === item.label
-                                ? 'border-[#13E7BD] bg-[#1c1d1d]'
-                                : 'border-[#212121] bg-[#1c1d1d]'
-                            }`}
-                            onClick={() => setSelectedPayment(item.label)}
-                          >
-                            <img src={item.icon} alt={item.label} className="w-9 h-9" />
-                            <div className="text-[#a2a2a2] text-responsive-medium flex-1">
-                              {item.label}
+                        {group.items.map((item) => {
+                          const isDisabled = item.disabled;
+                          const wrapperClasses = [`flex items-center gap-3 p-2 rounded-lg border w-full`];
+                          if (isDisabled) {
+                            wrapperClasses.push('bg-gray-800 border-gray-600 cursor-not-allowed opacity-60');
+                          } else if (selectedPayment === item.label) {
+                            wrapperClasses.push('border-[#13E7BD] bg-[#1c1d1d]');
+                          } else {
+                            wrapperClasses.push('border-[#212121] bg-[#1c1d1d] cursor-pointer');
+                          }
+
+                          return (
+                            <div
+                              key={item.label}
+                              className={wrapperClasses.join(' ')}
+                              onClick={() => !isDisabled && setSelectedPayment(item.label)}
+                            >
+                              <img src={item.icon} alt={item.label} className="w-9 h-9" />
+                              <div className="text-[#a2a2a2] text-responsive-medium flex-1">
+                                {item.label}
+                                {item.note && (
+                                  <span className="text-xs text-yellow-300 block">
+                                    {item.note}
+                                  </span>
+                                )}
+                              </div>
+                              <input
+                                type="radio"
+                                name="paymentMethod"
+                                value={item.label}
+                                checked={selectedPayment === item.label}
+                                onChange={() => !isDisabled && setSelectedPayment(item.label)}
+                                className="accent-[#13E7BD] w-5 h-5 cursor-pointer"
+                                disabled={isDisabled}
+                              />
                             </div>
-                            <input
-                              type="radio"
-                              name="paymentMethod"
-                              value={item.label}
-                              checked={selectedPayment === item.label}
-                              onChange={() => setSelectedPayment(item.label)}
-                              className="accent-[#13E7BD] w-5 h-5 cursor-pointer"
-                            />
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -269,7 +283,9 @@ export default function RegistrationModal({
           <button
             type="submit"
             className="bg-white text-[#1a1c29] font-bold rounded-lg py-3 w-full mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
-            disabled={isSubmitting}
+            disabled={
+              isSubmitting || (isPaid && !selectedPayment) // can't continue if paid event and no payment chosen
+            }
           >
             {isSubmitting ? 'Continue...' : 'Continue'}
           </button>

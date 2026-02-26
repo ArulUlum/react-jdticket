@@ -45,7 +45,11 @@ export default function EventPage() {
   const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
 
   const [selectedPayment, setSelectedPayment] = useState('');
-  const [selectedPaymentGroup, setSelectedPaymentGroup] = useState(payments[0].group);
+  const [selectedPaymentGroup, setSelectedPaymentGroup] = useState(() => {
+    // choose first group that has at least one enabled item
+    const enabledGroup = payments.find((g) => g.items.some((i) => !i.disabled));
+    return enabledGroup ? enabledGroup.group : payments[0].group;
+  });
 
   const [registrationModal, setRegistrationModal] = useState(false);
   const [ticketModal, setTicketModal] = useState(false);

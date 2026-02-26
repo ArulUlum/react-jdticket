@@ -9,8 +9,22 @@ import bni from '../../../assets/BNI.svg';
 import bri from '../../../assets/BRI.svg';
 import creditCard from '../../../assets/Credit-Card.svg';
 
+const qrisEnabled = false; // Set to true to enable QRIS, false to disable
+
 export const payments = [
-  { group: 'QRIS', items: [{ label: 'QRIS', icon: qris, code: 'qris' }] },
+  // QRIS group – item contains disabled flag and optional note
+  {
+    group: 'QRIS',
+    items: [
+      {
+        label: 'QRIS',
+        icon: qris,
+        code: 'qris',
+        disabled: !qrisEnabled,
+        note: !qrisEnabled ? 'Under maintenance' : null,
+      },
+    ],
+  },
   // {
   //   group: 'E-Wallet',
   //   items: [
