@@ -250,7 +250,7 @@ const MorePage = ({ id }) => {
               className="w-5 h-5 text-[#a2a2a2] mr-4 cursor-pointer hover:text-white transition"
               onClick={handleCopyUrl}
             />
-            <span className="text-[#a2a2a2] ">kebbu.id/event/</span>
+            <span className="text-[#a2a2a2] ">kebbu.id/</span>
             <input
               type="text"
               value={urlInput}
