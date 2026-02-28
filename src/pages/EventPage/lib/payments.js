@@ -9,7 +9,7 @@ import bni from '../../../assets/BNI.svg';
 import bri from '../../../assets/BRI.svg';
 import creditCard from '../../../assets/Credit-Card.svg';
 
-const qrisEnabled = false; // Set to true to enable QRIS, false to disable
+const qrisEnabled = true; // Set to true to enable QRIS, false to disable
 
 export const payments = [
   // QRIS group – item contains disabled flag and optional note
