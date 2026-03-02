@@ -56,7 +56,7 @@ const SalesPage = ({ id }) => {
   const salesData = [
     {
       label: 'Total Sales',
-      value: 'Rp. ' + data?.total_sales.toLocaleString('id-ID'),
+      value: 'Rp ' + data?.total_sales.toLocaleString('id-ID'),
       trend: 'up',
       percent: '20%',
       color: 'green',
