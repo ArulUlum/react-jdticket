@@ -523,7 +523,7 @@ function OverviewPage({ id, event }) {
               </div>
 
               <div className="flex justify-between items-center">
-                <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-3">{item.value}</div>
+                <div className="text-xl font-['Satoshi-Bold',_sans-serif] mb-3">{item.value.toLocaleString('id-ID')}</div>
                 {/* Bottom: Trend (icon + percent) */}
                 <div
                   className={`inline-flex items-center gap-1 px-2 py-[2px] text-xs font-medium rounded-md ${
