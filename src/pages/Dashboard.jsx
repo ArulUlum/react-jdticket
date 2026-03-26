@@ -108,7 +108,7 @@ function Dashboard() {
       <div className="text-white mb-6">
         <h1 className="text-responsive-title mb-4">{state?.name || event.name}</h1>
 
-        <div className="flex gap-4">
+        <div className="flex gap-4 overflow-x-auto whitespace-nowrap pb-1">
           {tabs.map((tab) => {
             const search = `?tab=${encodeURIComponent(tab.key)}`;
             return (
@@ -117,7 +117,7 @@ function Dashboard() {
                 to={{ search }}
                 replace
                 className={() =>
-                  `mr-4 inline-block text-lg cursor-pointer no-underline border-b-2 border-transparent pb-1 ${
+                  `mr-4 flex-shrink-0 inline-flex items-center text-lg cursor-pointer no-underline border-b-2 border-transparent pb-1 ${
                     activeTab === tab.key
                       ? "text-white font-['Satoshi-Bold',_sans-serif] border-[#2F645E] hover:text-white"
                       : "text-[#A2A2A2] font-['Satoshi-Regular'] hover:text-white"
