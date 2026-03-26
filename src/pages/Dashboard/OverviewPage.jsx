@@ -5,6 +5,12 @@ import getCroppedImg from '../../utils/cropImage';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import {
+  getMonth,
+  getYear,
+  format,
+} from 'date-fns';
+import axios from 'axios';
+import {
   UserPlus,
   Send,
   Share2,
@@ -20,8 +26,6 @@ import {
   Clock,
   X,
 } from 'lucide-react';
-import { format } from 'date-fns';
-import axios from 'axios';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
@@ -293,41 +297,80 @@ function OverviewPage({ id, event }) {
   ];
 
   return (
-    <div className="min-h-screen">
-      <div className="bg-[#0f0f0f] border border-[#1f2b2a] rounded-2xl p-4 sm:p-5">
-        {/* Action Buttons */}
-        <div className="grid grid-cols-3 gap-3">
+    <div className="min-h-screen text-white">
+      <div className="mx-auto w-full max-w-[1120px]">
+      <div className="grid gap-3 grid-cols-3">
         {actions.map(({ icon, label, onClick }, i) => (
           <button
             key={i}
             onClick={onClick}
-            className="w-full flex items-center justify-center gap-2 bg-[#141717] border border-[#2a2a2a] rounded-xl px-2.5 py-2 sm:px-3 sm:py-3 hover:border-[#3DAA95] transition"
+            className="h-11 rounded-lg border border-white/60 bg-gradient-to-br from-[#001C19] to-[#090909] px-3 py-1.5"
           >
-            <div
-              className="p-1 rounded-md flex w-7 h-7 sm:w-8 sm:h-8 bg-[#D7FF3D] text-black items-center justify-center"
-            >
-              {icon}
+            <div className="flex items-center justify-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#D9FF1A]">
+                {icon}
+              </span>
+              <span className="text-xs font-bold sm:text-sm">{label}</span>
             </div>
-            <span className="text-white font-['Satoshi-Bold',_sans-serif] text-xs sm:text-sm whitespace-nowrap">
-              {label}
-            </span>
           </button>
         ))}
       </div>
 
-      {/* Event Card */}
-      <div className="bg-[#141717] border border-[#2a2a2a] rounded-xl mt-4 sm:mt-6 p-4 flex flex-row gap-4 items-start text-white font-satoshi">
-        {/* Left: Image */}
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          className="shrink-0 cursor-pointer hover:opacity-80 transition rounded-lg overflow-hidden w-[120px] h-[90px] sm:w-[160px] sm:h-[120px] lg:w-[250px] lg:h-[180px]"
-          title="Click to edit image"
-        >
-          <img
-            src={eventImage}
-            alt="event"
-            className="w-full h-full object-cover rounded-lg"
-          />
+      <div className="mt-4 w-full rounded-3xl border border-white/60 bg-gradient-to-br from-[#001C19] to-[#090909] p-3 sm:p-4 lg:p-5">
+        <div className="flex flex-row items-start gap-3 sm:gap-4 lg:gap-6">
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="h-[110px] w-[110px] shrink-0 cursor-pointer overflow-hidden rounded-2xl sm:h-[130px] sm:w-[130px] lg:h-[215px] lg:w-[215px]"
+            title="Click to edit image"
+          >
+            <img src={eventImage} alt="event" className="h-full w-full object-cover" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
+              <h1 className="text-[20px] leading-[1.12] font-bold sm:text-[24px] lg:text-[38px]">{event.name}</h1>
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="inline-flex items-center gap-1 rounded-lg border border-[#212121] bg-[#1C1D1D] px-2 py-1 text-[10px] leading-4 text-white/90 hover:bg-[#242525] sm:px-3 sm:py-1.5 sm:text-xs"
+                title="Edit Event"
+              >
+                <span>Edit Event</span>
+                <PencilLine className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+              </button>
+            </div>
+
+            <div className="mt-2.5 flex items-start gap-2.5 sm:mt-3 sm:gap-3">
+              <div className="h-9 w-9 overflow-hidden rounded-lg border border-white/80 sm:h-11 sm:w-11 lg:h-12 lg:w-12">
+                <div className="border-b border-white/80 px-1.5 py-0.5 text-center text-[9px] leading-none text-[#A2A2A2] lg:text-[10px]">
+                  {startMonth}
+                </div>
+                <div className="flex h-[22px] items-center justify-center text-[14px] leading-none sm:h-[26px] sm:text-[18px] lg:h-[28px] lg:text-[22px]">
+                  {startDay}
+                </div>
+              </div>
+              <div className="min-w-0">
+                <div className="text-[13px] leading-[1.25] font-semibold sm:text-[16px] lg:text-[24px]">
+                  {formattedStartDate}
+                </div>
+                <div className="text-[11px] leading-[1.25] text-[#A2A2A2] sm:text-[12px] lg:text-[19px]">
+                  {formattedStartTime} - {formattedEndTime} WIB
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-2.5 flex items-start gap-2.5 sm:mt-3 sm:gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/80 sm:h-11 sm:w-11 lg:h-12 lg:w-12">
+                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[14px] leading-[1.2] font-semibold sm:text-[17px] lg:text-[26px]">
+                  {event.location_name}
+                </div>
+                <div className="text-[10px] leading-[1.25] text-[#A2A2A2] sm:text-[11px] lg:text-[17px]">
+                  {event.location_address}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <input
           ref={fileInputRef}
@@ -361,184 +404,108 @@ function OverviewPage({ id, event }) {
             }
           }}
         />
-
-        {/* Right: Content */}
-        <div className="flex-1">
-          <div className="flex justify-between items-start">
-            <h1 className="text-[22px] sm:text-responsive-title mb-2">{event.name}</h1>
-            <button
-              onClick={() => setShowEditModal(true)}
-              className="hidden sm:flex items-center gap-1 text-sm text-white bg-[#1c1d1d] px-3 py-1 rounded-lg border border-[#212121] hover:bg-[#2a2a2a] transition"
-            >
-              Edit Event
-              <PencilLine className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Date */}
-          <div className="flex items-start gap-3 mb-4 mt-1">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg border border-[#2a2a2a] flex items-center justify-center">
-              <CalendarDays className="text-white w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
-            <div>
-              <div className="text-sm sm:text-base font-['Satoshi-Bold',_sans-serif]">
-                {formattedStartDate}
-              </div>
-              <div className="text-xs sm:text-sm text-[#A2A2A2] font-['Satoshi-Regular']">
-                {formattedStartTime} - {formattedEndTime} WIB
-              </div>
-            </div>
-          </div>
-
-          {/* Location */}
-          <div className="flex items-start gap-3 mb-4">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg border border-[#2a2a2a] flex items-center justify-center">
-              <MapPin className="text-white w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
-            <div>
-              <div className="text-sm sm:text-base font-['Satoshi-Bold',_sans-serif]">
-                {event.location_name}
-              </div>
-              <div className="text-xs sm:text-sm text-[#A2A2A2] font-['Satoshi-Regular']">
-                {event.location_address}
-              </div>
-            </div>
-          </div>
-
-          {/* Start Check-In */}
-          <Link
-            to={`/event-user-scan/${id}`}
-            className="w-full bg-[#D7FF3D] text-black py-2.5 sm:py-3 rounded-lg text-sm sm:text-responsive-sub-title font-['Satoshi-Bold',_sans-serif] flex items-center justify-center gap-2 hover:opacity-90 transition"
-          >
-            <ScanLine className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
-            Start Check-In
-          </Link>
-        </div>
+        <Link
+          to={`/event-user-scan/${id}`}
+          className="mt-4 flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#D9FF4A] text-base font-semibold text-[#141717] sm:text-lg lg:mt-5 lg:text-[30px]"
+        >
+          <ScanLine className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7" />
+          Start Check-In
+        </Link>
       </div>
 
-      {/* Registration Info */}
-      <div className="bg-transparent pt-6 rounded-xl font-satoshi text-white">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-4">
-          <div className="text-base sm:text-lg font-['Satoshi-Bold',_sans-serif]">Guests</div>
-          <button className="text-sm bg-[#1e1e1e] border border-[#333] px-3 py-1 rounded-lg hover:bg-[#2a2a2a]">
+      <div className="mt-5 border-t border-white/40 pt-4">
+        <div className="flex items-center justify-between">
+          <div className="text-[10px] leading-[10px] font-bold lg:text-sm lg:leading-4">Guests</div>
+          <button className="rounded-[4px] border border-[#212121] bg-[#1C1D1D] px-2 py-1 text-[10px] leading-[10px] lg:text-xs lg:leading-3">
             View All
           </button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-['Satoshi-Bold',_sans-serif] leading-none">
-              {event.checkin_guest}/{event.total_guest}
-            </span>
-            <div className="text-xs text-[#A2A2A2] leading-tight mt-1">
-              <div>Guests</div>
-              <div>Checked in</div>
-            </div>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-[7px] leading-[7px] lg:text-[11px] lg:leading-[12px]">
+          <div>
+            <div className="text-[17px] leading-[10px] font-medium lg:text-[22px] lg:leading-[16px]">{event.checkin_guest}/{event.total_guest}</div>
+            <div className="text-[#A2A2A2]">Guests Checked in</div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-['Satoshi-Bold',_sans-serif] leading-none">
-              {event.checkin_invitees}/{event.total_invitees}
-            </span>
-            <div className="text-xs text-[#A2A2A2] leading-tight mt-1">
-              <div>Invitees</div>
-              <div>Checked in</div>
-            </div>
+          <div>
+            <div className="text-[17px] leading-[10px] font-medium lg:text-[22px] lg:leading-[16px]">{event.checkin_invitees}/{event.total_invitees}</div>
+            <div className="text-[#A2A2A2]">Invitees Checked in</div>
           </div>
-          <div className="flex flex-col">
-            <span className="text-xl sm:text-2xl font-['Satoshi-Bold',_sans-serif] leading-none">
-              {event.total_checkin}/{event.total_registered}
-            </span>
-            <div className="text-xs text-[#A2A2A2] leading-tight mt-1">
-              <div>Total</div>
-              <div>Registered</div>
-            </div>
+          <div className="text-right">
+            <div className="text-[17px] leading-[10px] font-medium lg:text-[22px] lg:leading-[16px]">{event.total_checkin}/{event.total_registered}</div>
+            <div className="text-[#A2A2A2]">Total Registered</div>
           </div>
         </div>
 
-        {/* User List */}
-        <div className="bg-[#1A1A1A] rounded-xl overflow-hidden divide-y divide-[#2a2a2a]">
+        <div className="mt-3 overflow-hidden rounded-[4px] border border-white/60 ">
           {event.user_checkin.map((user, index) => (
-            <div key={index} className="flex items-center justify-between px-4 py-3 text-sm">
-              {/* Left: Avatar & Name */}
-              <div className="flex items-center gap-3">
+            <div
+              key={index}
+              className={`flex items-center justify-between px-2.5 py-2 lg:px-3 lg:py-2.5 ${index > 0 ? 'border-t border-white/20' : ''}`}
+            >
+              <div className="flex items-center gap-2">
                 <img
                   src={
                     user.image ||
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
                   }
                   alt={user.name}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="h-[10px] w-[10px] rounded-full object-cover lg:h-6 lg:w-6"
                 />
-                <div className="font-medium">{user.name}</div>
-                <div className="text-[#A2A2A2] text-xs">{user.email}</div>
+                <div>
+                  <div className="text-[8px] leading-[10px] font-medium lg:text-sm lg:leading-4">{user.name}</div>
+                  <div className="text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[14px]">{user.email}</div>
+                </div>
               </div>
-
-              {/* Center: Role */}
-              <div>
+              <div className="flex items-center gap-2">
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                  className={`rounded-full px-2 py-0.5 text-[6px] leading-[10px] lg:text-[10px] lg:leading-3 ${
                     user.role === 'GUEST'
-                      ? 'border-green-600 text-green-300'
-                      : 'border-blue-600 text-blue-300'
+                      ? 'bg-[#31D34F]/10 text-[#31D34F]'
+                      : 'bg-[#303030] text-[#A2A2A2]'
                   }`}
                 >
                   {user.role}
                 </span>
-              </div>
-
-              {/* Right: Time */}
-              <div className="text-[#A2A2A2] text-sm">
-                {format(new Date(user.date), 'HH:mm')} WIB
+                <span className="text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[14px]">{format(new Date(user.date), 'HH:mm')} WIB</span>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Sales Report */}
-      <div className="font-satoshi text-white pt-6">
-        {/* Heading */}
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-base sm:text-lg font-['Satoshi-Bold',_sans-serif]">Sales Report</div>
-          <button className="text-sm bg-[#1e1e1e] border border-[#333] px-3 py-1 rounded-lg hover:bg-[#2a2a2a]">
+      <div className="mt-5 border-t border-white/40 pt-4">
+        <div className="flex items-center justify-between">
+          <div className="text-[10px] leading-[10px] font-bold lg:text-sm lg:leading-4">Sales Report</div>
+          <button className="rounded-[4px] border border-[#212121] bg-[#1C1D1D] px-2 py-1 text-[10px] leading-[10px] lg:text-xs lg:leading-3">
             View All
           </button>
         </div>
-        <p className="text-sm text-[#A2A2A2] mb-4">
-          Track how your tickets are selling—see total sales, tickets sold, and total visitor.
+        <p className="mt-2 text-[8px] leading-[10px] text-[#A2A2A2] lg:text-[13px] lg:leading-[16px]">
+          Track how your tickets are selling-see total sales, tickets sold, and total visitor.
         </p>
-
-        {/* Card Grid */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="mt-3 grid grid-cols-3 gap-3">
           {salesData.map((item, idx) => (
             <div
               key={idx}
-              className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-3 pt-3 pb-4"
+              className="rounded-[4px] border border-white/60  px-2.5 py-2"
             >
-              {/* Top row: Label kiri, All Time kanan */}
-              <div className="flex justify-between items-center mb-2">
-                <div className="text-xs text-[#A2A2A2]">{item.label}</div>
-                <span className="text-[11px] text-[#A2A2A2]">All time</span>
+              <div className="mb-2 flex items-center justify-between">
+                <div className="text-[7px] leading-[7px] lg:text-[13px] lg:leading-[10px]">{item.label}</div>
+                <span className="text-[7px] leading-[7px] text-[#A2A2A2] lg:text-[13px] lg:leading-[10px]">All time</span>
               </div>
-
-              <div className="flex justify-between items-center">
-                <div className="text-base sm:text-lg font-['Satoshi-Bold',_sans-serif] mb-3">
-                  Rp {item.value.toLocaleString('id-ID')}
-                </div>
-                {/* Bottom: Trend (icon + percent) */}
+              <div className="flex items-center justify-between">
+                <div className="text-[10px] leading-[10px] font-medium lg:text-base lg:leading-5">{String(item.value)}</div>
                 <div
-                  className={`inline-flex items-center gap-1 px-2 py-[2px] text-xs font-medium rounded-md ${
+                  className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[7px] leading-[7px] lg:text-[10px] lg:leading-[10px] ${
                     item.color === 'green'
-                      ? 'bg-green-900 text-green-400'
-                      : 'bg-red-900 text-red-400'
+                      ? 'bg-[#31D34F]/15 text-[#31D34F]'
+                      : 'bg-[#F94D4D]/15 text-[#F94D4D]'
                   }`}
                 >
                   {item.trend === 'up' ? (
-                    <TrendingUp className="w-3 h-3" />
+                    <TrendingUp className="h-2 w-2 lg:h-2.5 lg:w-2.5" />
                   ) : (
-                    <TrendingDown className="w-3 h-3" />
+                    <TrendingDown className="h-2 w-2 lg:h-2.5 lg:w-2.5" />
                   )}
                   {item.percent}
                 </div>
@@ -548,49 +515,33 @@ function OverviewPage({ id, event }) {
         </div>
       </div>
 
-      {/* Hosts */}
-      <div className="font-satoshi text-white pt-6">
-        {/* Heading */}
-        <div className="mb-2 text-base sm:text-lg font-['Satoshi-Bold',_sans-serif]">Hosts</div>
-        <p className="text-sm text-[#A2A2A2] mb-4">
-          Manage your event team and special guests here.
-        </p>
-
-        {/* Host List */}
-        <div className="space-y-3">
+      <div className="mt-5 border-t border-white/40 pt-4">
+        <div className="text-[10px] leading-[10px] font-bold lg:text-sm lg:leading-4">Hosts</div>
+        <p className="mt-2 text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[16px]">Manage your event team and special guests here.</p>
+        <div className="mt-3 space-y-2">
           {event.hosts.map((host, index) => (
             <div
               key={index}
-              className="bg-[#1a1a1a] rounded-xl p-4 flex items-center justify-between gap-3"
+              className="flex items-center justify-between rounded-[4px] border border-white/60  px-2.5 py-2 lg:px-3 lg:py-2.5"
             >
-              {/* Left: Avatar, Name, Email */}
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <img
                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
                     host.name,
                   )}&background=random&bold=true`}
                   alt={host.name}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover"
+                  className="h-[10px] w-[10px] rounded-full object-cover lg:h-6 lg:w-6"
                 />
-                <div className="font-medium">{host.name}</div>
-                <div className="text-sm text-[#A2A2A2]">{host.email}</div>
+                <div className="text-[8px] leading-[10px] lg:text-sm lg:leading-4">{host.name}</div>
+                <div className="text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[14px]">{host.email}</div>
               </div>
-
-              {/* Right: Role Badge + Add Button (only first) */}
               <div className="flex items-center gap-2">
-                <span
-                  className={`px-2.5 py-1 text-xs sm:text-sm font-medium rounded-full border ${
-                    host.role === 'Creator'
-                      ? 'border-green-600 text-green-300'
-                      : 'border-blue-600 text-blue-300'
-                  }`}
-                >
+                <span className="rounded-full border border-[#00594F] px-2 py-0.5 text-[8px] leading-[10px] lg:text-xs lg:leading-3">
                   {host.role}
                 </span>
-
                 {index === 0 && (
-                  <button className="text-xs sm:text-sm bg-[#1e1e1e] border border-[#333] px-2.5 py-1 rounded-lg hover:bg-[#2a2a2a] flex items-center gap-1">
-                    Add Host <span className="text-lg leading-none">+</span>
+                  <button className="rounded-[4px] border border-[#212121] bg-[#1C1D1D] px-2 py-1 text-[8px] leading-[10px] lg:text-xs lg:leading-3">
+                    Add Host +
                   </button>
                 )}
               </div>
@@ -599,44 +550,36 @@ function OverviewPage({ id, event }) {
         </div>
       </div>
 
-      {/* Visibility */}
-      <div className="font-satoshi text-white pt-6">
-        {/* Heading */}
-        <div className="mb-2 text-base sm:text-lg font-['Satoshi-Bold',_sans-serif]">Visibility & Discovery</div>
-        <p className="text-sm text-[#A2A2A2] mb-4">
+      <div className="mt-5 border-t border-white/40 pt-4">
+        <div className="text-[10px] leading-[10px] font-bold lg:text-sm lg:leading-4">Visibility & Discovery</div>
+        <p className="mt-2 text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[16px]">
           Manage how your event appears on search and listings.
         </p>
-
-        {/* Toggle Buttons */}
-        <div className="flex gap-4 w-full">
-          {/* Public Button */}
+        <div className="mt-3 flex gap-3">
           <button
             onClick={() => handleVisibleClick('public')}
-            className={`flex items-center justify-center gap-2 py-2 sm:py-3 rounded-xl border text-xs sm:text-sm flex-1
-              ${
-                visibility === 'public'
-                  ? 'border-[#D7FF3D] bg-[#141717] text-white'
-                  : 'border-[#2a2a2a] bg-[#141717] text-[#A2A2A2]'
-              }`}
+            className={`flex h-[30px] flex-1 items-center justify-center gap-2 rounded-[4px] border text-[8px] leading-[10px] lg:h-10 lg:text-sm lg:leading-4 ${
+              visibility === 'public'
+                ? 'border-[#D9FF1A]  text-white'
+                : 'border-white/60  text-[#A2A2A2]'
+            }`}
           >
-            <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+            <Eye className="h-2.5 w-2.5 lg:h-3.5 lg:w-3.5" />
             Public
           </button>
-
-          {/* Private Button */}
           <button
             onClick={() => handleVisibleClick('private')}
-            className={`flex items-center justify-center gap-2 py-2 sm:py-3 rounded-xl border text-xs sm:text-sm flex-1
-              ${
-                visibility === 'private'
-                  ? 'border-[#D7FF3D] bg-[#141717] text-white'
-                  : 'border-[#2a2a2a] bg-[#141717] text-[#A2A2A2]'
-              }`}
+            className={`flex h-[30px] flex-1 items-center justify-center gap-2 rounded-[4px] border text-[8px] leading-[10px] lg:h-10 lg:text-sm lg:leading-4 ${
+              visibility === 'private'
+                ? 'border-[#D9FF1A]  text-white'
+                : 'border-white/60  text-[#A2A2A2]'
+            }`}
           >
-            <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
+            <EyeOff className="h-2.5 w-2.5 lg:h-3.5 lg:w-3.5" />
             Private
           </button>
         </div>
+      </div>
       </div>
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -858,7 +801,6 @@ function OverviewPage({ id, event }) {
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 }
