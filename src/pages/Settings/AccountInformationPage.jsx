@@ -56,7 +56,7 @@ function AccountInformation() {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`${urlBe}/user/show-settings`, {
+      const res = await axios.get(`${urlBe}/user/settings`, {
         headers: {
           'x-jdticket': localStorage.getItem('token') || '',
         },
@@ -93,7 +93,7 @@ function AccountInformation() {
       }
 
       // Send profile update
-      const res = await axios.post(`${urlBe}/user/edit-profile`, updatedProfile, {
+      const res = await axios.put(`${urlBe}/user/edit-profile`, updatedProfile, {
         headers: {
           'x-jdticket': localStorage.getItem('token') || '',
         },

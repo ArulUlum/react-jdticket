@@ -210,7 +210,7 @@ const TicketsPage = ({ id }) => {
         payload.tickets = [Number(appliesTo)];
       }
 
-      const res = await axios.post(`${urlBe}/ticket/add-promo`, payload, {
+      const res = await axios.post(`${urlBe}/events/${data.id}/promos`, payload, {
         headers: { 'x-jdticket': localStorage.getItem('token') || '' },
       });
 
@@ -275,7 +275,7 @@ const TicketsPage = ({ id }) => {
 
   const fetchTicketDetail = async (ticketId) => {
     try {
-      const res = await axios.get(`${urlBe}/ticket/detail/${ticketId}`, {
+      const res = await axios.get(`${urlBe}/ticket/${ticketId}`, {
         headers: {
           'x-jdticket': localStorage.getItem('token') || '',
         },

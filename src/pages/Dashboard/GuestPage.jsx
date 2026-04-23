@@ -131,7 +131,7 @@ const GuestPage = ({ id, event }) => {
     setDetailLoading(true);
     setDetailError('');
     try {
-      const res = await axios.get(`${urlBe}/user/detail-guest-user/${id}`, {
+      const res = await axios.get(`${urlBe}/user/guest/${id}`, {
         headers: {
           'x-jdticket': localStorage.getItem('token') || '',
         },
@@ -196,7 +196,7 @@ const GuestPage = ({ id, event }) => {
       const ticket_id = selectedGuestDetail.ticket_id;
       if (!invoice_code) throw new Error('No invoice code available');
       await axios.post(
-        `${urlBe}/user/checkin-user`,
+        `${urlBe}/user/checkin`,
         { invoice_code, ticket_id },
         {
           headers: { 'x-jdticket': localStorage.getItem('token') || '' },
@@ -268,7 +268,7 @@ const GuestPage = ({ id, event }) => {
       const ticket_id = detail.ticket_id;
       if (!invoice_code) throw new Error('No invoice code available for check-in');
       await axios.post(
-        `${urlBe}/user/checkin-user`,
+        `${urlBe}/user/checkin`,
         { invoice_code, ticket_id },
         {
           headers: { 'x-jdticket': localStorage.getItem('token') || '' },

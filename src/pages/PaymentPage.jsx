@@ -32,7 +32,15 @@ export default function PaymentPage(props) {
     (async () => {
       try {
         console.log('Creating invoice with payload:', payload);
-        const response = await axios.post(`${urlBe}/payment/create-invoice`, payload);
+        // Route to correct endpoint based on payment method
+        const paymentMethod = (payload.payment || '').toLowerCase();
+        let invoiceEndpoint = '/payment/invoice/cring'; // default: QRIS
+        if (paymentMethod.includes('xendit')) {
+          invoiceEndpoint = '/payment/create-invoice-xendit';
+        } else if (paymentMethod.includes('midtrans')) {
+          invoiceEndpoint = '/payment/create-invoice-midtrans';
+        }
+        const response = await axios.post(`${urlBe}${invoiceEndpoint}`, payload);
         console.log('Invoice created:', response?.data);
         const data = response?.data?.data ?? response?.data;
         if (!mounted) return;
@@ -87,10 +95,10 @@ export default function PaymentPage(props) {
     const interval = setInterval(async () => {
       try {
         // GANTI ini sesuai endpoint backend lu
-        const res = await axios.get(`${urlBe}/payment/status`, {
-          params: { invoice_code: invoiceCode },
-          signal: controller.signal,
-        });
+        const res = await axios.post(`${urlBe}/payment/status`, 
+          { invoiceCode },
+          { signal: controller.signal }
+        );
 
         const fresh = res.data?.data || res.data;
         if (!fresh?.status) return;

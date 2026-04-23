@@ -75,7 +75,15 @@ export default function PaymentModal({
     (async () => {
       try {
         setStatus('LOADING');
-        const res = await axios.post(`${urlBe}/payment/create-invoice`, payload, {
+        // Route to correct endpoint based on payment method
+        const paymentMethod = (payload.payment || '').toLowerCase();
+        let invoiceEndpoint = '/payment/invoice/cring'; // default: QRIS
+        if (paymentMethod.includes('xendit')) {
+          invoiceEndpoint = '/payment/create-invoice-xendit';
+        } else if (paymentMethod.includes('midtrans')) {
+          invoiceEndpoint = '/payment/create-invoice-midtrans';
+        }
+        const res = await axios.post(`${urlBe}${invoiceEndpoint}`, payload, {
           signal: controller.signal,
         });
 

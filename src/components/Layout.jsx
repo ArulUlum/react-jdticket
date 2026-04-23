@@ -62,25 +62,26 @@ function Layout() {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.get(`${urlBe}/user/logout`, {
+      await axios.post(`${urlBe}/user/logout`, null, {
         headers: {
           'x-jdticket': token,
         },
       });
+    } catch (err) {
+      console.error('Logout API error (ignored):', err);
+    } finally {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setUser(null);
       setIsLoggedIn(false);
-      navigate('/'); // redirect ke home atau login
-    } catch (err) {
-      console.error('Error:', err);
+      navigate('/');
     }
   };
 
   const refreshToken = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${urlBe}/user/refresh-token`, {
+      const response = await axios.post(`${urlBe}/user/refresh-token`, null, {
         headers: {
           'x-jdticket': token,
         },

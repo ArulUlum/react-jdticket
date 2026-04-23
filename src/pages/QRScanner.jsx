@@ -89,7 +89,7 @@ function QRScanner() {
       const qty = parts[3] || null;
 
       const res = await axios.post(
-        `${urlBe}/user/get-user-scan-new`,
+        `${urlBe}/user/scan-new`,
         { invoice_code, ticket_id, serial_idx, qty },
         { headers: { 'x-jdticket': localStorage.getItem('token') || '' } },
       );
@@ -164,7 +164,7 @@ function QRScanner() {
     try {
       const { invoice_code, ticket_id } = userData;
       await axios.post(
-        `${urlBe}/user/checkin-user`,
+        `${urlBe}/user/checkin`,
         { invoice_code, ticket_id },
         { headers: { 'x-jdticket': localStorage.getItem('token') || '' } },
       );
