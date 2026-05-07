@@ -202,7 +202,7 @@ export default function EventPage() {
       };
 
       if (!isPaid) {
-        const response = await axios.post(`${urlBe}/events/regis`, payload);
+        const response = await axios.post(`${urlBe}/events/register`, payload);
         alert(response.data.message);
         setRegistrationModal(false);
       } else {

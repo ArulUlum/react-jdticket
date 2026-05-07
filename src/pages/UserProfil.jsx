@@ -18,7 +18,7 @@ function UserProfile() {
 
   useEffect(() => {
     axios
-      .get(`${urlBe}/user/get-profile`, {
+      .get(`${urlBe}/user/profile`, {
         headers: {
           'x-jdticket': localStorage.getItem('token') || '',
         },
@@ -69,11 +69,11 @@ function UserProfile() {
   // Event tab logic
   let eventsToShow = [];
   if (activeTab === 'all') {
-    eventsToShow = user.all_event || [];
+    eventsToShow = user.all_events || [];
   } else if (activeTab === 'hosted') {
-    eventsToShow = user.hosted_event || [];
+    eventsToShow = user.hosted_events || [];
   } else if (activeTab === 'attended') {
-    eventsToShow = user.attended_event || [];
+    eventsToShow = user.attended_events || [];
   }
 
   // Format username display
@@ -150,7 +150,7 @@ function UserProfile() {
             <div className="flex flex-row gap-10 items-center w-full justify-end">
               <div className="text-left font-['Satoshi-Regular',_sans-serif] text-xl leading-6 font-normal">
                 <span>
-                  <span className="font-bold">{user.followes ?? 0}</span>
+                  <span className="font-bold">{user.followers ?? 0}</span>
                   <span className="text-second-gray"> Followers</span>
                 </span>
               </div>
@@ -213,9 +213,8 @@ function UserProfile() {
           {TABS.map((tab) => (
             <button
               key={tab.key}
-              className={`py-2 px-1 text-lg font-semibold relative ${
-                activeTab === tab.key ? 'text-white' : 'text-gray-400'
-              }`}
+              className={`py-2 px-1 text-lg font-semibold relative ${activeTab === tab.key ? 'text-white' : 'text-gray-400'
+                }`}
               onClick={() => setActiveTab(tab.key)}
             >
               {tab.label}

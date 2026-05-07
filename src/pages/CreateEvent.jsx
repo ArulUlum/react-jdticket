@@ -104,6 +104,7 @@ function CreateEvent() {
         },
         headers: {
           'x-requested-with': 'XMLHttpRequest',
+          'x-jdticket': localStorage.getItem('token'),
         },
       });
       setLocationSuggestions(response.data.predictions);
@@ -393,9 +394,8 @@ function CreateEvent() {
                 setErrors((prev) => ({ ...prev, eventName: '' }));
               }
             }}
-            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${
-              errors.eventName ? 'border-red-500' : 'border-white'
-            }`}
+            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${errors.eventName ? 'border-red-500' : 'border-white'
+              }`}
           />
 
           {/* Error message Description */}
@@ -412,9 +412,8 @@ function CreateEvent() {
                 setErrors((prev) => ({ ...prev, description: '' }));
               }
             }}
-            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${
-              errors.description ? 'border-red-500' : 'border-white'
-            }`}
+            className={`w-full bg-[#0f0f0f] border rounded-lg p-3 text-white text-responsive-medium outline-none ${errors.description ? 'border-red-500' : 'border-white'
+              }`}
           />
 
           <input
@@ -665,14 +664,12 @@ function CreateEvent() {
             </div>
             <div
               onClick={() => setRequireApproval(!requireApproval)}
-              className={`w-10 h-5 rounded-full flex items-center cursor-pointer px-1 ${
-                requireApproval ? 'bg-[#31D34F]' : 'bg-gray-400'
-              }`}
+              className={`w-10 h-5 rounded-full flex items-center cursor-pointer px-1 ${requireApproval ? 'bg-[#31D34F]' : 'bg-gray-400'
+                }`}
             >
               <div
-                className={`w-3 h-3 rounded-full bg-white transition-transform duration-300 ${
-                  requireApproval ? 'translate-x-5' : 'translate-x-0'
-                }`}
+                className={`w-3 h-3 rounded-full bg-white transition-transform duration-300 ${requireApproval ? 'translate-x-5' : 'translate-x-0'
+                  }`}
               />
             </div>
           </div>
