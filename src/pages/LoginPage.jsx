@@ -155,7 +155,7 @@ export default function LoginPage() {
 
     setIsVerifyingOtp(true);
     try {
-      const res = await axios.post(`${urlBe}/user/verif-login-v2`, {
+      const res = await axios.post(`${urlBe}/user/login-v2/verify`, {
         email: emailNormalized,
         code: finalCode,
       });
@@ -318,7 +318,7 @@ export default function LoginPage() {
         image: imgUrl,
       };
 
-      const res = await axios.post(`${urlBe}/user/edit-profile`, payload, {
+      const res = await axios.put(`${urlBe}/user/edit-profile`, payload, {
         headers: { 'x-jdticket': localStorage.getItem('token') || '' },
       });
 

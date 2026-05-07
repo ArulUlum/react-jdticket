@@ -22,7 +22,7 @@ function WalletPage() {
     const fetchWalletData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${urlBe}/user/my-wallet`, {
+        const response = await axios.get(`${urlBe}/user/wallet`, {
           headers: {
             'x-jdticket': localStorage.getItem('token') || '',
           },
