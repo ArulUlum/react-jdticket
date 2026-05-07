@@ -14,6 +14,7 @@ import RegistrationModal from './components/RegistrationModal';
 import PaymentModal from './components/PaymentModal';
 
 import { useEventDetail } from './hooks/useEventDetail';
+import { useTrackVisit } from '../../hooks/useTrackVisit';
 import { resolvePaymentCodeByLabel, payments } from './lib/payments';
 import {
   getSelectedTickets,
@@ -31,6 +32,9 @@ export default function EventPage() {
   const { url } = useParams();
   const navigate = useNavigate();
   const { event, loading } = useEventDetail(url);
+
+  // Track visitor session for analytics
+  useTrackVisit(event?.id);
 
   // current user (from Layout localStorage usage)
   const currentUser =
