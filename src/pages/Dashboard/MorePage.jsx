@@ -116,7 +116,7 @@ const MorePage = ({ id }) => {
   const handleCancelEvent = async () => {
     try {
       setIsCancelingEvent(true);
-      const response = await axios.delete(`${urlBe}/events/${id}`, {
+      const response = await axios.delete(`${urlBe}/events/delete/${id}`, {
         headers: { 'x-jdticket': localStorage.getItem('token') || '' },
       });
 
@@ -125,7 +125,7 @@ const MorePage = ({ id }) => {
         setIsCancelModalOpen(false);
         // Redirect to user profile after successful cancellation
         setTimeout(() => {
-          window.location.href = '/user-profil';
+          window.location.href = '/profile';
         }, 500);
       } else {
         alert('Failed to cancel event: ' + response.data.message);
