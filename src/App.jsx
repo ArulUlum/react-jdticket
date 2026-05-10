@@ -15,7 +15,6 @@ import AboutUs from './pages/AboutUs';
 import Settings from './pages/Settings';
 import WalletPage from './pages/WalletPage';
 import MyEventPage from './pages/MyEventPage';
-import PaymentPage from './pages/PaymentPage';
 
 function App() {
   return (
@@ -38,7 +37,6 @@ function App() {
           <Route path="/event-user-scan/:id" element={<UserScanPage />} />
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/payment" element={<PaymentPage />} />
         </Route>
       </Routes>
     </Router>

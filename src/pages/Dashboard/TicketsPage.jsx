@@ -447,6 +447,30 @@ const TicketsPage = ({ id }) => {
     }
   };
 
+  const sendPreviewEmail = async () => {
+    const text = emailMessages[emailStatus] || '';
+    if (!text.trim()) {
+      alert('Message is empty.');
+      return;
+    }
+    try {
+      const res = await axios.post(
+        `${urlBe}/events/send-dummy-email/${id}`,
+        { email_custom: text },
+        { headers: { 'x-jdticket': localStorage.getItem('token') || '' } },
+      );
+
+      if (res?.data?.code === '1' || res?.status === 200) {
+        alert('✅ Preview email sent');
+      } else {
+        alert(res?.data?.message || 'Preview email sent');
+      }
+    } catch (error) {
+      console.error('Failed to send preview email:', error);
+      alert(error?.response?.data?.message || '❌ Failed to send preview email.');
+    }
+  };
+
   const truncateText = (text, max = 120) => {
     if (!text) return '';
     return text.length > max ? `${text.slice(0, max)}...` : text;
@@ -1445,7 +1469,7 @@ const TicketsPage = ({ id }) => {
             />
 
             <div className="flex justify-between items-center">
-              <button className="text-sm text-[#A2A2A2]">Send a Preview</button>
+              <button className="text-sm text-[#A2A2A2]" onClick={sendPreviewEmail}>Send a Preview</button>
               <button
                 className="bg-white text-black px-4 py-2 rounded-lg font-['Satoshi-Bold',_sans-serif]"
                 onClick={saveEmailMessage}
