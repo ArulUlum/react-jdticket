@@ -213,11 +213,12 @@ function CreateEvent() {
 
       if (eventImageFile) {
         const formData = new FormData();
-        formData.append('image', eventImageFile);
+        formData.append('file', eventImageFile);
 
         const saveImgRes = await axios.post(`${urlBe}/image/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
+            'x-jdticket': localStorage.getItem('token') || '',
           },
         });
 
