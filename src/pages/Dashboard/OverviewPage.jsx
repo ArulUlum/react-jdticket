@@ -131,16 +131,17 @@ function OverviewPage({ id, event }) {
 
     setIsUploadingImage(true);
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('file', file);
 
     try {
       const saveImgRes = await axios.post(`${urlBe}/image/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'x-jdticket': localStorage.getItem('token') || '',
         },
       });
 
-      const imgUrl = saveImgRes.data.img_url;
+      const imgUrl = saveImgRes.data.data.url;
 
       const res = await axios.put(
         `${urlBe}/events/update/${id}`,

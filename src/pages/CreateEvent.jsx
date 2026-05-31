@@ -222,12 +222,13 @@ function CreateEvent() {
           },
         });
 
-        imgUrl = saveImgRes.data.img_url;
+        console.log('Image upload response:', saveImgRes.data);
+        imgUrl = saveImgRes.data.data.url;
       }
 
       const payload = {
         name: eventName,
-        image: imgUrl,
+        image: imgUrl ?? null,
         description: description,
         visibility: visibility === 'Public' ? true : false,
         start_date: formatDateTime(startDate, startTime),
