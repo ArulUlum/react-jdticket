@@ -1,14 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../../utils/cropImage';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import {
-  getMonth,
-  getYear,
-  format,
-} from 'date-fns';
+import { format } from 'date-fns';
 import axios from 'axios';
 import {
   UserPlus,
@@ -29,16 +25,93 @@ import {
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
+function avatarUrlFor(name, image, bold = false) {
+  if (image) return image;
+  const params = new URLSearchParams({ name, background: 'random' });
+  if (bold) params.set('bold', 'true');
+  return `https://ui-avatars.com/api/?${params.toString()}`;
+}
+
+function Section({ title, action, description, children }) {
+  return (
+    <div className="mt-5 border-t border-white/40 pt-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-sm font-bold lg:text-base">{title}</h2>
+        {action}
+      </div>
+      {description && <p className="mt-2 text-xs text-[#A2A2A2] lg:text-sm">{description}</p>}
+      {children}
+    </div>
+  );
+}
+
+function ViewAllButton() {
+  return (
+    <button className="text-xs text-[#A2A2A2] hover:text-white lg:text-sm">View All</button>
+  );
+}
+
+function StatBlock({ value, label }) {
+  return (
+    <div>
+      <div className="text-lg font-semibold lg:text-2xl">{value}</div>
+      <div className="text-xs text-[#A2A2A2]">{label}</div>
+    </div>
+  );
+}
+
+function StatusBadge({ children, tone = 'neutral' }) {
+  const toneClasses = {
+    neutral: 'bg-[#303030] text-[#A2A2A2]',
+    positive: 'bg-[#31D34F]/10 text-[#31D34F]',
+    outline: 'border border-[#00594F] text-white',
+  };
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-xs leading-none ${toneClasses[tone]}`}>
+      {children}
+    </span>
+  );
+}
+
+function PersonRow({ avatarUrl, name, email, children }) {
+  return (
+    <div className="flex items-center justify-between gap-2 px-3 py-2.5">
+      <div className="flex min-w-0 items-center gap-2">
+        <img
+          src={avatarUrl}
+          alt={name}
+          className="h-7 w-7 shrink-0 rounded-full object-cover lg:h-8 lg:w-8"
+        />
+        <div className="min-w-0">
+          <div className="truncate text-xs font-medium lg:text-sm">{name}</div>
+          {email && <div className="truncate text-xs text-[#A2A2A2]">{email}</div>}
+        </div>
+      </div>
+      <div className="flex shrink-0 items-center gap-2">{children}</div>
+    </div>
+  );
+}
+
+function VisibilityButton({ active, icon, label, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex h-10 flex-1 items-center justify-center gap-2 rounded-full border text-xs font-medium lg:text-sm ${active ? 'border-[#D9FF1A] text-white' : 'border-white/60 text-[#A2A2A2] opacity-60'
+        }`}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
 function OverviewPage({ id, event }) {
-  const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [targetVisibility, setTargetVisibility] = useState(null);
   const [visibility, setVisibility] = useState(event.visibility === true ? 'public' : 'private');
   const [eventImage, setEventImage] = useState(
     event.image || 'https://wallpapercave.com/wp/wp9297718.jpg',
   );
-  const [imageFile, setImageFile] = useState(null);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -129,7 +202,6 @@ function OverviewPage({ id, event }) {
       return;
     }
 
-    setIsUploadingImage(true);
     const formData = new FormData();
     formData.append('file', file);
 
@@ -155,7 +227,6 @@ function OverviewPage({ id, event }) {
 
       if (res.data.code === '1') {
         setEventImage(imgUrl);
-        setImageFile(null);
         alert('Image updated successfully');
       } else {
         alert('Gagal update: ' + res.data.message);
@@ -168,8 +239,6 @@ function OverviewPage({ id, event }) {
       } else {
         alert('Unexpected error: ' + error);
       }
-    } finally {
-      setIsUploadingImage(false);
     }
   };
 
@@ -257,17 +326,17 @@ function OverviewPage({ id, event }) {
 
   const actions = [
     {
-      icon: <UserPlus className="w-6 h-6 text-black" />,
+      icon: <UserPlus className="h-3.5 w-3.5 text-black" />,
       label: 'Create Invitation',
       onClick: () => console.log('Invite'),
     },
     {
-      icon: <Send className="w-6 h-6 text-black" />,
+      icon: <Send className="h-3.5 w-3.5 text-black" />,
       label: 'Send a Blast',
       onClick: () => console.log('Blast'),
     },
     {
-      icon: <Share2 className="w-6 h-6 text-black" />,
+      icon: <Share2 className="h-3.5 w-3.5 text-black" />,
       label: 'Share Event',
       onClick: () => console.log('Share'),
     },
@@ -276,7 +345,7 @@ function OverviewPage({ id, event }) {
   const salesData = [
     {
       label: 'Total Sales',
-      value: event.total_sales,
+      value: `Rp ${Number(event.total_sales || 0).toLocaleString('id-ID')}`,
       trend: 'up',
       percent: '20%',
       color: 'green',
@@ -300,287 +369,223 @@ function OverviewPage({ id, event }) {
   return (
     <div className="min-h-screen text-white">
       <div className="mx-auto w-full max-w-[1120px]">
-      <div className="grid gap-3 grid-cols-3">
-        {actions.map(({ icon, label, onClick }, i) => (
-          <button
-            key={i}
-            onClick={onClick}
-            className="h-11 rounded-lg border border-white/60 bg-gradient-to-br from-[#001C19] to-[#090909] px-3 py-1.5"
-          >
-            <div className="flex items-center justify-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#D9FF1A]">
-                {icon}
-              </span>
-              <span className="text-xs font-bold sm:text-sm">{label}</span>
-            </div>
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-4 w-full rounded-3xl border border-white/60 bg-gradient-to-br from-[#001C19] to-[#090909] p-3 sm:p-4 lg:p-5">
-        <div className="flex flex-row items-start gap-3 sm:gap-4 lg:gap-6">
-          <div
-            onClick={() => fileInputRef.current?.click()}
-            className="h-[110px] w-[110px] shrink-0 cursor-pointer overflow-hidden rounded-2xl sm:h-[130px] sm:w-[130px] lg:h-[215px] lg:w-[215px]"
-            title="Click to edit image"
-          >
-            <img src={eventImage} alt="event" className="h-full w-full object-cover" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-2">
-              <h1 className="text-[20px] leading-[1.12] font-bold sm:text-[24px] lg:text-[38px]">{event.name}</h1>
-              <button
-                onClick={() => setShowEditModal(true)}
-                className="inline-flex items-center gap-1 rounded-lg border border-[#212121] bg-[#1C1D1D] px-2 py-1 text-[10px] leading-4 text-white/90 hover:bg-[#242525] sm:px-3 sm:py-1.5 sm:text-xs"
-                title="Edit Event"
-              >
-                <span>Edit Event</span>
-                <PencilLine className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              </button>
-            </div>
-
-            <div className="mt-2.5 flex items-start gap-2.5 sm:mt-3 sm:gap-3">
-              <div className="h-9 w-9 overflow-hidden rounded-lg border border-white/80 sm:h-11 sm:w-11 lg:h-12 lg:w-12">
-                <div className="border-b border-white/80 px-1.5 py-0.5 text-center text-[9px] leading-none text-[#A2A2A2] lg:text-[10px]">
-                  {startMonth}
-                </div>
-                <div className="flex h-[22px] items-center justify-center text-[14px] leading-none sm:h-[26px] sm:text-[18px] lg:h-[28px] lg:text-[22px]">
-                  {startDay}
-                </div>
-              </div>
-              <div className="min-w-0">
-                <div className="text-[13px] leading-[1.25] font-semibold sm:text-[16px] lg:text-[24px]">
-                  {formattedStartDate}
-                </div>
-                <div className="text-[11px] leading-[1.25] text-[#A2A2A2] sm:text-[12px] lg:text-[19px]">
-                  {formattedStartTime} - {formattedEndTime} WIB
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-2.5 flex items-start gap-2.5 sm:mt-3 sm:gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/80 sm:h-11 sm:w-11 lg:h-12 lg:w-12">
-                <MapPin className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-[14px] leading-[1.2] font-semibold sm:text-[17px] lg:text-[26px]">
-                  {event.location_name}
-                </div>
-                <div className="text-[10px] leading-[1.25] text-[#A2A2A2] sm:text-[11px] lg:text-[17px]">
-                  {event.location_address}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                const img = new window.Image();
-                img.src = reader.result;
-                img.onload = () => {
-                  if (img.width !== img.height) {
-                    setRawImage(reader.result);
-                    setImageFile(file);
-                    setShowCropper(true);
-                  } else {
-                    setEventImage(reader.result);
-                    setImageFile(file);
-                    setTimeout(() => {
-                      setImageFile(file);
-                      handleImageUploadDirect(file);
-                    }, 0);
-                  }
-                };
-              };
-              reader.readAsDataURL(file);
-              e.target.value = null;
-            }
-          }}
-        />
-        <Link
-          to={`/event-user-scan/${id}`}
-          className="mt-4 flex h-11 items-center justify-center gap-2 rounded-2xl bg-[#D9FF4A] text-base font-semibold text-[#141717] sm:text-lg lg:mt-5 lg:text-[30px]"
-        >
-          <ScanLine className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7" />
-          Start Check-In
-        </Link>
-      </div>
-
-      <div className="mt-5 border-t border-white/40 pt-4">
-        <div className="flex items-center justify-between">
-          <div className="text-[10px] leading-[10px] font-bold lg:text-sm lg:leading-4">Guests</div>
-          <button className="rounded-[4px] border border-[#212121] bg-[#1C1D1D] px-2 py-1 text-[10px] leading-[10px] lg:text-xs lg:leading-3">
-            View All
-          </button>
-        </div>
-
-        <div className="mt-3 grid grid-cols-3 gap-2 text-[7px] leading-[7px] lg:text-[11px] lg:leading-[12px]">
-          <div>
-            <div className="text-[17px] leading-[10px] font-medium lg:text-[22px] lg:leading-[16px]">{event.checkin_guest}/{event.total_guest}</div>
-            <div className="text-[#A2A2A2]">Guests Checked in</div>
-          </div>
-          <div>
-            <div className="text-[17px] leading-[10px] font-medium lg:text-[22px] lg:leading-[16px]">{event.checkin_invitees}/{event.total_invitees}</div>
-            <div className="text-[#A2A2A2]">Invitees Checked in</div>
-          </div>
-          <div className="text-right">
-            <div className="text-[17px] leading-[10px] font-medium lg:text-[22px] lg:leading-[16px]">{event.total_checkin}/{event.total_registered}</div>
-            <div className="text-[#A2A2A2]">Total Registered</div>
-          </div>
-        </div>
-
-        <div className="mt-3 overflow-hidden rounded-[4px] border border-white/60 ">
-          {event.user_checkin.map((user, index) => (
-            <div
-              key={index}
-              className={`flex items-center justify-between px-2.5 py-2 lg:px-3 lg:py-2.5 ${index > 0 ? 'border-t border-white/20' : ''}`}
+        <div className="grid grid-cols-3 gap-3">
+          {actions.map(({ icon, label, onClick }, i) => (
+            <button
+              key={i}
+              onClick={onClick}
+              className="h-11 rounded-[10px] border border-white/60 bg-gradient-to-br from-[#001C19] to-[#090909] px-3 py-1.5"
             >
-              <div className="flex items-center gap-2">
-                <img
-                  src={
-                    user.image ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
-                  }
-                  alt={user.name}
-                  className="h-[10px] w-[10px] rounded-full object-cover lg:h-6 lg:w-6"
-                />
-                <div>
-                  <div className="text-[8px] leading-[10px] font-medium lg:text-sm lg:leading-4">{user.name}</div>
-                  <div className="text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[14px]">{user.email}</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`rounded-full px-2 py-0.5 text-[6px] leading-[10px] lg:text-[10px] lg:leading-3 ${
-                    user.role === 'GUEST'
-                      ? 'bg-[#31D34F]/10 text-[#31D34F]'
-                      : 'bg-[#303030] text-[#A2A2A2]'
-                  }`}
-                >
-                  {user.role}
+              <div className="flex items-center justify-center gap-2">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-[6px] bg-[#D9FF1A]">
+                  {icon}
                 </span>
-                <span className="text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[14px]">{format(new Date(user.date), 'HH:mm')} WIB</span>
+                <span className="truncate text-xs font-bold lg:text-sm">{label}</span>
               </div>
-            </div>
+            </button>
           ))}
         </div>
-      </div>
 
-      <div className="mt-5 border-t border-white/40 pt-4">
-        <div className="flex items-center justify-between">
-          <div className="text-[10px] leading-[10px] font-bold lg:text-sm lg:leading-4">Sales Report</div>
-          <button className="rounded-[4px] border border-[#212121] bg-[#1C1D1D] px-2 py-1 text-[10px] leading-[10px] lg:text-xs lg:leading-3">
-            View All
-          </button>
-        </div>
-        <p className="mt-2 text-[8px] leading-[10px] text-[#A2A2A2] lg:text-[13px] lg:leading-[16px]">
-          Track how your tickets are selling-see total sales, tickets sold, and total visitor.
-        </p>
-        <div className="mt-3 grid grid-cols-3 gap-3">
-          {salesData.map((item, idx) => (
+        <div className="mt-4 w-full rounded-3xl border border-white/60 bg-gradient-to-br from-[#001C19] to-[#090909] p-3 sm:p-4 lg:p-5">
+          <div className="flex flex-row items-center gap-3 sm:gap-4 lg:gap-6">
             <div
-              key={idx}
-              className="rounded-[4px] border border-white/60  px-2.5 py-2"
+              onClick={() => fileInputRef.current?.click()}
+              className="h-20 w-20 shrink-0 cursor-pointer overflow-hidden rounded-2xl sm:h-28 sm:w-28 lg:h-44 lg:w-44"
+              title="Click to edit image"
             >
-              <div className="mb-2 flex items-center justify-between">
-                <div className="text-[7px] leading-[7px] lg:text-[13px] lg:leading-[10px]">{item.label}</div>
-                <span className="text-[7px] leading-[7px] text-[#A2A2A2] lg:text-[13px] lg:leading-[10px]">All time</span>
+              <img src={eventImage} alt="event" className="h-full w-full object-cover" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start justify-between gap-2">
+                <h1 className="truncate text-xl font-bold leading-tight sm:text-2xl lg:text-4xl">
+                  {event.name}
+                </h1>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#212121] bg-[#1C1D1D] text-white/90 hover:bg-[#242525] lg:h-9 lg:w-9"
+                  title="Edit Event"
+                >
+                  <PencilLine className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                </button>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="text-[10px] leading-[10px] font-medium lg:text-base lg:leading-5">{String(item.value)}</div>
-                <div
-                  className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[7px] leading-[7px] lg:text-[10px] lg:leading-[10px] ${
-                    item.color === 'green'
+
+              <div className="mt-2.5 flex items-start gap-2.5 sm:mt-3 sm:gap-3">
+                <div className="h-9 w-9 overflow-hidden rounded-lg border border-white/80 sm:h-11 sm:w-11 lg:h-12 lg:w-12">
+                  <div className="border-b border-white/80 py-0.5 text-center text-[10px] leading-none text-[#A2A2A2] lg:text-xs">
+                    {startMonth}
+                  </div>
+                  <div className="flex h-[22px] items-center justify-center text-sm leading-none sm:h-[26px] lg:h-[28px] lg:text-lg">
+                    {startDay}
+                  </div>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold leading-tight sm:text-base lg:text-xl">
+                    {formattedStartDate}
+                  </div>
+                  <div className="text-xs leading-tight text-[#A2A2A2] lg:text-base">
+                    {formattedStartTime} - {formattedEndTime} WIB
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-2.5 flex items-start gap-2.5 sm:mt-3 sm:gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/80 sm:h-11 sm:w-11 lg:h-12 lg:w-12">
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
+                </div>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold leading-tight sm:text-base lg:text-xl">
+                    {event.location_name}
+                  </div>
+                  <div className="truncate text-xs leading-tight text-[#A2A2A2] lg:text-base">
+                    {event.location_address}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  const img = new window.Image();
+                  img.src = reader.result;
+                  img.onload = () => {
+                    if (img.width !== img.height) {
+                      setRawImage(reader.result);
+                      setShowCropper(true);
+                    } else {
+                      setEventImage(reader.result);
+                      setTimeout(() => handleImageUploadDirect(file), 0);
+                    }
+                  };
+                };
+                reader.readAsDataURL(file);
+                e.target.value = null;
+              }
+            }}
+          />
+          <Link
+            to={`/event-user-scan/${id}`}
+            className="mt-4 flex h-11 items-center justify-center gap-2 rounded-full bg-[#D9FF4A] text-sm font-semibold text-[#141717] sm:text-base lg:mt-5 lg:h-14 lg:text-xl"
+          >
+            <ScanLine className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6" />
+            Start Check-In
+          </Link>
+        </div>
+
+        <Section title="Guests" action={<ViewAllButton />}>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            <StatBlock
+              value={`${event.checkin_guest}/${event.total_guest}`}
+              label="Guests Checked in"
+            />
+            <StatBlock
+              value={`${event.checkin_invitees}/${event.total_invitees}`}
+              label="Invitees Checked in"
+            />
+            <StatBlock
+              value={`${event.total_checkin}/${event.total_registered}`}
+              label="Total Registered"
+            />
+          </div>
+
+          <div className="mt-3 divide-y divide-white/20 overflow-hidden rounded-xl border border-white/60">
+            {event.user_checkin.map((user, index) => (
+              <PersonRow
+                key={user.email ?? index}
+                avatarUrl={avatarUrlFor(user.name, user.image)}
+                name={user.name}
+                email={user.email}
+              >
+                <StatusBadge tone={user.role === 'GUEST' ? 'positive' : 'neutral'}>
+                  {user.role}
+                </StatusBadge>
+                <span className="text-xs text-[#A2A2A2]">
+                  {format(new Date(user.date), 'HH:mm')} WIB
+                </span>
+              </PersonRow>
+            ))}
+          </div>
+        </Section>
+
+        <Section
+          title="Sales Report"
+          action={<ViewAllButton />}
+          description="Track how your tickets are selling-see total sales, tickets sold, and total visitor."
+        >
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            {salesData.map((item) => (
+              <div key={item.label} className="rounded-xl border border-white/60 px-3 py-2.5">
+                <div className="mb-2 flex items-center justify-between text-xs">
+                  <span>{item.label}</span>
+                  <span className="text-[#A2A2A2]">All time</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium lg:text-lg">{String(item.value)}</div>
+                  <div
+                    className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] ${item.color === 'green'
                       ? 'bg-[#31D34F]/15 text-[#31D34F]'
                       : 'bg-[#F94D4D]/15 text-[#F94D4D]'
-                  }`}
-                >
-                  {item.trend === 'up' ? (
-                    <TrendingUp className="h-2 w-2 lg:h-2.5 lg:w-2.5" />
-                  ) : (
-                    <TrendingDown className="h-2 w-2 lg:h-2.5 lg:w-2.5" />
-                  )}
-                  {item.percent}
+                      }`}
+                  >
+                    {item.trend === 'up' ? (
+                      <TrendingUp className="h-2.5 w-2.5" />
+                    ) : (
+                      <TrendingDown className="h-2.5 w-2.5" />
+                    )}
+                    {item.percent}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </Section>
 
-      <div className="mt-5 border-t border-white/40 pt-4">
-        <div className="text-[10px] leading-[10px] font-bold lg:text-sm lg:leading-4">Hosts</div>
-        <p className="mt-2 text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[16px]">Manage your event team and special guests here.</p>
-        <div className="mt-3 space-y-2">
-          {event.hosts.map((host, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between rounded-[4px] border border-white/60  px-2.5 py-2 lg:px-3 lg:py-2.5"
-            >
-              <div className="flex items-center gap-2">
-                <img
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    host.name,
-                  )}&background=random&bold=true`}
-                  alt={host.name}
-                  className="h-[10px] w-[10px] rounded-full object-cover lg:h-6 lg:w-6"
-                />
-                <div className="text-[8px] leading-[10px] lg:text-sm lg:leading-4">{host.name}</div>
-                <div className="text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[14px]">{host.email}</div>
+        <Section title="Hosts" description="Manage your event team and special guests here.">
+          <div className="mt-3 space-y-2">
+            {event.hosts.map((host, index) => (
+              <div
+                key={host.email ?? index}
+                className="rounded-xl border border-white/60 px-3 py-2.5"
+              >
+                <PersonRow avatarUrl={avatarUrlFor(host.name, null, true)} name={host.name} email={host.email}>
+                  <StatusBadge tone="outline">{host.role}</StatusBadge>
+                  {index === 0 && (
+                    <button className="rounded-lg border border-[#212121] bg-[#1C1D1D] px-2 py-1 text-xs">
+                      Add Host +
+                    </button>
+                  )}
+                </PersonRow>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="rounded-full border border-[#00594F] px-2 py-0.5 text-[8px] leading-[10px] lg:text-xs lg:leading-3">
-                  {host.role}
-                </span>
-                {index === 0 && (
-                  <button className="rounded-[4px] border border-[#212121] bg-[#1C1D1D] px-2 py-1 text-[8px] leading-[10px] lg:text-xs lg:leading-3">
-                    Add Host +
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </Section>
 
-      <div className="mt-5 border-t border-white/40 pt-4">
-        <div className="text-[10px] leading-[10px] font-bold lg:text-sm lg:leading-4">Visibility & Discovery</div>
-        <p className="mt-2 text-[8px] leading-[10px] text-[#A2A2A2] lg:text-xs lg:leading-[16px]">
-          Manage how your event appears on search and listings.
-        </p>
-        <div className="mt-3 flex gap-3">
-          <button
-            onClick={() => handleVisibleClick('public')}
-            className={`flex h-[30px] flex-1 items-center justify-center gap-2 rounded-[4px] border text-[8px] leading-[10px] lg:h-10 lg:text-sm lg:leading-4 ${
-              visibility === 'public'
-                ? 'border-[#D9FF1A]  text-white'
-                : 'border-white/60  text-[#A2A2A2]'
-            }`}
-          >
-            <Eye className="h-2.5 w-2.5 lg:h-3.5 lg:w-3.5" />
-            Public
-          </button>
-          <button
-            onClick={() => handleVisibleClick('private')}
-            className={`flex h-[30px] flex-1 items-center justify-center gap-2 rounded-[4px] border text-[8px] leading-[10px] lg:h-10 lg:text-sm lg:leading-4 ${
-              visibility === 'private'
-                ? 'border-[#D9FF1A]  text-white'
-                : 'border-white/60  text-[#A2A2A2]'
-            }`}
-          >
-            <EyeOff className="h-2.5 w-2.5 lg:h-3.5 lg:w-3.5" />
-            Private
-          </button>
-        </div>
-      </div>
+        <Section
+          title="Visibility & Discovery"
+          description="Manage how your event appears on search and listings."
+        >
+          <div className="mt-3 flex gap-3">
+            <VisibilityButton
+              active={visibility === 'public'}
+              icon={<Eye className="h-3.5 w-3.5" />}
+              label="Public"
+              onClick={() => handleVisibleClick('public')}
+            />
+            <VisibilityButton
+              active={visibility === 'private'}
+              icon={<EyeOff className="h-3.5 w-3.5" />}
+              label="Private"
+              onClick={() => handleVisibleClick('private')}
+            />
+          </div>
+        </Section>
       </div>
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
@@ -652,7 +657,6 @@ function OverviewPage({ id, event }) {
                   const croppedImg = await getCroppedImg(rawImage, croppedAreaPixels);
                   setEventImage(croppedImg);
                   const croppedFile = dataURLtoFile(croppedImg, 'event-image.png');
-                  setImageFile(croppedFile);
                   setShowCropper(false);
                   await handleImageUploadDirect(croppedFile);
                 }}
@@ -824,61 +828,12 @@ const DatePickerBox = ({ value, onChange }) => {
     </div>
   ));
 
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-
-  const customDateHeader = ({ date, changeMonth, changeYear }) => (
-    <div className="flex justify-between items-center px-4 py-2 text-white">
-      <select
-        value={getMonth(date)}
-        onChange={({ target: { value } }) => changeMonth(value)}
-        className="bg-[#141717] text-white px-2 py-1 rounded"
-      >
-        {months.map((label, index) => (
-          <option key={label} value={index}>
-            {label}
-          </option>
-        ))}
-      </select>
-
-      <select
-        value={getYear(date)}
-        onChange={({ target: { value } }) => changeYear(value)}
-        className="bg-[#141717] text-white px-2 py-1 rounded"
-      >
-        {Array(30)
-          .fill(0)
-          .map((_, i) => {
-            const year = 2000 + i;
-            return (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            );
-          })}
-      </select>
-    </div>
-  );
-
   return (
     <DatePicker
       selected={value}
       onChange={onChange}
       dateFormat="EEE, MMM d"
       customInput={<CustomDateInput />}
-      // renderCustomHeader={customDateHeader}
       calendarClassName="custom-calendar"
     />
   );

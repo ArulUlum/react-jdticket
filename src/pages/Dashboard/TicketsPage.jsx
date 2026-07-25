@@ -22,6 +22,61 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const urlBe = import.meta.env.VITE_URL_BE;
 
+function ToggleSwitch({ checked, defaultChecked, onChange }) {
+  return (
+    <label className="relative inline-flex items-center cursor-pointer">
+      <input
+        type="checkbox"
+        className="sr-only peer"
+        checked={checked}
+        defaultChecked={defaultChecked}
+        onChange={onChange}
+      />
+      <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
+      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
+    </label>
+  );
+}
+
+function StepperButtons({ onDecrease, onIncrease }) {
+  return (
+    <div className="flex gap-2">
+      <button
+        onClick={onDecrease}
+        className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg hover:bg-[#3d3d3d]"
+      >
+        −
+      </button>
+      <button
+        onClick={onIncrease}
+        className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg hover:bg-[#3d3d3d]"
+      >
+        +
+      </button>
+    </div>
+  );
+}
+
+function ModalIconHeader({ icon, title, subtitle, size = 'md' }) {
+  const isLg = size === 'lg';
+  return (
+    <div className="flex items-center gap-3 mb-4">
+      <div
+        className={`flex items-center justify-center rounded-full ${isLg ? 'h-12 w-12 bg-[#232323]' : 'h-10 w-10 bg-[#2A2A2A]'
+          }`}
+      >
+        {icon}
+      </div>
+      <div>
+        <h2 className={`font-['Satoshi-Bold',_sans-serif] ${isLg ? 'text-2xl' : 'text-xl'}`}>
+          {title}
+        </h2>
+        {subtitle && <p className="text-[#A2A2A2] text-sm">{subtitle}</p>}
+      </div>
+    </div>
+  );
+}
+
 const TicketsPage = ({ id }) => {
   const [data, setData] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -35,7 +90,10 @@ const TicketsPage = ({ id }) => {
   const [ticketDetail, setTicketDetail] = useState(null);
   document.title = 'Ticket Detail - Kebbu';
 
-  // new ticket
+  // new ticket / edit ticket
+  const [editingTicketId, setEditingTicketId] = useState(null);
+  const [accessCode, setAccessCode] = useState('');
+  const [showAccessCodeInput, setShowAccessCodeInput] = useState(false);
   const [ticketName, setTicketName] = useState('');
   const [requireApproval, setRequireApproval] = useState(true);
   const [hideTicket, setHideTicket] = useState(false);
@@ -135,6 +193,9 @@ const TicketsPage = ({ id }) => {
   ];
 
   const resetNewTicketModal = () => {
+    setEditingTicketId(null);
+    setAccessCode('');
+    setShowAccessCodeInput(false);
     setTicketName('');
     setRequireApproval(true);
     setHideTicket(false);
@@ -159,6 +220,43 @@ const TicketsPage = ({ id }) => {
     setIsNewTicketModalOpen(false);
   };
 
+  const openEditTicketModal = () => {
+    const t = ticketDetail;
+    if (!t) return;
+
+    setEditingTicketId(t.id);
+    setTicketName(t.name || '');
+    setRequireApproval(!!t.is_approval);
+    setHideTicket(!!t.hide);
+    setAccessCode(t.access_code || '');
+    setShowAccessCodeInput(!!t.hide && !!t.access_code);
+    setPricingType(Number(t.price) > 0 ? 'Paid' : 'Free');
+    setTicketPrice(String(t.price || 0));
+
+    setShowDescription(!!t.description);
+    setDescription(t.description || '');
+
+    setShowTicketLimit(t.max_capacity !== null && t.max_capacity !== undefined);
+    setTicketLimit(t.max_capacity != null ? String(t.max_capacity) : '');
+
+    const hasSalesDate = !!t.start_date && !!t.end_date;
+    setShowSalesDate(hasSalesDate);
+    if (hasSalesDate) {
+      const s = new Date(t.start_date);
+      const e = new Date(t.end_date);
+      setStartDate(s.toISOString().slice(0, 10));
+      setStartTime(s.toTimeString().slice(0, 5));
+      setEndDate(e.toISOString().slice(0, 10));
+      setEndTime(e.toTimeString().slice(0, 5));
+    }
+
+    setShowBundling(!!t.qty_bundle);
+    setBundleQty(t.qty_bundle || 2);
+
+    closeTicketDetail();
+    setIsNewTicketModalOpen(true);
+  };
+
   const createNewTicket = async () => {
     try {
       const response = await axios.post(
@@ -168,6 +266,7 @@ const TicketsPage = ({ id }) => {
           name: ticketName,
           approval: requireApproval,
           hide: hideTicket,
+          access_code: hideTicket ? accessCode : null,
           pricing_type: pricingType,
           price: pricingType === 'Free' ? 0 : parseInt(ticketPrice.replace(/\D/g, ''), 10),
           description: showDescription ? description : '',
@@ -188,6 +287,46 @@ const TicketsPage = ({ id }) => {
     } catch (error) {
       console.error('Failed to create ticket:', error);
       alert(error?.response?.data?.message || '❌ Failed to create ticket. Please try again.');
+    }
+  };
+
+  const updateTicket = async () => {
+    try {
+      const response = await axios.put(
+        `${urlBe}/ticket/update/${editingTicketId}`,
+        {
+          name: ticketName,
+          approval: requireApproval,
+          hide: hideTicket,
+          access_code: hideTicket ? accessCode : null,
+          pricing_type: pricingType,
+          price: pricingType === 'Free' ? 0 : parseInt(ticketPrice.replace(/\D/g, ''), 10),
+          description: showDescription ? description : '',
+          max_capacity: showTicketLimit ? parseInt(ticketLimit.replace(/\D/g, ''), 10) : null,
+          start_date: showSalesDate ? `${startDate}T${startTime}:00` : null,
+          end_date: showSalesDate ? `${endDate}T${endTime}:00` : null,
+          bundle_qty: showBundling ? bundleQty : null,
+        },
+        {
+          headers: {
+            'x-jdticket': localStorage.getItem('token') || '',
+          },
+        },
+      );
+      console.log('Ticket updated:', response.data);
+      resetNewTicketModal();
+      fetchData(id); // Refresh data after updating ticket
+    } catch (error) {
+      console.error('Failed to update ticket:', error);
+      alert(error?.response?.data?.message || '❌ Failed to update ticket. Please try again.');
+    }
+  };
+
+  const handleTicketSubmit = () => {
+    if (editingTicketId) {
+      updateTicket();
+    } else {
+      createNewTicket();
     }
   };
 
@@ -477,7 +616,11 @@ const TicketsPage = ({ id }) => {
   };
 
   const formatDate = (isoString) => {
-    const date = new Date(isoString).toLocaleDateString('en-GB', {
+    if (!isoString) return '-';
+    const parsedDate = new Date(isoString);
+    if (isNaN(parsedDate.getTime())) return '-';
+
+    const date = parsedDate.toLocaleDateString('en-GB', {
       weekday: 'short',
       day: 'numeric',
       month: 'long',
@@ -486,22 +629,27 @@ const TicketsPage = ({ id }) => {
     const parts = date.split(' ');
     return `${parts[0]}, ${parts[1]} ${parts[2]}`;
   };
-  const formatTime = (isoString) =>
-    new Date(isoString).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+  const formatTime = (isoString) => {
+    if (!isoString) return '-';
+    const parsedDate = new Date(isoString);
+    if (isNaN(parsedDate.getTime())) return '-';
+    return parsedDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <div>
       {/* Summary Cards */}
-      <div className="flex gap-3 justify-between items-center">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div
-          className="bg-[#141717] rounded-xl px-4 py-4 w-full flex-1 cursor-pointer hover:bg-[#1d1f1f] transition"
+          className="bg-[#141717] rounded-xl px-4 py-4 cursor-pointer hover:bg-[#1d1f1f] transition"
           onClick={handleRegistrationModalOpen}
         >
           <div className="flex items-center gap-4">
-            <img src={regis} alt="Registration Icon" className="w-10 h-10 object-contain" />
-            <div>
-              <div className="text-xl font-['Satoshi-Bold',_sans-serif]">Registration</div>
-              <div className="text-sm text-[#A2A2A2]">
+            <img src={regis} alt="Registration Icon" className="w-10 h-10 shrink-0 object-contain" />
+            <div className="min-w-0">
+              <div className="text-xl font-['Satoshi-Bold',_sans-serif] truncate">Registration</div>
+              <div className="text-sm text-[#A2A2A2] truncate">
                 {data?.is_register === true ? 'Open' : 'Closed'}
               </div>
             </div>
@@ -509,14 +657,14 @@ const TicketsPage = ({ id }) => {
         </div>
 
         <div
-          className="bg-[#141717] rounded-xl px-4 py-4 w-full flex-1 cursor-pointer hover:bg-[#1d1f1f] transition"
+          className="bg-[#141717] rounded-xl px-4 py-4 cursor-pointer hover:bg-[#1d1f1f] transition"
           onClick={handleCapacityModalOpen}
         >
           <div className="flex items-center gap-4">
-            <img src={capacity} alt="Capacity Icon" className="w-10 h-10 object-contain" />
-            <div>
-              <div className="text-xl font-['Satoshi-Bold',_sans-serif]">Capacity</div>
-              <div className="text-sm text-[#A2A2A2]">
+            <img src={capacity} alt="Capacity Icon" className="w-10 h-10 shrink-0 object-contain" />
+            <div className="min-w-0">
+              <div className="text-xl font-['Satoshi-Bold',_sans-serif] truncate">Capacity</div>
+              <div className="text-sm text-[#A2A2A2] truncate">
                 {data?.max_capacity === null ? 'Unlimited' : data?.max_capacity}
               </div>
             </div>
@@ -524,15 +672,15 @@ const TicketsPage = ({ id }) => {
         </div>
 
         <div
-          className="bg-[#141717] rounded-xl px-4 py-4 w-full flex-1 cursor-pointer hover:bg-[#1d1f1f] transition"
+          className="bg-[#141717] rounded-xl px-4 py-4 cursor-pointer hover:bg-[#1d1f1f] transition"
           onClick={() => setIsGroupModalOpen(true)}
         >
           <div className="flex items-center gap-4">
-            <img src={grupRegis} alt="Group Booking Icon" className="w-10 h-10 object-contain" />
-            <div>
-              <div className="text-xl font-['Satoshi-Bold',_sans-serif]">Group Booking</div>
-              <div className="text-sm text-[#A2A2A2]">
-                {!event.group_register ? 'off' : event.group_register}
+            <img src={grupRegis} alt="Group Booking Icon" className="w-10 h-10 shrink-0 object-contain" />
+            <div className="min-w-0">
+              <div className="text-xl font-['Satoshi-Bold',_sans-serif] truncate">Group Booking</div>
+              <div className="text-sm text-[#A2A2A2] truncate">
+                {!data?.group_register ? 'off' : data.group_register}
               </div>
             </div>
           </div>
@@ -544,14 +692,12 @@ const TicketsPage = ({ id }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div
             ref={registrationModalRef}
-            className="bg-[#141717] text-white p-6 rounded-xl w-[350px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
+            className="bg-[#141717] text-white p-6 rounded-xl w-[92vw] max-w-[350px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-                <img src={regis} alt="Icon" className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-['Satoshi-Bold',_sans-serif]">Registration</h2>
-            </div>
+            <ModalIconHeader
+              icon={<img src={regis} alt="Icon" className="w-5 h-5" />}
+              title="Registration"
+            />
             <p className="text-sm text-[#A2A2A2] mb-2">
               Turn off registration to stop accepting new attendees, including those with
               invitations.
@@ -563,24 +709,10 @@ const TicketsPage = ({ id }) => {
 
             <div className="flex items-center justify-between mb-6">
               <span className="text-white text-sm">Accept Registration</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={acceptRegistration}
-                  onChange={(e) => setAcceptRegistration(e.target.checked)}
-                />
-                <div
-                  className={`w-11 h-6 rounded-full transition ${
-                    acceptRegistration ? 'bg-green-500' : 'bg-gray-600'
-                  }`}
-                ></div>
-                <div
-                  className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition ${
-                    acceptRegistration ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                ></div>
-              </label>
+              <ToggleSwitch
+                checked={acceptRegistration}
+                onChange={(e) => setAcceptRegistration(e.target.checked)}
+              />
             </div>
 
             <button
@@ -596,14 +728,12 @@ const TicketsPage = ({ id }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div
             ref={capacityModalRef}
-            className="bg-[#141717] text-white p-6 rounded-xl w-[400px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
+            className="bg-[#141717] text-white p-6 rounded-xl w-[92vw] max-w-[400px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-                <img src={capacity} alt="Capacity Icon" className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-['Satoshi-Bold',_sans-serif]">Capacity</h2>
-            </div>
+            <ModalIconHeader
+              icon={<img src={capacity} alt="Capacity Icon" className="w-5 h-5" />}
+              title="Capacity"
+            />
 
             <p className="text-sm text-[#A2A2A2] mb-4">
               Sign-ups will close by themselves when we hit full capacity — but don’t worry, only
@@ -618,29 +748,12 @@ const TicketsPage = ({ id }) => {
                 className="bg-transparent text-white text-sm outline-none flex-1 font-['Satoshi-Medium',_sans-serif]"
                 placeholder="Unlimited"
               />
-              <div className="flex gap-2">
-                <button
-                  onClick={handleCapacityDecrease}
-                  className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg hover:bg-[#3d3d3d]"
-                >
-                  −
-                </button>
-                <button
-                  onClick={handleCapacityIncrease}
-                  className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg hover:bg-[#3d3d3d]"
-                >
-                  +
-                </button>
-              </div>
+              <StepperButtons onDecrease={handleCapacityDecrease} onIncrease={handleCapacityIncrease} />
             </div>
 
             <div className="flex items-center justify-between mb-6">
               <span className="text-white text-sm">Waitlist Enabled After Max Capacity</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" defaultChecked />
-                <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
-                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
-              </label>
+              <ToggleSwitch defaultChecked />
             </div>
 
             <div className="flex gap-3">
@@ -664,14 +777,12 @@ const TicketsPage = ({ id }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div
             ref={groupModalRef}
-            className="bg-[#141717] text-white p-6 rounded-xl w-[400px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
+            className="bg-[#141717] text-white p-6 rounded-xl w-[92vw] max-w-[400px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-                <img src={grupRegis} alt="Group Booking Icon" className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-['Satoshi-Bold',_sans-serif]">Group Booking</h2>
-            </div>
+            <ModalIconHeader
+              icon={<img src={grupRegis} alt="Group Booking Icon" className="w-5 h-5" />}
+              title="Group Booking"
+            />
 
             <p className="text-sm text-[#A2A2A2] mb-4">
               Allow guests to book multiple tickets in one go — perfect for friends or group
@@ -681,16 +792,10 @@ const TicketsPage = ({ id }) => {
             {/* Group Booking Toggle */}
             <div className="flex items-center justify-between mb-4">
               <span className="text-white text-sm">Group Booking</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={groupBookingEnabled}
-                  onChange={() => setGroupBookingEnabled(!groupBookingEnabled)}
-                />
-                <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
-                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
-              </label>
+              <ToggleSwitch
+                checked={groupBookingEnabled}
+                onChange={() => setGroupBookingEnabled(!groupBookingEnabled)}
+              />
             </div>
 
             {/* Qty Limit */}
@@ -704,20 +809,10 @@ const TicketsPage = ({ id }) => {
                   disabled
                   className="bg-transparent text-white text-sm outline-none text-right flex-1 mx-2"
                 />
-                <div className="flex gap-2">
-                  <button
-                    className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                    onClick={() => setTicketQty((prev) => Math.min(prev + 1, 10))}
-                  >
-                    +
-                  </button>
-                  <button
-                    className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                    onClick={() => setTicketQty((prev) => Math.max(prev - 1, 1))}
-                  >
-                    −
-                  </button>
-                </div>
+                <StepperButtons
+                  onDecrease={() => setTicketQty((prev) => Math.max(prev - 1, 1))}
+                  onIncrease={() => setTicketQty((prev) => Math.min(prev + 1, 10))}
+                />
               </div>
             </div>
 
@@ -789,14 +884,12 @@ const TicketsPage = ({ id }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div
             ref={taxModalRef}
-            className="bg-[#141717] text-white p-6 rounded-xl w-[400px] shadow-lg"
+            className="bg-[#141717] text-white p-6 rounded-xl w-[92vw] max-w-[400px] shadow-lg"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-                <img src="/icon/tax-icon.png" alt="Tax Icon" className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-['Satoshi-Bold',_sans-serif]">Tax Fee</h2>
-            </div>
+            <ModalIconHeader
+              icon={<img src="/icon/tax-icon.png" alt="Tax Icon" className="w-5 h-5" />}
+              title="Tax Fee"
+            />
 
             <p className="text-sm text-[#A2A2A2] mb-4">
               Ticket buyers will be charged additional tax.
@@ -820,20 +913,10 @@ const TicketsPage = ({ id }) => {
                 max="100"
                 className="bg-transparent text-white text-sm outline-none text-left flex-1"
               />
-              <div className="flex gap-2">
-                <button
-                  className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                  onClick={() => setTaxPercentage((prev) => Math.max(prev - 1, 0))}
-                >
-                  −
-                </button>
-                <button
-                  className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                  onClick={() => setTaxPercentage((prev) => Math.min(prev + 1, 100))}
-                >
-                  +
-                </button>
-              </div>
+              <StepperButtons
+                onDecrease={() => setTaxPercentage((prev) => Math.max(prev - 1, 0))}
+                onIncrease={() => setTaxPercentage((prev) => Math.min(prev + 1, 100))}
+              />
             </div>
 
             {/* Dropdown */}
@@ -902,7 +985,10 @@ const TicketsPage = ({ id }) => {
                         Need Approval
                       </span>
                     )}
-                    <button className="text-sm text-[#A2A2A2] bg-[#303030] font-['Satoshi-Medium',_sans-serif] px-2 py-1 rounded-md">
+                    <button
+                      onClick={openEditTicketModal}
+                      className="text-sm text-[#A2A2A2] bg-[#303030] font-['Satoshi-Medium',_sans-serif] px-2 py-1 rounded-md hover:bg-[#3A3A3A]"
+                    >
                       ✎ Edit
                     </button>
                   </div>
@@ -917,10 +1003,12 @@ const TicketsPage = ({ id }) => {
                 />
 
                 {/* Ticket Limit */}
-                <div className="flex items-center text-md font-['Satoshi-Medium',_sans-serif] gap-2">
+                <div className="flex items-center text-sm font-['Satoshi-Medium',_sans-serif] gap-2">
                   <ArrowUpToLine className="w-4 h-4" />
                   <label>Ticket Limit:</label>
-                  <span>{ticketDetail.max_capacity ? 'Unlimited' : ticketDetail.max_capacity}</span>
+                  <span>
+                    {ticketDetail.max_capacity === null ? 'Unlimited' : ticketDetail.max_capacity}
+                  </span>
                 </div>
 
                 <hr className="my-3 border-[#333]" />
@@ -930,7 +1018,7 @@ const TicketsPage = ({ id }) => {
                   <label className="text-lg font-['Satoshi-Bold',_sans-serif] block mb-1">
                     Sales Start and Sales End
                   </label>
-                  <div className="space-y-3 text-md mb-4 font-['Satoshi-Medium'] pl-3">
+                  <div className="space-y-3 text-sm mb-4 font-['Satoshi-Medium'] pl-3">
                     {/* Start */}
                     <div className="flex items-start gap-3">
                       <div className="w-12 pt-2">Start</div>
@@ -952,7 +1040,7 @@ const TicketsPage = ({ id }) => {
                         <div className="px-4 py-2 flex-1">{formatDate(ticketDetail.end_date)}</div>
                         <div className="w-[1px] bg-[#333] my-1" />
                         <div className="px-4 py-2 w-[80px] text-right">
-                          {formatTime(ticketDetail.start_date)}
+                          {formatTime(ticketDetail.end_date)}
                         </div>
                       </div>
                     </div>
@@ -1003,11 +1091,10 @@ const TicketsPage = ({ id }) => {
                         <div className="text-xs text-[#A2A2A2]">{guest.email}</div>
                       </div>
                       <span
-                        className={`text-xs px-2 py-0.5 rounded-full ${
-                          guest.status === 'Going'
-                            ? 'bg-[#31D34F]/10 text-[#31D34F]'
-                            : 'bg-[#F2AB27]/10 text-[#F2AB27]'
-                        }`}
+                        className={`text-xs px-2 py-0.5 rounded-full ${guest.status === 'Going'
+                          ? 'bg-[#31D34F]/10 text-[#31D34F]'
+                          : 'bg-[#F2AB27]/10 text-[#F2AB27]'
+                          }`}
                       >
                         {guest.status ? guest.status : 'PENDING'}
                       </span>
@@ -1023,14 +1110,12 @@ const TicketsPage = ({ id }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div
             ref={newTicketModalRef}
-            className="bg-[#141717] text-white rounded-xl shadow-lg w-[420px] max-h-[90vh] overflow-y-auto p-6"
+            className="bg-[#141717] text-white rounded-xl shadow-lg w-[92vw] max-w-[420px] max-h-[90vh] overflow-y-auto p-6"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-                <img src="/icon/ticket-icon.png" alt="Ticket Icon" className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-['Satoshi-Bold',_sans-serif]">Ticket Category</h2>
-            </div>
+            <ModalIconHeader
+              icon={<img src="/icon/ticket-icon.png" alt="Ticket Icon" className="w-5 h-5" />}
+              title="Ticket Category"
+            />
 
             {/* Ticket Name */}
             <label className="text-sm block mb-1">Ticket Name</label>
@@ -1086,20 +1171,10 @@ const TicketsPage = ({ id }) => {
                       className="bg-transparent text-white text-sm outline-none flex-1"
                       placeholder="Unlimited"
                     />
-                    <div className="flex gap-2">
-                      <button
-                        className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                        onClick={() => setTicketLimit((prev) => Math.max((+prev || 0) - 1, 1))}
-                      >
-                        −
-                      </button>
-                      <button
-                        className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                        onClick={() => setTicketLimit((prev) => (+prev || 0) + 1)}
-                      >
-                        +
-                      </button>
-                    </div>
+                    <StepperButtons
+                      onDecrease={() => setTicketLimit((prev) => Math.max((+prev || 0) - 1, 1))}
+                      onIncrease={() => setTicketLimit((prev) => (+prev || 0) + 1)}
+                    />
                   </div>
                 </div>
               )}
@@ -1173,20 +1248,10 @@ const TicketsPage = ({ id }) => {
                       disabled
                       className="bg-transparent text-white text-sm outline-none text-right flex-1 mx-2"
                     />
-                    <div className="flex gap-2">
-                      <button
-                        className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                        onClick={() => setBundleQty((prev) => Math.max(prev - 1, 2))}
-                      >
-                        −
-                      </button>
-                      <button
-                        className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                        onClick={() => setBundleQty((prev) => prev + 1)}
-                      >
-                        +
-                      </button>
-                    </div>
+                    <StepperButtons
+                      onDecrease={() => setBundleQty((prev) => Math.max(prev - 1, 2))}
+                      onIncrease={() => setBundleQty((prev) => prev + 1)}
+                    />
                   </div>
                 </div>
               )}
@@ -1195,16 +1260,10 @@ const TicketsPage = ({ id }) => {
             {/* Switches */}
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm">Require Approval</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={requireApproval}
-                  onChange={() => setRequireApproval(!requireApproval)}
-                />
-                <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
-                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
-              </label>
+              <ToggleSwitch
+                checked={requireApproval}
+                onChange={() => setRequireApproval(!requireApproval)}
+              />
             </div>
 
             <div className="flex items-center justify-between mb-5">
@@ -1215,17 +1274,30 @@ const TicketsPage = ({ id }) => {
                   type.
                 </div>
               </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={hideTicket}
-                  onChange={() => setHideTicket(!hideTicket)}
-                />
-                <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
-                <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
-              </label>
+              <ToggleSwitch checked={hideTicket} onChange={() => setHideTicket(!hideTicket)} />
             </div>
+
+            {hideTicket && (
+              <div className="mb-5">
+                {showAccessCodeInput ? (
+                  <input
+                    type="text"
+                    value={accessCode}
+                    onChange={(e) => setAccessCode(e.target.value)}
+                    placeholder="Enter Access Code"
+                    autoFocus
+                    className="w-full bg-transparent border border-[#2fbab1] text-[#2fbab1] text-center px-3 py-2 rounded-lg outline-none placeholder:text-[#2fbab1]/60"
+                  />
+                ) : (
+                  <button
+                    onClick={() => setShowAccessCodeInput(true)}
+                    className="w-full py-2 rounded-lg border border-[#2fbab1] text-[#2fbab1] font-['Satoshi-Bold',_sans-serif] hover:bg-[#2fbab1]/10"
+                  >
+                    Enter Access Code
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Pricing Switch */}
             <div className="text-sm mb-6">
@@ -1261,12 +1333,9 @@ const TicketsPage = ({ id }) => {
 
             <button
               className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif]"
-              onClick={() => {
-                // Save ticket logic here
-                createNewTicket();
-              }}
+              onClick={handleTicketSubmit}
             >
-              Create Ticket
+              {editingTicketId ? 'Update Ticket' : 'Create Ticket'}
             </button>
           </div>
         </div>
@@ -1294,64 +1363,65 @@ const TicketsPage = ({ id }) => {
         <p className="text-[#A2A2A2] mb-4">Create coupons that can be applied to this event.</p>
 
         {data?.list_promo && data.list_promo.length > 0 ? (
-          <div className="bg-[#141717] border border-[#212121] rounded-xl overflow-hidden font-['Satoshi-Medium',_sans-serif]">
-            {/* HEADER TABLE */}
-            <div className="grid grid-cols-[2fr,2fr,2fr,2fr,1.5fr] px-4 py-3 text-xs uppercase tracking-wide text-[#7C7C7C]">
-              <div>Code</div>
-              <div>Discount</div>
-              <div>Applies To</div>
-              <div>Used</div>
-              <div className="text-right">Status</div>
-            </div>
+          <div className="bg-[#141717] border border-[#212121] rounded-xl overflow-x-auto font-['Satoshi-Medium',_sans-serif]">
+            <div className="min-w-[640px]">
+              {/* HEADER TABLE */}
+              <div className="grid grid-cols-[2fr,2fr,2fr,2fr,1.5fr] px-4 py-3 text-xs uppercase tracking-wide text-[#7C7C7C]">
+                <div>Code</div>
+                <div>Discount</div>
+                <div>Applies To</div>
+                <div>Used</div>
+                <div className="text-right">Status</div>
+              </div>
 
-            {/* ROWS */}
-            <div className="divide-y divide-[#212121]">
-              {data.list_promo.map((promo, idx) => {
-                const discountLabel =
-                  promo.type === 'Amount'
-                    ? `Rp ${promo.price.toLocaleString('id-ID')}`
-                    : `${promo.price}%`;
+              {/* ROWS */}
+              <div className="divide-y divide-[#212121]">
+                {data.list_promo.map((promo, idx) => {
+                  const discountLabel =
+                    promo.type === 'Amount'
+                      ? `Rp ${promo.price.toLocaleString('id-ID')}`
+                      : `${promo.price}%`;
 
-                const appliesToLabel = promo.apply_all ? 'All Ticket' : 'Selected Ticket';
+                  const appliesToLabel = promo.apply_all ? 'All Ticket' : 'Selected Ticket';
 
-                const usedCount = promo.used_promo; // sesuaikan dengan field di BE
-                const maxCapacity = promo.max_capacity ?? '∞'; // sesuaikan dengan field di BE
+                  const usedCount = promo.used_promo; // sesuaikan dengan field di BE
+                  const maxCapacity = promo.max_capacity ?? '∞'; // sesuaikan dengan field di BE
 
-                const isActive = promo.is_active; // sesuaikan dengan field boolean status
+                  const isActive = promo.is_active; // sesuaikan dengan field boolean status
 
-                return (
-                  <div
-                    key={idx}
-                    className="grid grid-cols-[2fr,2fr,2fr,2fr,1.5fr] px-4 py-3 text-sm items-center hover:bg-[#1b1d1d] transition cursor-pointer"
-                  >
-                    {/* CODE */}
-                    <div className="text-[#2AD4C8] text-sm">{promo.code}</div>
+                  return (
+                    <div
+                      key={idx}
+                      className="grid grid-cols-[2fr,2fr,2fr,2fr,1.5fr] px-4 py-3 text-sm items-center hover:bg-[#1b1d1d] transition cursor-pointer"
+                    >
+                      {/* CODE */}
+                      <div className="text-[#2AD4C8] text-sm">{promo.code}</div>
 
-                    {/* DISCOUNT */}
-                    <div className="text-white">{discountLabel}</div>
+                      {/* DISCOUNT */}
+                      <div className="text-white">{discountLabel}</div>
 
-                    {/* APPLIES TO */}
-                    <div className="text-white">{appliesToLabel}</div>
+                      {/* APPLIES TO */}
+                      <div className="text-white">{appliesToLabel}</div>
 
-                    {/* USED */}
-                    <div className="text-white">
-                      {usedCount}/{maxCapacity}
+                      {/* USED */}
+                      <div className="text-white">
+                        {usedCount}/{maxCapacity}
+                      </div>
+
+                      {/* STATUS */}
+                      <div className="flex justify-end">
+                        <button
+                          className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${isActive ? 'bg-[#0f2c1e] text-[#4ADE80]' : 'bg-[#301515] text-[#FB7185]'
+                            }`}
+                        >
+                          <span>{isActive ? 'ON' : 'OFF'}</span>
+                          <ChevronDown className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-
-                    {/* STATUS */}
-                    <div className="flex justify-end">
-                      <button
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${
-                          isActive ? 'bg-[#0f2c1e] text-[#4ADE80]' : 'bg-[#301515] text-[#FB7185]'
-                        }`}
-                      >
-                        <span>{isActive ? 'ON' : 'OFF'}</span>
-                        <ChevronDown className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
         ) : (
@@ -1395,8 +1465,8 @@ const TicketsPage = ({ id }) => {
               item.label === 'Pending Approval'
                 ? data?.email_pending
                 : item.label === 'Going'
-                ? data?.email_going
-                : data?.email_decline;
+                  ? data?.email_going
+                  : data?.email_decline;
 
             return (
               <div
@@ -1432,24 +1502,20 @@ const TicketsPage = ({ id }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div
             ref={emailModalRef}
-            className="bg-[#141717] text-white p-6 rounded-xl w-[350px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
+            className="bg-[#141717] text-white p-6 rounded-xl w-[92vw] max-w-[350px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-                <img src={regis} alt="Icon" className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-['Satoshi-Bold',_sans-serif]">
-                {emailStatus}
-              </h2>
-            </div>
+            <ModalIconHeader
+              icon={<img src={regis} alt="Icon" className="w-5 h-5" />}
+              title={emailStatus}
+            />
 
             <p className="text-sm text-[#A2A2A2] mb-2">
               {/* description based on status */}
               {emailStatus === 'Pending Approval'
                 ? 'Sent when a guest registers (pending approval or waitlist)'
                 : emailStatus === 'Going'
-                ? 'Sent when a guest registers or is approved'
-                : 'Sent when a guest is declined'}
+                  ? 'Sent when a guest registers or is approved'
+                  : 'Sent when a guest is declined'}
             </p>
 
             <p className="text-sm text-[#A2A2A2] mb-4">
@@ -1485,14 +1551,12 @@ const TicketsPage = ({ id }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
           <div
             ref={promoModalRef}
-            className="bg-[#141717] text-white p-6 rounded-xl w-[380px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
+            className="bg-[#141717] text-white p-6 rounded-xl w-[92vw] max-w-[380px] shadow-lg font-['Satoshi-Regular',_sans-serif]"
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-[#2A2A2A] rounded-full flex items-center justify-center">
-                <img src={promo} alt="Promo Icon" className="w-5 h-5" />
-              </div>
-              <h2 className="text-xl font-['Satoshi-Bold',_sans-serif]">Promo Code</h2>
-            </div>
+            <ModalIconHeader
+              icon={<img src={promo} alt="Promo Icon" className="w-5 h-5" />}
+              title="Promo Code"
+            />
 
             <p className="text-sm text-[#A2A2A2] mb-4">
               Create a promo code that can be applied to your tickets.
@@ -1511,20 +1575,10 @@ const TicketsPage = ({ id }) => {
 
             <div className="flex items-center justify-between mb-3">
               <span className="text-white text-sm">Limited Uses</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="sr-only peer"
-                  checked={limitedUsesEnabled}
-                  onChange={() => setLimitedUsesEnabled((v) => !v)}
-                />
-                <div
-                  className={`w-11 h-6 rounded-full transition ${limitedUsesEnabled ? 'bg-green-500' : 'bg-gray-600'}`}
-                ></div>
-                <div
-                  className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition ${limitedUsesEnabled ? 'translate-x-5' : 'translate-x-0'}`}
-                ></div>
-              </label>
+              <ToggleSwitch
+                checked={limitedUsesEnabled}
+                onChange={() => setLimitedUsesEnabled((v) => !v)}
+              />
             </div>
 
             {limitedUsesEnabled && (
@@ -1532,20 +1586,10 @@ const TicketsPage = ({ id }) => {
                 <span className="text-sm text-white">Total Uses</span>
                 <div className="flex items-center gap-2">
                   <div className="bg-[#222] text-white px-3 py-1 rounded-md">{totalUses}</div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setTotalUses((prev) => Math.max(prev - 1, 1))}
-                      className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                    >
-                      −
-                    </button>
-                    <button
-                      onClick={() => setTotalUses((prev) => prev + 1)}
-                      className="text-white bg-[#2d2d2d] rounded px-2 py-1 text-lg"
-                    >
-                      +
-                    </button>
-                  </div>
+                  <StepperButtons
+                    onDecrease={() => setTotalUses((prev) => Math.max(prev - 1, 1))}
+                    onIncrease={() => setTotalUses((prev) => prev + 1)}
+                  />
                 </div>
               </div>
             )}
@@ -1664,22 +1708,22 @@ const TicketsPage = ({ id }) => {
             </span>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <div className="bg-[#141717] w-full border border-[#212121] text-white px-4 py-2 rounded-md flex items-center gap-2">
-              <UserRound className="w-4 h-4 text-[#A2A2A2]" />
-              <span>Full Name</span>
-              <span className="text-[#A2A2A2] text-xs ml-auto">Required</span>
+              <UserRound className="w-4 h-4 shrink-0 text-[#A2A2A2]" />
+              <span className="truncate">Full Name</span>
+              <span className="text-[#A2A2A2] text-xs ml-auto shrink-0">Required</span>
             </div>
             <div className="bg-[#141717] w-full border border-[#212121] text-white px-4 py-2 rounded-md flex items-center gap-2">
-              <Mail className="w-4 h-4 text-[#A2A2A2]" />
-              <span>Email</span>
-              <span className="text-[#A2A2A2] text-xs ml-auto">Required</span>
+              <Mail className="w-4 h-4 shrink-0 text-[#A2A2A2]" />
+              <span className="truncate">Email</span>
+              <span className="text-[#A2A2A2] text-xs ml-auto shrink-0">Required</span>
             </div>
             <div className="bg-[#141717] w-full border border-[#212121] text-white px-4 py-2 rounded-md flex items-center gap-2">
-              <Phone className="w-4 h-4 text-[#A2A2A2]" />
-              <span>Phone Number</span>
-              <span className="text-[#A2A2A2] text-xs ml-auto">Required</span>
-              <ChevronsUpDown className="w-4 h-4 text-[#A2A2A2]" />
+              <Phone className="w-4 h-4 shrink-0 text-[#A2A2A2]" />
+              <span className="truncate">Phone Number</span>
+              <span className="text-[#A2A2A2] text-xs ml-auto shrink-0">Required</span>
+              <ChevronsUpDown className="w-4 h-4 shrink-0 text-[#A2A2A2]" />
             </div>
           </div>
         </div>
@@ -1691,35 +1735,35 @@ const TicketsPage = ({ id }) => {
             <span className="font-['Satoshi-Bold',_sans-serif] text-white">Custom Question</span>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:items-center">
             <div
               className="border border-dashed border-[#3F3F3F] w-full text-white px-4 py-2 rounded-md flex items-center gap-2 cursor-pointer hover:border-[#AAAAAA]"
               onClick={() => setShowAddTextModal(true)}
             >
               <span
-                className="italic text-[#A2A2A2] text-base"
+                className="italic text-[#A2A2A2] text-base shrink-0"
                 style={{ fontFamily: 'Times New Roman' }}
               >
                 T
               </span>
-              <span>Text</span>
-              <span className="ml-auto">+</span>
+              <span className="truncate">Text</span>
+              <span className="ml-auto shrink-0">+</span>
             </div>
             <div
               className="border border-dashed border-[#3F3F3F] w-full text-white px-4 py-2 rounded-md flex items-center gap-2 cursor-pointer hover:border-[#AAAAAA]"
               onClick={() => setShowAddOptionsModal(true)}
             >
-              <CircleDot className="w-3 h-3 text-[#A2A2A2]" />
-              <span>Options</span>
-              <span className="ml-auto">+</span>
+              <CircleDot className="w-3 h-3 shrink-0 text-[#A2A2A2]" />
+              <span className="truncate">Options</span>
+              <span className="ml-auto shrink-0">+</span>
             </div>
             <div
               className="border border-dashed border-[#3F3F3F] w-full text-white px-4 py-2 rounded-md flex items-center gap-2 cursor-pointer hover:border-[#AAAAAA]"
               onClick={() => setShowAddCheckboxModal(true)}
             >
-              <CheckSquare2 className="w-3 h-3 text-[#A2A2A2]" />
-              <span>Checkbox</span>
-              <span className="ml-auto">+</span>
+              <CheckSquare2 className="w-3 h-3 shrink-0 text-[#A2A2A2]" />
+              <span className="truncate">Checkbox</span>
+              <span className="ml-auto shrink-0">+</span>
             </div>
             <div
               className="border border-dashed border-[#3F3F3F] w-full text-white px-4 py-2 rounded-md flex items-center gap-2 cursor-pointer hover:border-[#AAAAAA]"
@@ -1734,22 +1778,21 @@ const TicketsPage = ({ id }) => {
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
                 <div
                   ref={AddTextRef}
-                  className="bg-[#181818] text-white p-8 rounded-2xl w-[370px] shadow-lg relative font-['Satoshi-Regular',_sans-serif]"
+                  className="bg-[#181818] text-white p-6 sm:p-8 rounded-2xl w-[92vw] max-w-[370px] shadow-lg relative font-['Satoshi-Regular',_sans-serif]"
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-[#232323] rounded-full flex items-center justify-center">
+                  <ModalIconHeader
+                    size="lg"
+                    icon={
                       <span
                         className="text-3xl italic text-white"
                         style={{ fontFamily: 'Times New Roman' }}
                       >
                         T
                       </span>
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-['Satoshi-Bold',_sans-serif]">Add Text</h2>
-                      <p className="text-[#A2A2A2] text-sm">Ask for a free-form response.</p>
-                    </div>
-                  </div>
+                    }
+                    title="Add Text"
+                    subtitle="Ask for a free-form response."
+                  />
                   <div className="mb-4">
                     <label className="block text-white text-sm mb-1">Question</label>
                     <input
@@ -1762,16 +1805,10 @@ const TicketsPage = ({ id }) => {
                   </div>
                   <div className="flex items-center justify-between mb-6">
                     <span className="text-white text-sm">Required</span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={textRequired}
-                        onChange={() => setTextRequired((v) => !v)}
-                      />
-                      <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
-                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
-                    </label>
+                    <ToggleSwitch
+                      checked={textRequired}
+                      onChange={() => setTextRequired((v) => !v)}
+                    />
                   </div>
                   <button
                     className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif] text-lg"
@@ -1791,19 +1828,14 @@ const TicketsPage = ({ id }) => {
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
                 <div
                   ref={AddOptionsRef}
-                  className="bg-[#181818] text-white p-8 rounded-2xl w-[420px] shadow-lg relative font-['Satoshi-Regular',_sans-serif]"
+                  className="bg-[#181818] text-white p-6 sm:p-8 rounded-2xl w-[92vw] max-w-[420px] shadow-lg relative font-['Satoshi-Regular',_sans-serif]"
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-[#232323] rounded-full flex items-center justify-center">
-                      <CircleDot className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-['Satoshi-Bold',_sans-serif]">Add Options</h2>
-                      <p className="text-[#A2A2A2] text-sm">
-                        Let guests choose one option from the list below.
-                      </p>
-                    </div>
-                  </div>
+                  <ModalIconHeader
+                    size="lg"
+                    icon={<CircleDot className="w-7 h-7 text-white" />}
+                    title="Add Options"
+                    subtitle="Let guests choose one option from the list below."
+                  />
                   <div className="mb-4">
                     <label className="block text-white text-sm mb-1">Question</label>
                     <input
@@ -1854,16 +1886,10 @@ const TicketsPage = ({ id }) => {
                   </div>
                   <div className="flex items-center justify-between mb-6">
                     <span className="text-white text-sm">Required</span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={optionsRequired}
-                        onChange={() => setOptionsRequired((v) => !v)}
-                      />
-                      <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
-                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
-                    </label>
+                    <ToggleSwitch
+                      checked={optionsRequired}
+                      onChange={() => setOptionsRequired((v) => !v)}
+                    />
                   </div>
                   <button
                     className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif] text-lg"
@@ -1885,19 +1911,14 @@ const TicketsPage = ({ id }) => {
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
                 <div
                   ref={AddCheckboxRef}
-                  className="bg-[#181818] text-white p-8 rounded-2xl w-[420px] shadow-lg relative font-['Satoshi-Regular',_sans-serif]"
+                  className="bg-[#181818] text-white p-6 sm:p-8 rounded-2xl w-[92vw] max-w-[420px] shadow-lg relative font-['Satoshi-Regular',_sans-serif]"
                 >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 bg-[#232323] rounded-full flex items-center justify-center">
-                      <CheckSquare2 className="w-7 h-7 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-['Satoshi-Bold',_sans-serif]">Add Checkbox</h2>
-                      <p className="text-[#A2A2A2] text-sm">
-                        Let guests choose one or more options from the list below.
-                      </p>
-                    </div>
-                  </div>
+                  <ModalIconHeader
+                    size="lg"
+                    icon={<CheckSquare2 className="w-7 h-7 text-white" />}
+                    title="Add Checkbox"
+                    subtitle="Let guests choose one or more options from the list below."
+                  />
                   <div className="mb-4">
                     <label className="block text-white text-sm mb-1">Question</label>
                     <input
@@ -1950,16 +1971,10 @@ const TicketsPage = ({ id }) => {
                   </div>
                   <div className="flex items-center justify-between mb-6">
                     <span className="text-white text-sm">Required</span>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        checked={checkboxRequired}
-                        onChange={() => setCheckboxRequired((v) => !v)}
-                      />
-                      <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-green-500 transition"></div>
-                      <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
-                    </label>
+                    <ToggleSwitch
+                      checked={checkboxRequired}
+                      onChange={() => setCheckboxRequired((v) => !v)}
+                    />
                   </div>
                   <button
                     className="w-full py-2 rounded-lg bg-white text-black font-['Satoshi-Bold',_sans-serif] text-lg"
